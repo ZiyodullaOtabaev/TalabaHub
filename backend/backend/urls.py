@@ -22,4 +22,5 @@ urlpatterns = [
     path("api/goals/", include("goals.urls")),
     path("api/focus/", include("focus.urls")),
     path("api/board/", include("board.urls")),
+    path("api/assistant/", include("assistant.urls")),
 ]

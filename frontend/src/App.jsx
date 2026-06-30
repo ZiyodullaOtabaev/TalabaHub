@@ -16,6 +16,7 @@ import Assistant from "./pages/Assistant.jsx";
 import Board from "./pages/Board.jsx";
 import Leaderboard from "./pages/Leaderboard.jsx";
 import Notifications from "./pages/Notifications.jsx";
+import AdminPanel from "./pages/AdminPanel.jsx";
 // oddiy protect
 function Protected({ children }) {
   const access = localStorage.getItem("access");
@@ -100,6 +101,7 @@ export default function App() {
       <Route path="/board" element={<P><Board /></P>} />
       <Route path="/leaderboard" element={<P><Leaderboard /></P>} />
       <Route path="/notifications" element={<P><Notifications /></P>} />
+      <Route path="/admin-panel" element={<P><AdminPanel /></P>} />
 
       <Route path="*" element={<Navigate to="/dashboard" replace />} />
     </Routes>
