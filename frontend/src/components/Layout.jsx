@@ -166,6 +166,7 @@ export default function Layout({ children }) {
         ["/assistant", t.navAssistant],
         ["/board", t.navBoard],
         ["/leaderboard", t.navLeaderboard],
+        ...(me?.is_superuser ? [["/admin-panel", t.navAdmin]] : []),
     ];
 
     useEffect(() => {
@@ -457,6 +458,9 @@ export default function Layout({ children }) {
                             <NavItem to="/notifications" onClick={() => setMobileOpen(false)}>
                                 {t.navNotifications}{notifCount > 0 ? ` (${notifCount})` : ""}
                             </NavItem>
+                            {me?.is_superuser && (
+                                <NavItem to="/admin-panel" onClick={() => setMobileOpen(false)}>{t.navAdmin}</NavItem>
+                            )}
 
                             <div className={cn("mt-2 rounded-2xl border p-3",
                                 isDark ? "border-gray-800" : "border-gray-200"

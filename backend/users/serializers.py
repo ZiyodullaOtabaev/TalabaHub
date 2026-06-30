@@ -40,4 +40,28 @@ class RegisterSerializer(serializers.ModelSerializer):
 class ProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ("id", "username", "email", "university", "is_premium", "date_joined")
+        fields = (
+            "id",
+            "username",
+            "email",
+            "university",
+            "is_premium",
+            "is_staff",
+            "is_superuser",
+            "date_joined",
+        )
+
+
+class AdminUserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = (
+            "id",
+            "username",
+            "email",
+            "university",
+            "is_premium",
+            "is_staff",
+            "is_superuser",
+            "date_joined",
+        )

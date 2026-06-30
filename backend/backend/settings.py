@@ -62,6 +62,7 @@ INSTALLED_APPS = [
     "goals",
     "focus",
     "board",
+    "assistant",
 ]
 
 MIDDLEWARE = [
@@ -163,3 +164,9 @@ SIMPLE_JWT = {
 
 
 AUTH_USER_MODEL = "users.User"
+
+# AI yordamchi (OpenAI-mos API: OpenAI, Groq, OpenRouter va h.k.)
+# Kalit bo'lmasa AI suhbat ishlamaydi (faqat reja generatori ishlaydi).
+AI_API_KEY = env("AI_API_KEY", default="")
+AI_BASE_URL = env("AI_BASE_URL", default="https://api.openai.com/v1")
+AI_MODEL = env("AI_MODEL", default="gpt-4o-mini")
