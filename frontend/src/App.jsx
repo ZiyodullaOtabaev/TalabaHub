@@ -6,6 +6,7 @@ import Login from "./pages/Login.jsx";
 import Register from "./pages/Register.jsx";
 import Dashboard from "./pages/Dashboard.jsx";
 import GPA from "./pages/GPA.jsx";
+import Profile from "./pages/Profile.jsx";
 // oddiy protect
 function Protected({ children }) {
   const access = localStorage.getItem("access");
@@ -48,6 +49,16 @@ export default function App() {
           <Protected>
             <Layout>
               <GPA />
+            </Layout>
+          </Protected>
+        }
+      />
+      <Route
+        path="/profile"
+        element={
+          <Protected>
+            <Layout>
+              <Profile />
             </Layout>
           </Protected>
         }
