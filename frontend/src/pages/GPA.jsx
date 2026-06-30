@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import api from "../api";
 import { Plus, Trash2, RotateCw, GraduationCap, BarChart3 } from "lucide-react";
+import { useLang } from "../i18n/LanguageProvider";
 
 function clamp(n, min, max) {
     return Math.min(max, Math.max(min, n));
@@ -45,6 +46,8 @@ function GpaBar({ value }) {
 }
 
 export default function GPA() {
+    const { t } = useLang();
+
     const [loading, setLoading] = useState(true);
 
     const [gpa, setGpa] = useState({ gpa: 0 });
@@ -103,8 +106,8 @@ export default function GPA() {
             {/* Header */}
             <div className="flex items-start justify-between gap-4">
                 <div>
-                    <h1 className="text-3xl font-extrabold tracking-tight">GPA Calculator</h1>
-                    <p className="mt-1 text-gray-600">Fanlarni qo‘shib GPA hisoblang</p>
+                    <h1 className="text-3xl font-extrabold tracking-tight">{t.gpaCalculator}</h1>
+                    <p className="mt-1 text-gray-600">{t.gpaCalcSub}</p>
                 </div>
 
                 <button
@@ -112,7 +115,7 @@ export default function GPA() {
                     className="inline-flex items-center gap-2 rounded-xl border px-4 py-2 text-sm font-semibold hover:bg-gray-50"
                 >
                     <RotateCw size={16} />
-                    Refresh
+                    {t.refresh}
                 </button>
             </div>
 
@@ -122,20 +125,20 @@ export default function GPA() {
                 <div className="rounded-2xl border bg-white p-5 shadow-sm">
                     <div className="flex items-center gap-2">
                         <GraduationCap size={18} className="text-yellow-600" />
-                        <h2 className="text-lg font-bold">Add Subject</h2>
+                        <h2 className="text-lg font-bold">{t.addSubject}</h2>
                     </div>
 
                     <form onSubmit={addSubject} className="mt-4 space-y-3">
                         <input
                             className="w-full rounded-xl border px-4 py-3 outline-none focus:ring-2 focus:ring-blue-200"
-                            placeholder="Subject name"
+                            placeholder={t.subjectNamePlaceholder}
                             value={name}
                             onChange={(e) => setName(e.target.value)}
                         />
 
                         <input
                             className="w-full rounded-xl border px-4 py-3 outline-none focus:ring-2 focus:ring-blue-200"
-                            placeholder="Credit"
+                            placeholder={t.creditPlaceholder}
                             value={credit}
                             onChange={(e) => setCredit(e.target.value)}
                             inputMode="numeric"
@@ -162,7 +165,7 @@ export default function GPA() {
                             ].join(" ")}
                         >
                             <Plus size={18} />
-                            Add Subject
+                            {t.addSubject}
                         </button>
                     </form>
                 </div>
@@ -172,20 +175,20 @@ export default function GPA() {
                     <div className="flex items-center justify-between">
                         <div className="flex items-center gap-2">
                             <BarChart3 size={18} className="text-blue-600" />
-                            <h2 className="text-lg font-bold">Your GPA</h2>
+                            <h2 className="text-lg font-bold">{t.yourGpa}</h2>
                         </div>
-                        <div className="text-xs text-gray-500">Shkala: 0.00 — 5.00</div>
+                        <div className="text-xs text-gray-500">{t.scaleLabel}: 0.00 — 5.00</div>
                     </div>
 
                     <div className="mt-4 flex items-end gap-4">
                         <div className="text-5xl font-extrabold">{formatGpa(gpa?.gpa)}</div>
-                        <div className="pb-1 text-gray-600">Umumiy GPA</div>
+                        <div className="pb-1 text-gray-600">{t.overallGpa}</div>
                     </div>
 
                     <GpaBar value={gpa?.gpa} />
 
                     {loading && (
-                        <div className="mt-4 text-sm text-gray-500">Yuklanmoqda...</div>
+                        <div className="mt-4 text-sm text-gray-500">{t.loading}</div>
                     )}
                 </div>
             </div>
@@ -193,14 +196,14 @@ export default function GPA() {
             {/* Subjects list */}
             <div className="rounded-2xl border bg-white p-5 shadow-sm">
                 <div className="flex items-center justify-between">
-                    <h2 className="text-lg font-bold">Subjects</h2>
-                    <div className="text-sm text-gray-500">{subjects.length} ta</div>
+                    <h2 className="text-lg font-bold">{t.subjectsTitle}</h2>
+                    <div className="text-sm text-gray-500">{subjects.length} {t.countSuffix}</div>
                 </div>
 
                 <div className="mt-4 space-y-3">
                     {subjects.length === 0 ? (
                         <div className="rounded-xl border border-dashed p-6 text-center text-gray-500">
-                            Hozircha fan yo‘q. Birinchisini qo‘shing ✅
+                            {t.noSubjects}
                         </div>
                     ) : (
                         subjects.map((s) => (
@@ -211,7 +214,7 @@ export default function GPA() {
                                 <div>
                                     <div className="font-semibold">{s.name}</div>
                                     <div className="text-sm text-gray-500">
-                                        Kredit: {s.credit} | Baho: {GRADE_LABELS[s.grade] || s.grade}
+                                        {t.creditLabel}: {s.credit} | {t.gradeLabel}: {GRADE_LABELS[s.grade] || s.grade}
                                     </div>
                                 </div>
 

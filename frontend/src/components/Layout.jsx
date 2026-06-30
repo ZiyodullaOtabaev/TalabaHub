@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { NavLink, useLocation, useNavigate } from "react-router-dom";
 import {
     Sun,
@@ -11,6 +11,7 @@ import {
     User2,
 } from "lucide-react";
 import api from "../api";
+import { useLang } from "../i18n/LanguageProvider";
 
 function cn(...xs) {
     return xs.filter(Boolean).join(" ");
@@ -30,57 +31,6 @@ function useOutsideClick(ref, handler) {
         };
     }, [ref, handler]);
 }
-
-const I18N = {
-    uz: {
-        brandSub: "Talabalar paneli",
-        dashboard: "Dashboard",
-        gpa: "GPA",
-        planner: "Planner",
-        profile: "Profil",
-        logout: "Chiqish",
-        themeLight: "Yorug‘",
-        themeDark: "Qorong‘i",
-        chooseLangTitle: "Tilni tanlang",
-        chooseLangDesc: "TalabaHub tilini xohlaganingizcha o‘zgartiring.",
-        langUz: "O‘zbek",
-        langEn: "Ingliz",
-        langRu: "Rus",
-        close: "Yopish",
-    },
-    en: {
-        brandSub: "Student dashboard",
-        dashboard: "Dashboard",
-        gpa: "GPA",
-        planner: "Planner",
-        profile: "Profile",
-        logout: "Logout",
-        themeLight: "Light",
-        themeDark: "Dark",
-        chooseLangTitle: "Choose language",
-        chooseLangDesc: "You can change the language anytime.",
-        langUz: "Uzbek",
-        langEn: "English",
-        langRu: "Russian",
-        close: "Close",
-    },
-    ru: {
-        brandSub: "Панель студента",
-        dashboard: "Панель",
-        gpa: "GPA",
-        planner: "Планер",
-        profile: "Профиль",
-        logout: "Выйти",
-        themeLight: "Светлая",
-        themeDark: "Тёмная",
-        chooseLangTitle: "Выберите язык",
-        chooseLangDesc: "Язык можно изменить в любой момент.",
-        langUz: "Узбекский",
-        langEn: "Английский",
-        langRu: "Русский",
-        close: "Закрыть",
-    },
-};
 
 function NavItem({ to, children, onClick }) {
     return (
@@ -132,8 +82,8 @@ function LanguageModal({ open, onClose, onPick, t }) {
             <div className="relative w-[92%] max-w-md rounded-3xl bg-white shadow-xl border p-5">
                 <div className="flex items-start justify-between gap-3">
                     <div>
-                        <div className="text-lg font-extrabold">{t.chooseLangTitle}</div>
-                        <div className="text-sm text-gray-600 mt-1">{t.chooseLangDesc}</div>
+                        <div className="text-lg font-extrabold">{t.chooseLanguage}</div>
+                        <div className="text-sm text-gray-600 mt-1">{t.chooseLanguageDesc}</div>
                     </div>
                     <button
                         type="button"
@@ -180,14 +130,10 @@ export default function Layout({ children }) {
     const [theme, setTheme] = useState(() => localStorage.getItem("theme") || "light");
     const isDark = theme === "dark";
 
-    // Language
-    const [lang, setLang] = useState(() => localStorage.getItem("lang") || "");
-    const [langModalOpen, setLangModalOpen] = useState(false);
+    const { t, lang, setLang, hasChosenLang, markChosen } = useLang();
 
-    const t = useMemo(() => {
-        const key = lang || "uz";
-        return I18N[key] || I18N.uz;
-    }, [lang]);
+    // Language modal
+    const [langModalOpen, setLangModalOpen] = useState(false);
 
     // Menus
     const [mobileOpen, setMobileOpen] = useState(false);
@@ -212,11 +158,10 @@ export default function Layout({ children }) {
 
     useEffect(() => {
         // first dashboard open => ask language
-        if (location.pathname === "/dashboard") {
-            const saved = localStorage.getItem("lang");
-            if (!saved) setLangModalOpen(true);
+        if (location.pathname === "/dashboard" && !hasChosenLang) {
+            setLangModalOpen(true);
         }
-    }, [location.pathname]);
+    }, [location.pathname, hasChosenLang]);
 
     useEffect(() => {
         setMobileOpen(false);
@@ -242,8 +187,8 @@ export default function Layout({ children }) {
     }
 
     function pickLang(code) {
-        localStorage.setItem("lang", code);
         setLang(code);
+        markChosen();
         setLangModalOpen(false);
     }
 
@@ -286,9 +231,9 @@ export default function Layout({ children }) {
 
                     {/* Desktop nav */}
                     <nav className="hidden md:flex items-center gap-2">
-                        <NavItem to="/dashboard">{t.dashboard}</NavItem>
-                        <NavItem to="/gpa">{t.gpa}</NavItem>
-                        <NavItem to="/planner">{t.planner}</NavItem>
+                        <NavItem to="/dashboard">{t.navDashboard}</NavItem>
+                        <NavItem to="/gpa">{t.navGpa}</NavItem>
+                        <NavItem to="/planner">{t.navPlanner}</NavItem>
 
                         {/* Language menu */}
                         <div className="relative ml-2" ref={langRef}>
@@ -378,7 +323,7 @@ export default function Layout({ children }) {
                                         onClick={() => navigate("/profile")}
                                     >
                                         <User2 size={16} />
-                                        {t.profile}
+                                        {t.navProfile}
                                     </button>
                                     <button
                                         className={cn("w-full text-left px-4 py-2 text-sm font-semibold flex items-center gap-2",
@@ -419,9 +364,9 @@ export default function Layout({ children }) {
                 {mobileOpen && (
                     <div className={cn("md:hidden border-t", isDark ? "border-gray-800 bg-gray-950" : "border-gray-200 bg-white")}>
                         <div className="max-w-6xl mx-auto px-4 py-3 flex flex-col gap-2">
-                            <NavItem to="/dashboard" onClick={() => setMobileOpen(false)}>{t.dashboard}</NavItem>
-                            <NavItem to="/gpa" onClick={() => setMobileOpen(false)}>{t.gpa}</NavItem>
-                            <NavItem to="/planner" onClick={() => setMobileOpen(false)}>{t.planner}</NavItem>
+                            <NavItem to="/dashboard" onClick={() => setMobileOpen(false)}>{t.navDashboard}</NavItem>
+                            <NavItem to="/gpa" onClick={() => setMobileOpen(false)}>{t.navGpa}</NavItem>
+                            <NavItem to="/planner" onClick={() => setMobileOpen(false)}>{t.navPlanner}</NavItem>
 
                             <div className={cn("mt-2 rounded-2xl border p-3",
                                 isDark ? "border-gray-800" : "border-gray-200"
@@ -445,7 +390,7 @@ export default function Layout({ children }) {
                                         )}
                                         onClick={() => navigate("/profile")}
                                     >
-                                        {t.profile}
+                                        {t.navProfile}
                                     </button>
                                     <button
                                         className="px-3 py-2 rounded-xl bg-red-600 text-white font-semibold hover:opacity-95"

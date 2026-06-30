@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react"
 import api from "../api"
+import { useLang } from "../i18n/LanguageProvider"
 
 import {
     PlusCircle,
@@ -14,6 +15,8 @@ import ModernCalendar from "../components/ModernCalendar"
 import ExamCountdown from "../components/ExamCountdown"
 
 export default function Dashboard() {
+
+    const { t: tr } = useLang()
 
     const [loading, setLoading] = useState(true)
 
@@ -138,6 +141,12 @@ export default function Dashboard() {
 
     }
 
+    const priorityLabel = {
+        low: tr.priorityLow,
+        medium: tr.priorityMedium,
+        high: tr.priorityHigh
+    }
+
     return (
 
         <div className="space-y-6">
@@ -154,11 +163,11 @@ export default function Dashboard() {
                 <div>
 
                     <h1 className="text-3xl font-bold">
-                        Dashboard
+                        {tr.dashboardTitle}
                     </h1>
 
                     <p className="text-slate-500 dark:text-slate-400">
-                        GPA va tasklaringizni boshqaring
+                        {tr.dashboardSub}
                     </p>
 
                 </div>
@@ -169,7 +178,7 @@ export default function Dashboard() {
                 >
 
                     <RefreshCw size={18} />
-                    Refresh
+                    {tr.refresh}
 
                 </button>
 
@@ -199,7 +208,7 @@ export default function Dashboard() {
                         <input
                             value={subjectName}
                             onChange={e => setSubjectName(e.target.value)}
-                            placeholder="Subject"
+                            placeholder={tr.subjectPlaceholder}
                             className="w-full h-[44px] px-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 focus:ring-2 focus:ring-indigo-500"
                         />
 
@@ -207,7 +216,7 @@ export default function Dashboard() {
                             value={credit}
                             onChange={e => setCredit(e.target.value)}
                             type="number"
-                            placeholder="Credit"
+                            placeholder={tr.creditPlaceholder}
                             className="w-full h-[44px] px-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 focus:ring-2 focus:ring-indigo-500"
                         />
 
@@ -229,7 +238,7 @@ export default function Dashboard() {
                         >
 
                             <PlusCircle size={18} />
-                            Add Subject
+                            {tr.addSubject}
 
                         </button>
 
@@ -246,7 +255,7 @@ export default function Dashboard() {
                         <div className="flex gap-2 font-bold">
 
                             <ClipboardList size={18} />
-                            Tasks
+                            {tr.tasks}
 
                         </div>
 
@@ -261,7 +270,7 @@ export default function Dashboard() {
                         <input
                             value={taskTitle}
                             onChange={e => setTaskTitle(e.target.value)}
-                            placeholder="Task title"
+                            placeholder={tr.taskTitlePlaceholder}
                             className="w-full h-[44px] px-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 focus:ring-2 focus:ring-indigo-500"
                         />
 
@@ -280,9 +289,9 @@ export default function Dashboard() {
                                 className="h-[44px] px-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900"
                             >
 
-                                <option value="low">Low</option>
-                                <option value="medium">Medium</option>
-                                <option value="high">High</option>
+                                <option value="low">{tr.priorityLow}</option>
+                                <option value="medium">{tr.priorityMedium}</option>
+                                <option value="high">{tr.priorityHigh}</option>
 
                             </select>
 
@@ -291,7 +300,7 @@ export default function Dashboard() {
                             >
 
                                 <PlusCircle size={18} />
-                                Add
+                                {tr.addTask}
 
                             </button>
 
@@ -310,7 +319,7 @@ export default function Dashboard() {
                                 </div>
 
                                 <div className="font-semibold">
-                                    Sizda bugun bo'sh vaqt bor!
+                                    {tr.freeTimeToday}
                                 </div>
 
                             </div>
@@ -341,7 +350,7 @@ export default function Dashboard() {
                                 </div>
 
                                 <span className={`px-3 py-1 rounded-full text-xs font-semibold ${priorityColor[t.priority]}`}>
-                                    {t.priority}
+                                    {priorityLabel[t.priority] || t.priority}
                                 </span>
 
                             </div>
@@ -357,23 +366,23 @@ export default function Dashboard() {
                 <div className="col-span-1 rounded-2xl p-6 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-card">
 
                     <div className="font-bold">
-                        Statistics
+                        {tr.statistics}
                     </div>
 
                     <div className="space-y-2 mt-3 text-sm">
 
                         <div className="flex justify-between">
-                            <span>Total</span>
+                            <span>{tr.total}</span>
                             <span>{stats.total}</span>
                         </div>
 
                         <div className="flex justify-between">
-                            <span>Completed</span>
+                            <span>{tr.completed}</span>
                             <span>{stats.done}</span>
                         </div>
 
                         <div className="flex justify-between">
-                            <span>Pending</span>
+                            <span>{tr.pending}</span>
                             <span>{stats.pending}</span>
                         </div>
 
@@ -382,7 +391,7 @@ export default function Dashboard() {
                     <div className="mt-5">
 
                         <div className="font-bold mb-2">
-                            Upcoming
+                            {tr.upcoming}
                         </div>
 
                         {upcoming.map(t => (
@@ -412,7 +421,7 @@ export default function Dashboard() {
             <div className="grid md:grid-cols-2 gap-6">
 
                 <GpaProgress gpa={gpa?.gpa} />
-                <ExamCountdown date="2026-07-01" />
+                <ExamCountdown />
 
             </div>
 
