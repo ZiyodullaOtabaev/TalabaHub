@@ -3,7 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 import api from "../api";
 import { useLang } from "../i18n/LanguageProvider";
-import { User, Lock, ArrowRight } from "lucide-react";
+import { User, Lock, ArrowRight, Eye, EyeOff } from "lucide-react";
 
 export default function Login() {
     const nav = useNavigate();
@@ -11,6 +11,7 @@ export default function Login() {
 
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
+    const [showPwd, setShowPwd] = useState(false);
     const [loading, setLoading] = useState(false);
 
     async function submit(e) {
@@ -46,7 +47,7 @@ export default function Login() {
                         <label className="text-sm font-semibold">{t.username}</label>
                         <div className="mt-1 flex items-center gap-2 border border-slate-300 rounded-xl px-3 py-2">
                             <User size={18} className="text-slate-400" />
-                            <input className="w-full outline-none text-sm" value={username} onChange={(e) => setUsername(e.target.value)} placeholder={t.username} />
+                            <input className="w-full outline-none text-sm bg-transparent" value={username} onChange={(e) => setUsername(e.target.value)} placeholder={t.username} />
                         </div>
                     </div>
 
@@ -54,7 +55,22 @@ export default function Login() {
                         <label className="text-sm font-semibold">{t.password}</label>
                         <div className="mt-1 flex items-center gap-2 border border-slate-300 rounded-xl px-3 py-2">
                             <Lock size={18} className="text-slate-400" />
-                            <input className="w-full outline-none text-sm" type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="********" />
+                            <input
+                                className="w-full outline-none text-sm bg-transparent"
+                                type={showPwd ? "text" : "password"}
+                                value={password}
+                                onChange={(e) => setPassword(e.target.value)}
+                                placeholder="********"
+                            />
+                            <button
+                                type="button"
+                                onClick={() => setShowPwd((v) => !v)}
+                                className="text-slate-400 hover:text-slate-600 transition"
+                                title={showPwd ? "Hide" : "Show"}
+                                tabIndex={-1}
+                            >
+                                {showPwd ? <EyeOff size={18} /> : <Eye size={18} />}
+                            </button>
                         </div>
                     </div>
 

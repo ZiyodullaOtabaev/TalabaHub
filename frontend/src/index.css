@@ -2,18 +2,242 @@
 @tailwind components;
 @tailwind utilities;
 
+/* =========================================================
+   TalabaHub design tokens
+   ========================================================= */
+:root {
+  --bg: #f1f5f9;
+  --surface: #ffffff;
+  --surface-2: #f8fafc;
+  --surface-3: #f1f5f9;
+  --border: #e2e8f0;
+  --text: #0f172a;
+  --text-muted: #64748b;
+  --accent: #4f46e5;
+  --accent-hover: #4338ca;
+}
+
+.dark {
+  --bg: #0a0f1c;
+  --surface: #131b2e;
+  --surface-2: #0f1626;
+  --surface-3: #1c273f;
+  --border: rgba(148, 163, 184, 0.14);
+  --text: #e6edf6;
+  --text-muted: #93a4bd;
+  --accent: #6366f1;
+  --accent-hover: #818cf8;
+}
+
+html,
 body {
   @apply font-sans;
+  background-color: var(--bg);
+  color: var(--text);
 }
-
-/* Light mode */
 
 body {
-  background: #f8fafc;
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
-/* Dark mode */
-
+/* Subtle modern glow only in dark mode */
 .dark body {
-  background: #0f172a;
+  background-image:
+    radial-gradient(900px 500px at 85% -8%, rgba(99, 102, 241, 0.14), transparent 60%),
+    radial-gradient(700px 500px at 0% 100%, rgba(56, 189, 248, 0.08), transparent 55%);
+  background-attachment: fixed;
+}
+
+/* =========================================================
+   Reusable components
+   ========================================================= */
+@layer components {
+  .th-shell {
+    @apply min-h-screen;
+    background-color: var(--bg);
+    color: var(--text);
+  }
+
+  .th-surface {
+    @apply rounded-2xl border shadow-sm;
+    background-color: var(--surface);
+    border-color: var(--border);
+  }
+
+  .th-card {
+    @apply rounded-2xl border p-5 shadow-sm;
+    background-color: var(--surface);
+    border-color: var(--border);
+  }
+
+  .th-input {
+    @apply w-full rounded-xl border px-3 py-2 outline-none transition;
+    background-color: var(--surface-2);
+    border-color: var(--border);
+    color: var(--text);
+  }
+  .th-input::placeholder {
+    color: var(--text-muted);
+  }
+  .th-input:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.25);
+  }
+
+  .th-btn-blue {
+    @apply inline-flex items-center justify-center gap-2 rounded-xl px-4 py-3 font-bold text-white transition disabled:opacity-60 disabled:cursor-not-allowed;
+    background-color: var(--accent);
+  }
+  .th-btn-blue:hover:not(:disabled) {
+    background-color: var(--accent-hover);
+  }
+}
+
+/* =========================================================
+   Dark-mode retrofit for existing light-only utilities
+   (so every page adapts without per-component edits)
+   ========================================================= */
+.dark .bg-white {
+  background-color: var(--surface) !important;
+}
+.dark .bg-gray-50,
+.dark .bg-slate-50 {
+  background-color: var(--surface-2) !important;
+}
+.dark .bg-gray-100,
+.dark .bg-slate-100 {
+  background-color: var(--surface-3) !important;
+}
+.dark .bg-gray-200,
+.dark .bg-slate-200 {
+  background-color: rgba(148, 163, 184, 0.18) !important;
+}
+.dark .bg-slate-800,
+.dark .bg-slate-900,
+.dark .bg-gray-900,
+.dark .bg-gray-950 {
+  background-color: var(--surface) !important;
+}
+
+.dark .border,
+.dark .border-gray-100,
+.dark .border-gray-200,
+.dark .border-gray-300,
+.dark .border-slate-100,
+.dark .border-slate-200,
+.dark .border-slate-300,
+.dark .border-slate-700 {
+  border-color: var(--border) !important;
+}
+
+.dark .text-black,
+.dark .text-gray-900,
+.dark .text-slate-900 {
+  color: var(--text) !important;
+}
+.dark .text-gray-600,
+.dark .text-gray-700,
+.dark .text-gray-800,
+.dark .text-slate-600,
+.dark .text-slate-700,
+.dark .text-slate-800 {
+  color: #c7d2e1 !important;
+}
+.dark .text-gray-400,
+.dark .text-gray-500,
+.dark .text-slate-400,
+.dark .text-slate-500 {
+  color: var(--text-muted) !important;
+}
+
+.dark .hover\:bg-gray-50:hover,
+.dark .hover\:bg-slate-50:hover {
+  background-color: rgba(148, 163, 184, 0.08) !important;
+}
+.dark .hover\:bg-gray-100:hover {
+  background-color: rgba(148, 163, 184, 0.12) !important;
+}
+.dark .shadow,
+.dark .shadow-sm,
+.dark .shadow-card,
+.dark .shadow-xl {
+  box-shadow: 0 8px 24px -12px rgba(0, 0, 0, 0.6) !important;
+}
+
+/* =========================================================
+   react-big-calendar dark theme
+   ========================================================= */
+.dark .rbc-calendar {
+  color: var(--text);
+}
+.dark .rbc-month-view,
+.dark .rbc-time-view,
+.dark .rbc-agenda-view,
+.dark .rbc-time-header,
+.dark .rbc-time-content {
+  background-color: var(--surface);
+  border-color: var(--border) !important;
+}
+.dark .rbc-header,
+.dark .rbc-day-bg + .rbc-day-bg,
+.dark .rbc-month-row + .rbc-month-row,
+.dark .rbc-header + .rbc-header,
+.dark .rbc-time-header-content,
+.dark .rbc-timeslot-group,
+.dark .rbc-time-slot,
+.dark .rbc-day-slot {
+  border-color: var(--border) !important;
+}
+.dark .rbc-off-range-bg {
+  background-color: rgba(148, 163, 184, 0.06) !important;
+}
+.dark .rbc-off-range {
+  color: var(--text-muted) !important;
+}
+.dark .rbc-today {
+  background-color: rgba(99, 102, 241, 0.16) !important;
+}
+.dark .rbc-date-cell,
+.dark .rbc-header {
+  color: var(--text) !important;
+}
+.dark .rbc-toolbar .rbc-toolbar-label {
+  color: var(--text);
+}
+.dark .rbc-toolbar button {
+  color: var(--text);
+  border-color: var(--border) !important;
+  background-color: transparent;
+}
+.dark .rbc-toolbar button:hover,
+.dark .rbc-toolbar button:focus {
+  background-color: rgba(148, 163, 184, 0.12) !important;
+  color: var(--text) !important;
+}
+.dark .rbc-toolbar button.rbc-active,
+.dark .rbc-toolbar button.rbc-active:hover,
+.dark .rbc-toolbar button.rbc-active:focus {
+  background-color: var(--accent) !important;
+  color: #fff !important;
+  border-color: var(--accent) !important;
+}
+.dark .rbc-event {
+  background-color: var(--accent) !important;
+}
+.dark .rbc-show-more {
+  background-color: transparent !important;
+  color: var(--accent-hover) !important;
+}
+
+/* Custom scrollbar (dark) */
+.dark ::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+.dark ::-webkit-scrollbar-thumb {
+  background-color: rgba(148, 163, 184, 0.25);
+  border-radius: 9999px;
+}
+.dark ::-webkit-scrollbar-track {
+  background-color: transparent;
 }

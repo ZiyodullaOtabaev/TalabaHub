@@ -12,6 +12,7 @@ import {
 } from "lucide-react";
 import api from "../api";
 import { useLang } from "../i18n/LanguageProvider";
+import { useTheme } from "./ThemeProvider";
 
 function cn(...xs) {
     return xs.filter(Boolean).join(" ");
@@ -59,8 +60,8 @@ function ChipButton({ children, onClick, title, className }) {
             onClick={onClick}
             title={title}
             className={cn(
-                "inline-flex items-center gap-2 px-3 py-2 rounded-xl text-sm font-semibold border",
-                "bg-white hover:bg-gray-50 transition",
+                "inline-flex items-center gap-2 px-3 py-2 rounded-xl text-sm font-semibold border transition",
+                "bg-[color:var(--surface)] hover:bg-[color:var(--surface-3)]",
                 className
             )}
         >
@@ -126,8 +127,8 @@ export default function Layout({ children }) {
     const navigate = useNavigate();
     const location = useLocation();
 
-    // Theme (hozircha ishlaydi)
-    const [theme, setTheme] = useState(() => localStorage.getItem("theme") || "light");
+    // Theme (markaziy ThemeProvider orqali)
+    const { theme, toggleTheme } = useTheme();
     const isDark = theme === "dark";
 
     const { t, lang, setLang, hasChosenLang, markChosen } = useLang();
@@ -147,14 +148,6 @@ export default function Layout({ children }) {
 
     // User
     const [me, setMe] = useState(null);
-
-    useEffect(() => {
-        // theme apply to html
-        const root = document.documentElement;
-        if (theme === "dark") root.classList.add("dark");
-        else root.classList.remove("dark");
-        localStorage.setItem("theme", theme);
-    }, [theme]);
 
     useEffect(() => {
         // first dashboard open => ask language
@@ -234,6 +227,7 @@ export default function Layout({ children }) {
                         <NavItem to="/dashboard">{t.navDashboard}</NavItem>
                         <NavItem to="/gpa">{t.navGpa}</NavItem>
                         <NavItem to="/planner">{t.navPlanner}</NavItem>
+                        <NavItem to="/chat">{t.navChat}</NavItem>
 
                         {/* Language menu */}
                         <div className="relative ml-2" ref={langRef}>
@@ -274,7 +268,7 @@ export default function Layout({ children }) {
 
                         {/* Theme toggle */}
                         <ChipButton
-                            onClick={() => setTheme((x) => (x === "dark" ? "light" : "dark"))}
+                            onClick={toggleTheme}
                             title="Theme"
                             className={cn(
                                 "ml-2",
@@ -343,7 +337,7 @@ export default function Layout({ children }) {
                     {/* Mobile buttons */}
                     <div className="md:hidden flex items-center gap-2">
                         <ChipButton
-                            onClick={() => setTheme((x) => (x === "dark" ? "light" : "dark"))}
+                            onClick={toggleTheme}
                             title="Theme"
                             className={cn(isDark ? "border-gray-800 bg-gray-950 hover:bg-gray-900 text-white" : "border-gray-200")}
                         >
@@ -367,6 +361,7 @@ export default function Layout({ children }) {
                             <NavItem to="/dashboard" onClick={() => setMobileOpen(false)}>{t.navDashboard}</NavItem>
                             <NavItem to="/gpa" onClick={() => setMobileOpen(false)}>{t.navGpa}</NavItem>
                             <NavItem to="/planner" onClick={() => setMobileOpen(false)}>{t.navPlanner}</NavItem>
+                            <NavItem to="/chat" onClick={() => setMobileOpen(false)}>{t.navChat}</NavItem>
 
                             <div className={cn("mt-2 rounded-2xl border p-3",
                                 isDark ? "border-gray-800" : "border-gray-200"
