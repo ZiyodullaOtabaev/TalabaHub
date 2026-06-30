@@ -1,0 +1,19 @@
+# Python / Django
+venv/
+__pycache__/
+*.pyc
+db.sqlite3
+*.sqlite3
+.env
+
+# Node / Vite
+node_modules/
+frontend/dist/
+dist/
+
+# IDE / OS
+.idea/
+.DS_Store
+
+# Keraksiz
+npx
