@@ -1,7 +1,24 @@
 import { useState } from "react"
 import { useNavigate } from "react-router-dom"
+import toast from "react-hot-toast"
 import api from "../api"
 import { User, Mail, Lock, GraduationCap } from "lucide-react"
+
+// Backend xato javobidan (DRF) birinchi tushunarli xabarni ajratib olish
+function extractApiError(err) {
+    const data = err?.response?.data
+    if (!data) return "Tarmoq xatosi. Internetni tekshiring."
+    if (typeof data === "string") return data
+    if (data.detail) return data.detail
+    // Maydon xatolari: { username: ["..."], password: ["..."] }
+    const firstKey = Object.keys(data)[0]
+    if (firstKey) {
+        const val = data[firstKey]
+        const msg = Array.isArray(val) ? val[0] : val
+        return `${firstKey}: ${msg}`
+    }
+    return "Ro'yxatdan o'tishda xatolik yuz berdi."
+}
 
 export default function Register() {
 
@@ -12,29 +29,42 @@ export default function Register() {
     const [password, setPassword] = useState("")
     const [password2, setPassword2] = useState("")
     const [university, setUniversity] = useState("")
+    const [loading, setLoading] = useState(false)
 
     async function register(e) {
 
         e.preventDefault()
 
         if (password !== password2) {
-
-            alert("Passwords do not match")
+            toast.error("Parollar mos kelmadi")
             return
-
         }
 
-        await api.post("/api/users/register/", {
+        if (password.length < 8) {
+            toast.error("Parol kamida 8 ta belgidan iborat bo'lishi kerak")
+            return
+        }
 
-            username,
-            email,
-            password,
-            university
+        setLoading(true)
+        const tid = toast.loading("Hisob yaratilmoqda...")
 
-        })
+        try {
+            await api.post("/api/users/register/", {
+                username,
+                email,
+                password,
+                university,
+            })
 
-        navigate("/login")
-
+            toast.dismiss(tid)
+            toast.success("Hisob yaratildi ✅ Endi kiring")
+            navigate("/login")
+        } catch (err) {
+            toast.dismiss(tid)
+            toast.error(extractApiError(err))
+        } finally {
+            setLoading(false)
+        }
     }
 
     return (
@@ -178,8 +208,11 @@ export default function Register() {
 
                     </div>
 
-                    <button className="w-full h-[44px] bg-indigo-600 text-white rounded-xl hover:scale-105 transition">
-                        Hisob yaratish
+                    <button
+                        disabled={loading}
+                        className="w-full h-[44px] bg-indigo-600 text-white rounded-xl hover:scale-105 transition disabled:opacity-60 disabled:hover:scale-100"
+                    >
+                        {loading ? "Yaratilmoqda..." : "Hisob yaratish"}
                     </button>
 
                 </form>
