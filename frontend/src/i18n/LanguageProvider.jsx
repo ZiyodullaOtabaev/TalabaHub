@@ -98,6 +98,28 @@ const DICT = {
         scaleLabel: "Shkala",
         examCountdown: "Imtihongacha",
         examStarted: "Imtihon boshlandi",
+
+        // Navigation
+        navChat: "Chat",
+
+        // Calendar
+        plannerCalendar: "Planner kalendari",
+        taskCalendar: "Vazifalar kalendari",
+        calToday: "Bugun",
+        calBack: "Orqaga",
+        calNext: "Keyingi",
+        calMonth: "Oy",
+        calWeek: "Hafta",
+        calDay: "Kun",
+        calAgenda: "Reja",
+
+        // Chat
+        chatTitle: "Umumiy chat",
+        chatSub: "Barcha talabalar bilan ta'lim haqida suhbatlashing",
+        chatPlaceholder: "Xabar yozing...",
+        chatSend: "Yuborish",
+        chatEmpty: "Hali xabarlar yo'q. Birinchi bo'lib yozing!",
+        chatLoading: "Yuklanmoqda...",
     },
     en: {
         langName: "English",
@@ -194,6 +216,28 @@ const DICT = {
         scaleLabel: "Scale",
         examCountdown: "Exam Countdown",
         examStarted: "Exam started",
+
+        // Navigation
+        navChat: "Chat",
+
+        // Calendar
+        plannerCalendar: "Planner Calendar",
+        taskCalendar: "Task Calendar",
+        calToday: "Today",
+        calBack: "Back",
+        calNext: "Next",
+        calMonth: "Month",
+        calWeek: "Week",
+        calDay: "Day",
+        calAgenda: "Agenda",
+
+        // Chat
+        chatTitle: "Community Chat",
+        chatSub: "Chat with all students about your studies",
+        chatPlaceholder: "Type a message...",
+        chatSend: "Send",
+        chatEmpty: "No messages yet. Be the first to write!",
+        chatLoading: "Loading...",
     },
     ru: {
         langName: "Русский",
@@ -290,6 +334,28 @@ const DICT = {
         scaleLabel: "Шкала",
         examCountdown: "До экзамена",
         examStarted: "Экзамен начался",
+
+        // Navigation
+        navChat: "Чат",
+
+        // Calendar
+        plannerCalendar: "Календарь планера",
+        taskCalendar: "Календарь задач",
+        calToday: "Сегодня",
+        calBack: "Назад",
+        calNext: "Вперёд",
+        calMonth: "Месяц",
+        calWeek: "Неделя",
+        calDay: "День",
+        calAgenda: "Список",
+
+        // Chat
+        chatTitle: "Общий чат",
+        chatSub: "Общайтесь со всеми студентами об учёбе",
+        chatPlaceholder: "Напишите сообщение...",
+        chatSend: "Отправить",
+        chatEmpty: "Сообщений пока нет. Будьте первым!",
+        chatLoading: "Загрузка...",
     },
 };
 

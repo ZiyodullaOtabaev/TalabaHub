@@ -7,6 +7,7 @@ import Register from "./pages/Register.jsx";
 import Dashboard from "./pages/Dashboard.jsx";
 import GPA from "./pages/GPA.jsx";
 import Profile from "./pages/Profile.jsx";
+import Chat from "./pages/Chat.jsx";
 // oddiy protect
 function Protected({ children }) {
   const access = localStorage.getItem("access");
@@ -59,6 +60,16 @@ export default function App() {
           <Protected>
             <Layout>
               <Profile />
+            </Layout>
+          </Protected>
+        }
+      />
+      <Route
+        path="/chat"
+        element={
+          <Protected>
+            <Layout>
+              <Chat />
             </Layout>
           </Protected>
         }
