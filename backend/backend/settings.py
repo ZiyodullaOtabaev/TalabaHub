@@ -57,6 +57,11 @@ INSTALLED_APPS = [
     "gpa",
     "planner",
     "chat",
+    "timetable",
+    "resources",
+    "goals",
+    "focus",
+    "board",
 ]
 
 MIDDLEWARE = [

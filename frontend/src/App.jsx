@@ -8,11 +8,28 @@ import Dashboard from "./pages/Dashboard.jsx";
 import GPA from "./pages/GPA.jsx";
 import Profile from "./pages/Profile.jsx";
 import Chat from "./pages/Chat.jsx";
+import Timetable from "./pages/Timetable.jsx";
+import Resources from "./pages/Resources.jsx";
+import Goals from "./pages/Goals.jsx";
+import Focus from "./pages/Focus.jsx";
+import Assistant from "./pages/Assistant.jsx";
+import Board from "./pages/Board.jsx";
+import Leaderboard from "./pages/Leaderboard.jsx";
+import Notifications from "./pages/Notifications.jsx";
 // oddiy protect
 function Protected({ children }) {
   const access = localStorage.getItem("access");
   if (!access) return <Navigate to="/login" replace />;
   return children;
+}
+
+// Har bir himoyalangan sahifa uchun qisqartma
+function P({ children }) {
+  return (
+    <Protected>
+      <Layout>{children}</Layout>
+    </Protected>
+  );
 }
 
 export default function App() {
@@ -74,6 +91,15 @@ export default function App() {
           </Protected>
         }
       />
+
+      <Route path="/timetable" element={<P><Timetable /></P>} />
+      <Route path="/resources" element={<P><Resources /></P>} />
+      <Route path="/goals" element={<P><Goals /></P>} />
+      <Route path="/focus" element={<P><Focus /></P>} />
+      <Route path="/assistant" element={<P><Assistant /></P>} />
+      <Route path="/board" element={<P><Board /></P>} />
+      <Route path="/leaderboard" element={<P><Leaderboard /></P>} />
+      <Route path="/notifications" element={<P><Notifications /></P>} />
 
       <Route path="*" element={<Navigate to="/dashboard" replace />} />
     </Routes>

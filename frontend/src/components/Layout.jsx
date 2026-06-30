@@ -9,10 +9,13 @@ import {
     Languages,
     LogOut,
     User2,
+    Bell,
+    LayoutGrid,
 } from "lucide-react";
 import api from "../api";
 import { useLang } from "../i18n/LanguageProvider";
 import { useTheme } from "./ThemeProvider";
+import { computeNotifications } from "../lib/notifications";
 
 function cn(...xs) {
     return xs.filter(Boolean).join(" ");
@@ -140,14 +143,30 @@ export default function Layout({ children }) {
     const [mobileOpen, setMobileOpen] = useState(false);
     const [userMenuOpen, setUserMenuOpen] = useState(false);
     const [langMenuOpen, setLangMenuOpen] = useState(false);
+    const [moreMenuOpen, setMoreMenuOpen] = useState(false);
 
     const userRef = useRef(null);
     const langRef = useRef(null);
+    const moreRef = useRef(null);
     useOutsideClick(userRef, () => setUserMenuOpen(false));
     useOutsideClick(langRef, () => setLangMenuOpen(false));
+    useOutsideClick(moreRef, () => setMoreMenuOpen(false));
 
     // User
     const [me, setMe] = useState(null);
+
+    // Bildirishnomalar soni (vazifalardan)
+    const [notifCount, setNotifCount] = useState(0);
+
+    const secondaryLinks = [
+        ["/timetable", t.navTimetable],
+        ["/resources", t.navResources],
+        ["/goals", t.navGoals],
+        ["/focus", t.navFocus],
+        ["/assistant", t.navAssistant],
+        ["/board", t.navBoard],
+        ["/leaderboard", t.navLeaderboard],
+    ];
 
     useEffect(() => {
         // first dashboard open => ask language
@@ -160,6 +179,7 @@ export default function Layout({ children }) {
         setMobileOpen(false);
         setUserMenuOpen(false);
         setLangMenuOpen(false);
+        setMoreMenuOpen(false);
     }, [location.pathname]);
 
     useEffect(() => {
@@ -172,6 +192,20 @@ export default function Layout({ children }) {
             }
         })();
     }, []);
+
+    useEffect(() => {
+        async function loadNotif() {
+            try {
+                const res = await api.get("/api/planner/tasks/");
+                setNotifCount(computeNotifications(res.data || []).count);
+            } catch {
+                // ignore
+            }
+        }
+        loadNotif();
+        const id = setInterval(loadNotif, 60000);
+        return () => clearInterval(id);
+    }, [location.pathname]);
 
     function logout() {
         localStorage.removeItem("access");
@@ -229,6 +263,58 @@ export default function Layout({ children }) {
                         <NavItem to="/planner">{t.navPlanner}</NavItem>
                         <NavItem to="/chat">{t.navChat}</NavItem>
 
+                        {/* More dropdown */}
+                        <div className="relative" ref={moreRef}>
+                            <ChipButton
+                                onClick={() => setMoreMenuOpen((v) => !v)}
+                                title={t.moreMenu}
+                                className={cn(isDark ? "border-gray-800 text-white" : "border-gray-200")}
+                            >
+                                <LayoutGrid size={16} />
+                                <span>{t.moreMenu}</span>
+                                <ChevronDown size={16} className={cn("transition", moreMenuOpen && "rotate-180")} />
+                            </ChipButton>
+
+                            {moreMenuOpen && (
+                                <div className={cn(
+                                    "absolute left-0 mt-2 w-52 rounded-2xl border shadow bg-white overflow-hidden z-50",
+                                    isDark ? "bg-gray-950 border-gray-800 text-white" : "border-gray-200"
+                                )}>
+                                    {secondaryLinks.map(([to, label]) => (
+                                        <NavLink
+                                            key={to}
+                                            to={to}
+                                            className={({ isActive }) => cn(
+                                                "block px-4 py-2 text-sm font-semibold",
+                                                isActive ? "bg-indigo-600 text-white" : (isDark ? "hover:bg-gray-900" : "hover:bg-gray-50")
+                                            )}
+                                        >
+                                            {label}
+                                        </NavLink>
+                                    ))}
+                                </div>
+                            )}
+                        </div>
+
+                        {/* Notifications bell */}
+                        <button
+                            type="button"
+                            onClick={() => navigate("/notifications")}
+                            title={t.navNotifications}
+                            className={cn(
+                                "relative ml-1 p-2 rounded-xl border transition",
+                                "bg-[color:var(--surface)] hover:bg-[color:var(--surface-3)]",
+                                isDark ? "border-gray-800" : "border-gray-200"
+                            )}
+                        >
+                            <Bell size={18} />
+                            {notifCount > 0 && (
+                                <span className="absolute -top-1 -right-1 min-w-[18px] h-[18px] px-1 rounded-full bg-red-500 text-white text-[10px] font-bold grid place-items-center">
+                                    {notifCount > 9 ? "9+" : notifCount}
+                                </span>
+                            )}
+                        </button>
+
                         {/* Language menu */}
                         <div className="relative ml-2" ref={langRef}>
                             <ChipButton
@@ -271,12 +357,11 @@ export default function Layout({ children }) {
                             onClick={toggleTheme}
                             title="Theme"
                             className={cn(
-                                "ml-2",
-                                isDark ? "border-gray-800 bg-gray-950 hover:bg-gray-900 text-white" : "border-gray-200"
+                                "ml-1",
+                                isDark ? "border-gray-800 text-white" : "border-gray-200"
                             )}
                         >
                             {isDark ? <Sun size={16} /> : <Moon size={16} />}
-                            <span>{isDark ? t.themeLight : t.themeDark}</span>
                         </ChipButton>
 
                         {/* User menu */}
@@ -362,6 +447,16 @@ export default function Layout({ children }) {
                             <NavItem to="/gpa" onClick={() => setMobileOpen(false)}>{t.navGpa}</NavItem>
                             <NavItem to="/planner" onClick={() => setMobileOpen(false)}>{t.navPlanner}</NavItem>
                             <NavItem to="/chat" onClick={() => setMobileOpen(false)}>{t.navChat}</NavItem>
+                            <NavItem to="/timetable" onClick={() => setMobileOpen(false)}>{t.navTimetable}</NavItem>
+                            <NavItem to="/resources" onClick={() => setMobileOpen(false)}>{t.navResources}</NavItem>
+                            <NavItem to="/goals" onClick={() => setMobileOpen(false)}>{t.navGoals}</NavItem>
+                            <NavItem to="/focus" onClick={() => setMobileOpen(false)}>{t.navFocus}</NavItem>
+                            <NavItem to="/assistant" onClick={() => setMobileOpen(false)}>{t.navAssistant}</NavItem>
+                            <NavItem to="/board" onClick={() => setMobileOpen(false)}>{t.navBoard}</NavItem>
+                            <NavItem to="/leaderboard" onClick={() => setMobileOpen(false)}>{t.navLeaderboard}</NavItem>
+                            <NavItem to="/notifications" onClick={() => setMobileOpen(false)}>
+                                {t.navNotifications}{notifCount > 0 ? ` (${notifCount})` : ""}
+                            </NavItem>
 
                             <div className={cn("mt-2 rounded-2xl border p-3",
                                 isDark ? "border-gray-800" : "border-gray-200"
