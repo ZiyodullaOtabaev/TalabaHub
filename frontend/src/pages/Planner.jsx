@@ -3,6 +3,7 @@ import api from "../api";
 import { Plus, RotateCw, Calendar, Filter } from "lucide-react";
 import TaskCalendar from "../components/TaskCalendar";
 import TaskBoard from "../components/TaskBoard";
+import { useLang } from "../i18n/LanguageProvider";
 
 function pickOnlyHandlers(ref) {
     return {
@@ -17,21 +18,23 @@ function pickOnlyHandlers(ref) {
     };
 }
 
-function getRemaining(deadline) {
+function getRemaining(deadline, t) {
     const diff = new Date(deadline) - new Date();
 
-    if (diff <= 0) return "expired";
+    if (diff <= 0) return t.expired;
 
     const hours = Math.floor(diff / (1000 * 60 * 60));
 
-    if (hours < 24) return hours + "h left";
+    if (hours < 24) return `${hours} ${t.hoursLeft}`;
 
     const days = Math.floor(hours / 24);
 
-    return days + "d left";
+    return `${days} ${t.daysLeft}`;
 }
 
 export default function Planner() {
+    const { t } = useLang();
+
     const [loading, setLoading] = useState(true);
     const [tasks, setTasks] = useState([]);
 
@@ -47,6 +50,12 @@ export default function Planner() {
         high: "bg-red-500",
         medium: "bg-yellow-400",
         low: "bg-green-500",
+    };
+
+    const priorityLabel = {
+        high: t.priorityHigh,
+        medium: t.priorityMedium,
+        low: t.priorityLow,
     };
 
     const canAdd = useMemo(() => title.trim().length > 0, [title]);
@@ -83,9 +92,9 @@ export default function Planner() {
         load();
     }
 
-    async function toggleDone(t) {
-        await api.patch(`/api/planner/tasks/${t.id}/`, {
-            completed: !t.completed,
+    async function toggleDone(task) {
+        await api.patch(`/api/planner/tasks/${task.id}/`, {
+            completed: !task.completed,
         });
 
         load();
@@ -102,9 +111,9 @@ export default function Planner() {
             {/* Header */}
             <div className="flex items-start justify-between gap-4">
                 <div>
-                    <h1 className="text-3xl font-extrabold tracking-tight">Planner</h1>
+                    <h1 className="text-3xl font-extrabold tracking-tight">{t.plannerTitle}</h1>
                     <p className="mt-1 text-gray-600">
-                        Task’larni yaratish, filter qilish va bajarilganini belgilash
+                        {t.plannerSub}
                     </p>
                 </div>
 
@@ -113,7 +122,7 @@ export default function Planner() {
                     className="inline-flex items-center gap-2 rounded-xl border px-4 py-2 text-sm font-semibold hover:bg-gray-50"
                 >
                     <RotateCw size={16} />
-                    Refresh
+                    {t.refresh}
                 </button>
             </div>
 
@@ -122,13 +131,13 @@ export default function Planner() {
                 <div className="rounded-2xl border bg-white p-5 shadow-sm md:col-span-1">
                     <div className="flex items-center gap-2">
                         <Calendar size={18} className="text-green-600" />
-                        <h2 className="text-lg font-bold">New task</h2>
+                        <h2 className="text-lg font-bold">{t.newTask}</h2>
                     </div>
 
                     <form onSubmit={addTask} className="mt-4 space-y-3">
                         <input
                             className="w-full rounded-xl border px-4 py-3 outline-none focus:ring-2 focus:ring-green-200"
-                            placeholder="Task title"
+                            placeholder={t.taskTitlePlaceholder}
                             value={title}
                             onChange={(e) => setTitle(e.target.value)}
                         />
@@ -159,9 +168,9 @@ export default function Planner() {
                             value={priority}
                             onChange={(e) => setPriority(e.target.value)}
                         >
-                            <option value="high">High</option>
-                            <option value="medium">Medium</option>
-                            <option value="low">Low</option>
+                            <option value="high">{t.priorityHigh}</option>
+                            <option value="medium">{t.priorityMedium}</option>
+                            <option value="low">{t.priorityLow}</option>
                         </select>
 
                         <button
@@ -174,7 +183,7 @@ export default function Planner() {
                             ].join(" ")}
                         >
                             <Plus size={18} />
-                            Add Task
+                            {t.addTask}
                         </button>
                     </form>
                 </div>
@@ -184,7 +193,7 @@ export default function Planner() {
                     <div className="flex items-center justify-between gap-3">
                         <div className="flex items-center gap-2">
                             <Filter size={18} className="text-blue-600" />
-                            <h2 className="text-lg font-bold">Tasks</h2>
+                            <h2 className="text-lg font-bold">{t.tasks}</h2>
                         </div>
 
                         <div className="flex items-center gap-2">
@@ -193,50 +202,50 @@ export default function Planner() {
                                 value={filter}
                                 onChange={(e) => setFilter(e.target.value)}
                             >
-                                <option value="all">Hammasi</option>
-                                <option value="active">Bajarilmagan</option>
-                                <option value="done">Bajarilgan</option>
+                                <option value="all">{t.filterAll}</option>
+                                <option value="active">{t.filterActive}</option>
+                                <option value="done">{t.filterDone}</option>
                             </select>
 
-                            <div className="text-sm text-gray-500">{shown.length} ta</div>
+                            <div className="text-sm text-gray-500">{shown.length} {t.countSuffix}</div>
                         </div>
                     </div>
 
                     <div className="mt-4 space-y-3">
                         {loading ? (
-                            <div className="text-sm text-gray-500">Yuklanmoqda...</div>
+                            <div className="text-sm text-gray-500">{t.loading}</div>
                         ) : shown.length === 0 ? (
                             <div className="rounded-xl border border-dashed p-8 text-center text-gray-500">
-                                Hozircha task yo‘q. Birinchi task’ni qo‘shing ✅
+                                {t.noTasks}
                             </div>
                         ) : (
-                            shown.map((t) => (
+                            shown.map((task) => (
                                 <button
-                                    key={t.id}
-                                    onClick={() => toggleDone(t)}
+                                    key={task.id}
+                                    onClick={() => toggleDone(task)}
                                     className="w-full text-left rounded-xl border px-4 py-3 hover:bg-gray-50 transition"
                                 >
                                     <div className="flex items-center justify-between">
                                         <div className="font-semibold">
-                                            {t.completed ? "✅" : "⭕"} {t.title}
+                                            {task.completed ? "✅" : "⭕"} {task.title}
                                         </div>
 
                                         <span
-                                            className={`text-xs text-white px-2 py-1 rounded-full ${priorityColor[t.priority]}`}
+                                            className={`text-xs text-white px-2 py-1 rounded-full ${priorityColor[task.priority]}`}
                                         >
-                                            {t.priority}
+                                            {priorityLabel[task.priority] || task.priority}
                                         </span>
                                     </div>
 
-                                    {t.deadline && (
+                                    {task.deadline && (
                                         <div className="mt-1 text-sm text-gray-500">
-                                            Deadline: {new Date(t.deadline).toLocaleString()}
+                                            {t.deadline}: {new Date(task.deadline).toLocaleString()}
                                         </div>
                                     )}
 
-                                    {t.deadline && (
+                                    {task.deadline && (
                                         <div className="text-xs text-red-500">
-                                            {getRemaining(t.deadline)}
+                                            {getRemaining(task.deadline, t)}
                                         </div>
                                     )}
                                 </button>

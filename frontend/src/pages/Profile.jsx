@@ -1,8 +1,9 @@
 import { useEffect, useState } from "react"
+import toast from "react-hot-toast"
 import api from "../api"
+import { useLang } from "../i18n/LanguageProvider"
 
 import {
-    User,
     Mail,
     GraduationCap,
     Crown,
@@ -10,40 +11,42 @@ import {
 } from "lucide-react"
 
 export default function Profile() {
+    const { t } = useLang()
 
     const [me, setMe] = useState(null)
 
     useEffect(() => {
-
         async function load() {
-
-            const res = await api.get("/api/users/me/")
-            setMe(res.data)
-
+            try {
+                const res = await api.get("/api/users/me/")
+                setMe(res.data)
+            } catch {
+                toast.error("Profilni yuklab bo'lmadi")
+            }
         }
 
         load()
-
     }, [])
 
     if (!me) {
-
         return (
-
             <div className="flex justify-center py-20">
-                Loading...
+                {t.loading}
             </div>
-
         )
-
     }
+
+    const initial = me.username ? me.username[0].toUpperCase() : "?"
+    const joinedDate = me.date_joined
+        ? new Date(me.date_joined).toLocaleDateString()
+        : "—"
 
     return (
 
         <div className="max-w-4xl mx-auto space-y-6">
 
             <h1 className="text-3xl font-bold">
-                Profile
+                {t.profileTitle}
             </h1>
 
             {/* PROFILE CARD */}
@@ -54,7 +57,7 @@ export default function Profile() {
 
                     <div className="w-20 h-20 rounded-2xl bg-indigo-600 text-white flex items-center justify-center text-2xl font-bold">
 
-                        {me.username[0].toUpperCase()}
+                        {initial}
 
                     </div>
 
@@ -65,7 +68,7 @@ export default function Profile() {
                         </h2>
 
                         <p className="text-slate-500">
-                            {me.university}
+                            {me.university || "—"}
                         </p>
 
                     </div>
@@ -85,12 +88,12 @@ export default function Profile() {
                     <div className="flex items-center gap-3 font-semibold mb-2">
 
                         <Mail size={18} />
-                        Email
+                        {t.email}
 
                     </div>
 
                     <div className="text-slate-500">
-                        {me.email || "No email"}
+                        {me.email || t.noEmail}
                     </div>
 
                 </div>
@@ -102,12 +105,12 @@ export default function Profile() {
                     <div className="flex items-center gap-3 font-semibold mb-2">
 
                         <GraduationCap size={18} />
-                        University
+                        {t.universityLabel}
 
                     </div>
 
                     <div className="text-slate-500">
-                        {me.university}
+                        {me.university || "—"}
                     </div>
 
                 </div>
@@ -119,13 +122,13 @@ export default function Profile() {
                     <div className="flex items-center gap-3 font-semibold mb-2">
 
                         <Crown size={18} />
-                        Premium Status
+                        {t.premiumStatus}
 
                     </div>
 
                     <div className="text-slate-500">
 
-                        {me.is_premium ? "Premium User" : "Free Plan"}
+                        {me.is_premium ? t.premiumUser : t.freePlan}
 
                     </div>
 
@@ -138,13 +141,13 @@ export default function Profile() {
                     <div className="flex items-center gap-3 font-semibold mb-2">
 
                         <Calendar size={18} />
-                        Joined
+                        {t.joined}
 
                     </div>
 
                     <div className="text-slate-500">
 
-                        {new Date(me.date_joined).toLocaleDateString()}
+                        {joinedDate}
 
                     </div>
 
