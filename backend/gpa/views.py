@@ -20,12 +20,12 @@ class SubjectViewSet(viewsets.ModelViewSet):
 def calculate_gpa(request):
     subjects = Subject.objects.filter(user=request.user)
 
+    # O'zbekiston OTM 5 balli baho tizimi
     grade_points = {
-        "A": 4.0,
-        "B": 3.0,
-        "C": 2.0,
-        "D": 1.0,
-        "F": 0.0,
+        "5": 5.0,
+        "4": 4.0,
+        "3": 3.0,
+        "2": 2.0,
     }
 
     total_points = 0.0
@@ -40,6 +40,7 @@ def calculate_gpa(request):
 
     return Response({
         "gpa": gpa,
+        "scale": 5.0,
         "total_credits": total_credits,
         "subjects_count": subjects.count(),
     })

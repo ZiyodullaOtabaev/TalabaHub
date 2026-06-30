@@ -12,6 +12,13 @@ function formatGpa(value) {
     return n.toFixed(2);
 }
 
+const GRADE_LABELS = {
+    "5": "A'lo (5)",
+    "4": "Yaxshi (4)",
+    "3": "Qoniqarli (3)",
+    "2": "Qoniqarsiz (2)",
+};
+
 function GpaBar({ value }) {
     const n = clamp(Number(value) || 0, 0, 5);
     const pct = (n / 5) * 100;
@@ -45,7 +52,7 @@ export default function GPA() {
 
     const [name, setName] = useState("");
     const [credit, setCredit] = useState("");
-    const [grade, setGrade] = useState("A");
+    const [grade, setGrade] = useState("5");
 
     const canAdd = useMemo(() => {
         const c = Number(credit);
@@ -82,7 +89,7 @@ export default function GPA() {
 
         setName("");
         setCredit("");
-        setGrade("A");
+        setGrade("5");
         load();
     }
 
@@ -139,11 +146,10 @@ export default function GPA() {
                             value={grade}
                             onChange={(e) => setGrade(e.target.value)}
                         >
-                            <option value="A">A</option>
-                            <option value="B">B</option>
-                            <option value="C">C</option>
-                            <option value="D">D</option>
-                            <option value="F">F</option>
+                            <option value="5">A'lo (5)</option>
+                            <option value="4">Yaxshi (4)</option>
+                            <option value="3">Qoniqarli (3)</option>
+                            <option value="2">Qoniqarsiz (2)</option>
                         </select>
 
                         <button
@@ -168,7 +174,7 @@ export default function GPA() {
                             <BarChart3 size={18} className="text-blue-600" />
                             <h2 className="text-lg font-bold">Your GPA</h2>
                         </div>
-                        <div className="text-xs text-gray-500">Scale: 0.00 — 4.00</div>
+                        <div className="text-xs text-gray-500">Shkala: 0.00 — 5.00</div>
                     </div>
 
                     <div className="mt-4 flex items-end gap-4">
@@ -205,7 +211,7 @@ export default function GPA() {
                                 <div>
                                     <div className="font-semibold">{s.name}</div>
                                     <div className="text-sm text-gray-500">
-                                        Credit: {s.credit} | Grade: {s.grade}
+                                        Kredit: {s.credit} | Baho: {GRADE_LABELS[s.grade] || s.grade}
                                     </div>
                                 </div>
 

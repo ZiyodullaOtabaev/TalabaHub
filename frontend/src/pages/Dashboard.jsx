@@ -22,7 +22,7 @@ export default function Dashboard() {
 
     const [subjectName, setSubjectName] = useState("")
     const [credit, setCredit] = useState("")
-    const [grade, setGrade] = useState("A")
+    const [grade, setGrade] = useState("5")
 
     const [taskTitle, setTaskTitle] = useState("")
     const [deadline, setDeadline] = useState("")
@@ -87,7 +87,7 @@ export default function Dashboard() {
 
         setSubjectName("")
         setCredit("")
-        setGrade("A")
+        setGrade("5")
 
         load()
 
@@ -217,11 +217,10 @@ export default function Dashboard() {
                             className="w-full h-[44px] px-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900"
                         >
 
-                            <option>A</option>
-                            <option>B</option>
-                            <option>C</option>
-                            <option>D</option>
-                            <option>F</option>
+                            <option value="5">A'lo (5)</option>
+                            <option value="4">Yaxshi (4)</option>
+                            <option value="3">Qoniqarli (3)</option>
+                            <option value="2">Qoniqarsiz (2)</option>
 
                         </select>
 
