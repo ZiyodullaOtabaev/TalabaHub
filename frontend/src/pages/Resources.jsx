@@ -148,7 +148,7 @@ export default function Resources() {
     async function load() {
         try {
             const res = await api.get("/api/resources/items/");
-            setItems(res.data || []);
+            setItems(res.data?.results || res.data || []);
         } catch {
             // ignore
         } finally {

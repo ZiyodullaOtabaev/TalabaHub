@@ -220,7 +220,7 @@ export default function Layout({ children }) {
         async function loadNotif() {
             try {
                 const res = await api.get("/api/planner/tasks/");
-                setNotifCount(computeNotifications(res.data || []).count);
+                setNotifCount(computeNotifications(res.data?.results || res.data || []).count);
             } catch {
                 // ignore
             }
