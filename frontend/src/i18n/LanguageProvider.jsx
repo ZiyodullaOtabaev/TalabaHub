@@ -150,7 +150,20 @@ const DICT = {
         navBoard: "E'lonlar",
         navLeaderboard: "Reyting",
         navNotifications: "Bildirishnomalar",
+        navGrowth: "Shaxsiy rivojlanish",
+        navIelts: "IELTS darslar",
         moreMenu: "Yana",
+
+        // Darslar (Growth / IELTS)
+        growthSub: "Motivatsiya, o'z-o'zini rivojlantirish va muvaffaqiyat darslari",
+        ieltsSub: "IELTS imtihoniga tayyorgarlik video darslari",
+        lessonChooseLang: "Qaysi tilda o'rganmoqchisiz?",
+        lessonChooseLangDesc: "Materiallar siz tanlagan tilda ko'rsatiladi.",
+        lessonChangeLang: "Tilni o'zgartirish",
+        lessonAdd: "Video qo'shish",
+        lessonUrlField: "YouTube havolasi",
+        lessonEmpty: "Hali dars qo'shilmagan.",
+        lessonSaveError: "Saqlashda xatolik. Havolani tekshiring.",
 
         // Umumiy
         save: "Saqlash",
@@ -406,7 +419,20 @@ const DICT = {
         navBoard: "Board",
         navLeaderboard: "Leaderboard",
         navNotifications: "Notifications",
+        navGrowth: "Personal Growth",
+        navIelts: "IELTS Lessons",
         moreMenu: "More",
+
+        // Lessons (Growth / IELTS)
+        growthSub: "Motivation, self-development and success lessons",
+        ieltsSub: "Video lessons to prepare for the IELTS exam",
+        lessonChooseLang: "Which language do you want to learn in?",
+        lessonChooseLangDesc: "Materials will be shown in the language you choose.",
+        lessonChangeLang: "Change language",
+        lessonAdd: "Add video",
+        lessonUrlField: "YouTube link",
+        lessonEmpty: "No lessons added yet.",
+        lessonSaveError: "Failed to save. Check the link.",
 
         // Common
         save: "Save",
@@ -662,7 +688,20 @@ const DICT = {
         navBoard: "Объявления",
         navLeaderboard: "Рейтинг",
         navNotifications: "Уведомления",
+        navGrowth: "Личностный рост",
+        navIelts: "Уроки IELTS",
         moreMenu: "Ещё",
+
+        // Уроки (Growth / IELTS)
+        growthSub: "Мотивация, саморазвитие и успех",
+        ieltsSub: "Видеоуроки для подготовки к IELTS",
+        lessonChooseLang: "На каком языке хотите учиться?",
+        lessonChooseLangDesc: "Материалы будут показаны на выбранном языке.",
+        lessonChangeLang: "Сменить язык",
+        lessonAdd: "Добавить видео",
+        lessonUrlField: "Ссылка YouTube",
+        lessonEmpty: "Уроки ещё не добавлены.",
+        lessonSaveError: "Ошибка сохранения. Проверьте ссылку.",
 
         // Общее
         save: "Сохранить",
