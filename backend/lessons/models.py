@@ -25,6 +25,7 @@ class Lesson(models.Model):
     description = models.TextField(blank=True)
     youtube_url = models.URLField()
     order = models.PositiveIntegerField(default=0)
+    views_count = models.PositiveIntegerField(default=0)
 
     created_by = models.ForeignKey(
         settings.AUTH_USER_MODEL,

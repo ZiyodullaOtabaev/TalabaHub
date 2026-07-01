@@ -1,4 +1,7 @@
 from rest_framework import viewsets
+from rest_framework.decorators import action
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
 
 from .models import Lesson
 from .permissions import IsAdminOrReadOnly
@@ -27,3 +30,17 @@ class LessonViewSet(viewsets.ModelViewSet):
 
     def perform_create(self, serializer):
         serializer.save(created_by=self.request.user)
+
+    @action(detail=True, methods=["post"], permission_classes=[IsAuthenticated])
+    def watch(self, request, pk=None):
+        """Video sayt ichida ochilganda ko'rishlar sonini oshiradi.
+
+        Faqat autentifikatsiya qilingan (saytga kirgan) foydalanuvchilar
+        hisoblanadi — shuning uchun bu 'saytdan ko'rganlar' soni.
+        """
+        lesson = self.get_object()
+        Lesson.objects.filter(pk=lesson.pk).update(
+            views_count=lesson.views_count + 1
+        )
+        lesson.refresh_from_db()
+        return Response({"views_count": lesson.views_count})

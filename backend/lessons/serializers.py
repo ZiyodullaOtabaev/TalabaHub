@@ -32,12 +32,13 @@ class LessonSerializer(serializers.ModelSerializer):
             "description",
             "youtube_url",
             "order",
+            "views_count",
             "video_id",
             "embed_url",
             "thumbnail_url",
             "created_at",
         )
-        read_only_fields = ("created_by", "created_at")
+        read_only_fields = ("created_by", "created_at", "views_count")
 
     def get_video_id(self, obj):
         return extract_video_id(obj.youtube_url)

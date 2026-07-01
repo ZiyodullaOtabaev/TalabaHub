@@ -1,5 +1,11 @@
 import { useCallback, useEffect, useState } from "react";
-import { Plus, Trash2, PlayCircle, X, ArrowLeft } from "lucide-react";
+import { Plus, Trash2, PlayCircle, X, ArrowLeft, Eye } from "lucide-react";
+
+function fmtViews(n) {
+    if (n >= 1_000_000) return `${(n / 1_000_000).toFixed(1)}M`;
+    if (n >= 1_000) return `${(n / 1_000).toFixed(1)}K`;
+    return `${n || 0}`;
+}
 import api from "../api";
 import { useLang } from "../i18n/LanguageProvider";
 
@@ -27,6 +33,23 @@ export default function LessonSection({ category, accent, title, subtitle, icon 
     const [loading, setLoading] = useState(false);
     const [me, setMe] = useState(null);
     const [active, setActive] = useState(null); // ochilgan video (lightbox)
+
+    // Video ochilganda ko'rishlar sonini oshirish (saytdan ko'rganlar).
+    async function openVideo(l) {
+        if (!l.video_id) return;
+        setActive(l);
+        try {
+            const res = await api.post(`/api/lessons/items/${l.id}/watch/`);
+            const vc = res?.data?.views_count;
+            if (typeof vc === "number") {
+                setItems((prev) =>
+                    prev.map((it) => (it.id === l.id ? { ...it, views_count: vc } : it))
+                );
+            }
+        } catch {
+            // ignore
+        }
+    }
 
     // Admin qo'shish formasi
     const [showForm, setShowForm] = useState(false);
@@ -192,33 +215,38 @@ export default function LessonSection({ category, accent, title, subtitle, icon 
             ) : items.length === 0 ? (
                 <div className="th-card text-center text-[color:var(--text-muted)]">{t.lessonEmpty}</div>
             ) : (
-                <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
-                    {items.map((l, i) => (
-                        <div key={l.id} className="th-card group overflow-hidden p-0 transition hover:-translate-y-1 hover:shadow-lg">
-                            <button type="button" onClick={() => l.video_id && setActive(l)} className="relative block w-full">
+                <div className="grid grid-cols-2 gap-x-4 gap-y-6 md:grid-cols-3">
+                    {items.map((l) => (
+                        <div key={l.id} className="group">
+                            <button
+                                type="button"
+                                onClick={() => openVideo(l)}
+                                className="relative block w-full overflow-hidden rounded-xl"
+                            >
                                 {l.thumbnail_url ? (
-                                    <img src={l.thumbnail_url} alt={l.title} className="aspect-video w-full object-cover" />
+                                    <img src={l.thumbnail_url} alt={l.title} className="aspect-video w-full object-cover transition group-hover:brightness-95" />
                                 ) : (
                                     <div className="aspect-video w-full bg-[color:var(--surface-3)]" />
                                 )}
-                                <span className="absolute inset-0 grid place-items-center bg-black/30 opacity-0 transition group-hover:opacity-100">
-                                    <PlayCircle size={56} className="text-white drop-shadow" />
-                                </span>
-                                <span className="absolute left-3 top-3 rounded-lg bg-black/60 px-2 py-1 text-xs font-bold text-white">
-                                    #{i + 1}
+                                <span className="absolute inset-0 grid place-items-center bg-black/25 opacity-0 transition group-hover:opacity-100">
+                                    <PlayCircle size={40} className="text-white drop-shadow" />
                                 </span>
                             </button>
-                            <div className="p-4">
-                                <div className="flex items-start justify-between gap-2">
-                                    <h3 className="font-extrabold leading-tight">{l.title}</h3>
-                                    {isAdmin && (
-                                        <button onClick={() => remove(l.id)} className="shrink-0 text-red-500 hover:text-red-600" title={t.delete}>
-                                            <Trash2 size={16} />
-                                        </button>
+                            <div className="mt-2 flex items-start justify-between gap-2">
+                                <div className="min-w-0">
+                                    <h3 className="line-clamp-2 text-sm font-bold leading-snug">{l.title}</h3>
+                                    <div className="mt-1 flex items-center gap-1 text-xs text-[color:var(--text-muted)]">
+                                        <Eye size={13} />
+                                        <span>{fmtViews(l.views_count)}</span>
+                                    </div>
+                                    {l.description && (
+                                        <p className="mt-1 line-clamp-1 text-xs text-[color:var(--text-muted)]">{l.description}</p>
                                     )}
                                 </div>
-                                {l.description && (
-                                    <p className="mt-2 text-sm text-[color:var(--text-muted)] whitespace-pre-wrap">{l.description}</p>
+                                {isAdmin && (
+                                    <button onClick={() => remove(l.id)} className="shrink-0 text-red-500 hover:text-red-600" title={t.delete}>
+                                        <Trash2 size={15} />
+                                    </button>
                                 )}
                             </div>
                         </div>
@@ -247,7 +275,12 @@ export default function LessonSection({ category, accent, title, subtitle, icon 
                                 allowFullScreen
                             />
                         </div>
-                        <div className="mt-3 text-lg font-extrabold text-white">{active.title}</div>
+                        <div className="mt-3 flex items-center gap-3 text-white">
+                            <span className="text-lg font-extrabold">{active.title}</span>
+                            <span className="inline-flex items-center gap-1 text-sm text-white/80">
+                                <Eye size={15} /> {fmtViews(active.views_count)}
+                            </span>
+                        </div>
                     </div>
                 </div>
             )}
