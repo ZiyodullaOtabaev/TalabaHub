@@ -64,6 +64,7 @@ INSTALLED_APPS = [
     "board",
     "assistant",
     "lessons",
+    "articles",
 ]
 
 MIDDLEWARE = [
