@@ -159,6 +159,8 @@ export default function Layout({ children }) {
     const [notifCount, setNotifCount] = useState(0);
 
     const secondaryLinks = [
+        ["/growth", t.navGrowth],
+        ["/ielts", t.navIelts],
         ["/timetable", t.navTimetable],
         ["/resources", t.navResources],
         ["/goals", t.navGoals],
@@ -448,6 +450,8 @@ export default function Layout({ children }) {
                             <NavItem to="/gpa" onClick={() => setMobileOpen(false)}>{t.navGpa}</NavItem>
                             <NavItem to="/planner" onClick={() => setMobileOpen(false)}>{t.navPlanner}</NavItem>
                             <NavItem to="/chat" onClick={() => setMobileOpen(false)}>{t.navChat}</NavItem>
+                            <NavItem to="/growth" onClick={() => setMobileOpen(false)}>{t.navGrowth}</NavItem>
+                            <NavItem to="/ielts" onClick={() => setMobileOpen(false)}>{t.navIelts}</NavItem>
                             <NavItem to="/timetable" onClick={() => setMobileOpen(false)}>{t.navTimetable}</NavItem>
                             <NavItem to="/resources" onClick={() => setMobileOpen(false)}>{t.navResources}</NavItem>
                             <NavItem to="/goals" onClick={() => setMobileOpen(false)}>{t.navGoals}</NavItem>
