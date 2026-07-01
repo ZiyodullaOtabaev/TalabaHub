@@ -1,6 +1,7 @@
 import { Routes, Route, Navigate } from "react-router-dom";
 
 import Layout from "./components/Layout.jsx";
+import FloatingAI from "./components/FloatingAI.jsx";
 import Planner from "./pages/Planner.jsx";
 import Login from "./pages/Login.jsx";
 import Register from "./pages/Register.jsx";
@@ -12,11 +13,11 @@ import Timetable from "./pages/Timetable.jsx";
 import Resources from "./pages/Resources.jsx";
 import Goals from "./pages/Goals.jsx";
 import Focus from "./pages/Focus.jsx";
-import Assistant from "./pages/Assistant.jsx";
 import Board from "./pages/Board.jsx";
 import Leaderboard from "./pages/Leaderboard.jsx";
 import Notifications from "./pages/Notifications.jsx";
 import AdminPanel from "./pages/AdminPanel.jsx";
+
 // oddiy protect
 function Protected({ children }) {
   const access = localStorage.getItem("access");
@@ -34,76 +35,35 @@ function P({ children }) {
 }
 
 export default function App() {
+  const isLoggedIn = !!localStorage.getItem("access");
+
   return (
-    <Routes>
-      <Route path="/" element={<Navigate to="/dashboard" replace />} />
+    <>
+      <Routes>
+        <Route path="/" element={<Navigate to="/dashboard" replace />} />
 
-      <Route path="/login" element={<Login />} />
-      <Route path="/register" element={<Register />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
 
-      <Route
-        path="/dashboard"
-        element={
-          <Protected>
-            <Layout>
-              <Dashboard />
-            </Layout>
-          </Protected>
-        }
-      />
+        <Route path="/dashboard" element={<P><Dashboard /></P>} />
+        <Route path="/planner" element={<P><Planner /></P>} />
+        <Route path="/gpa" element={<P><GPA /></P>} />
+        <Route path="/profile" element={<P><Profile /></P>} />
+        <Route path="/chat" element={<P><Chat /></P>} />
+        <Route path="/timetable" element={<P><Timetable /></P>} />
+        <Route path="/resources" element={<P><Resources /></P>} />
+        <Route path="/goals" element={<P><Goals /></P>} />
+        <Route path="/focus" element={<P><Focus /></P>} />
+        <Route path="/board" element={<P><Board /></P>} />
+        <Route path="/leaderboard" element={<P><Leaderboard /></P>} />
+        <Route path="/notifications" element={<P><Notifications /></P>} />
+        <Route path="/admin-panel" element={<P><AdminPanel /></P>} />
 
-      <Route
-        path="/planner"
-        element={
-          <Protected>
-            <Layout>
-              <Planner />
-            </Layout>
-          </Protected>
-        }
-      />
-      <Route
-        path="/gpa"
-        element={
-          <Protected>
-            <Layout>
-              <GPA />
-            </Layout>
-          </Protected>
-        }
-      />
-      <Route
-        path="/profile"
-        element={
-          <Protected>
-            <Layout>
-              <Profile />
-            </Layout>
-          </Protected>
-        }
-      />
-      <Route
-        path="/chat"
-        element={
-          <Protected>
-            <Layout>
-              <Chat />
-            </Layout>
-          </Protected>
-        }
-      />
+        <Route path="*" element={<Navigate to="/dashboard" replace />} />
+      </Routes>
 
-      <Route path="/timetable" element={<P><Timetable /></P>} />
-      <Route path="/resources" element={<P><Resources /></P>} />
-      <Route path="/goals" element={<P><Goals /></P>} />
-      <Route path="/focus" element={<P><Focus /></P>} />
-      <Route path="/assistant" element={<P><Assistant /></P>} />
-      <Route path="/board" element={<P><Board /></P>} />
-      <Route path="/leaderboard" element={<P><Leaderboard /></P>} />
-      <Route path="/notifications" element={<P><Notifications /></P>} />
-      <Route path="/admin-panel" element={<P><AdminPanel /></P>} />
-
-      <Route path="*" element={<Navigate to="/dashboard" replace />} />
-    </Routes>
+      {/* AI Yordamchi - har sahifada ko'rinadi (faqat login bo'lganda) */}
+      {isLoggedIn && <FloatingAI />}
+    </>
   );
 }

@@ -3,7 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 import api from "../api";
 import { useLang } from "../i18n/LanguageProvider";
-import { User, Lock, ArrowRight, Eye, EyeOff } from "lucide-react";
+import { User, Lock, ArrowRight, Eye, EyeOff, Sparkles } from "lucide-react";
 
 export default function Login() {
     const nav = useNavigate();
@@ -23,7 +23,7 @@ export default function Login() {
             localStorage.setItem("access", res.data.access);
             localStorage.setItem("refresh", res.data.refresh);
             toast.dismiss(tid);
-            toast.success("Muvaffaqiyatli kirdingiz ✅");
+            toast.success("Muvaffaqiyatli kirdingiz!");
             nav("/dashboard");
         } catch (err) {
             toast.dismiss(tid);
@@ -34,57 +34,81 @@ export default function Login() {
     }
 
     return (
-        <div className="th-shell flex items-center justify-center p-4">
-            <div className="w-full max-w-md th-surface p-6">
-                <div className="text-center">
-                    <div className="mx-auto w-12 h-12 rounded-2xl grid place-items-center bg-slate-100 font-black">TH</div>
-                    <h1 className="mt-3 text-2xl font-extrabold">{t.loginTitle}</h1>
-                    <p className="text-sm text-slate-600">{t.loginSub}</p>
+        <div className="th-shell flex items-center justify-center p-4 relative overflow-hidden">
+            {/* Background decorations */}
+            <div className="absolute inset-0 overflow-hidden pointer-events-none">
+                <div className="absolute -top-40 -right-40 w-80 h-80 rounded-full opacity-20 blur-3xl"
+                    style={{ background: "var(--gradient-primary)" }} />
+                <div className="absolute -bottom-40 -left-40 w-80 h-80 rounded-full opacity-15 blur-3xl"
+                    style={{ background: "var(--gradient-accent)" }} />
+            </div>
+
+            <div className="w-full max-w-md relative">
+                <div className="th-glass p-8 space-y-6">
+                    <div className="text-center">
+                        <div className="mx-auto w-14 h-14 rounded-2xl grid place-items-center font-black text-white shadow-lg"
+                            style={{ background: "var(--gradient-primary)" }}
+                        >
+                            <Sparkles size={24} />
+                        </div>
+                        <h1 className="mt-4 text-2xl font-extrabold">{t.loginTitle}</h1>
+                        <p className="text-sm mt-1 opacity-70">{t.loginSub}</p>
+                    </div>
+
+                    <form onSubmit={submit} className="space-y-4">
+                        <div>
+                            <label className="text-sm font-semibold">{t.username}</label>
+                            <div className="mt-1.5 flex items-center gap-2 th-input">
+                                <User size={18} className="opacity-40 shrink-0" />
+                                <input
+                                    className="w-full outline-none text-sm bg-transparent"
+                                    value={username}
+                                    onChange={(e) => setUsername(e.target.value)}
+                                    placeholder={t.username}
+                                    style={{ color: "var(--text)" }}
+                                />
+                            </div>
+                        </div>
+
+                        <div>
+                            <label className="text-sm font-semibold">{t.password}</label>
+                            <div className="mt-1.5 flex items-center gap-2 th-input">
+                                <Lock size={18} className="opacity-40 shrink-0" />
+                                <input
+                                    className="w-full outline-none text-sm bg-transparent"
+                                    type={showPwd ? "text" : "password"}
+                                    value={password}
+                                    onChange={(e) => setPassword(e.target.value)}
+                                    placeholder="********"
+                                    style={{ color: "var(--text)" }}
+                                />
+                                <button
+                                    type="button"
+                                    onClick={() => setShowPwd((v) => !v)}
+                                    className="opacity-40 hover:opacity-70 transition shrink-0"
+                                    title={showPwd ? "Hide" : "Show"}
+                                    tabIndex={-1}
+                                >
+                                    {showPwd ? <EyeOff size={18} /> : <Eye size={18} />}
+                                </button>
+                            </div>
+                        </div>
+
+                        <button disabled={loading} className="th-btn-blue w-full">
+                            <ArrowRight size={18} />
+                            {t.signIn}
+                        </button>
+
+                        <p className="text-center text-sm opacity-70">
+                            {t.noAccount}{" "}
+                            <Link className="font-semibold th-gradient-text hover:opacity-80" to="/register">
+                                {t.register}
+                            </Link>
+                        </p>
+                    </form>
+
+                    <div className="text-center text-xs opacity-40">© {new Date().getFullYear()} TalabaHub</div>
                 </div>
-
-                <form onSubmit={submit} className="mt-6 space-y-3">
-                    <div>
-                        <label className="text-sm font-semibold">{t.username}</label>
-                        <div className="mt-1 flex items-center gap-2 border border-slate-300 rounded-xl px-3 py-2">
-                            <User size={18} className="text-slate-400" />
-                            <input className="w-full outline-none text-sm bg-transparent" value={username} onChange={(e) => setUsername(e.target.value)} placeholder={t.username} />
-                        </div>
-                    </div>
-
-                    <div>
-                        <label className="text-sm font-semibold">{t.password}</label>
-                        <div className="mt-1 flex items-center gap-2 border border-slate-300 rounded-xl px-3 py-2">
-                            <Lock size={18} className="text-slate-400" />
-                            <input
-                                className="w-full outline-none text-sm bg-transparent"
-                                type={showPwd ? "text" : "password"}
-                                value={password}
-                                onChange={(e) => setPassword(e.target.value)}
-                                placeholder="********"
-                            />
-                            <button
-                                type="button"
-                                onClick={() => setShowPwd((v) => !v)}
-                                className="text-slate-400 hover:text-slate-600 transition"
-                                title={showPwd ? "Hide" : "Show"}
-                                tabIndex={-1}
-                            >
-                                {showPwd ? <EyeOff size={18} /> : <Eye size={18} />}
-                            </button>
-                        </div>
-                    </div>
-
-                    <button disabled={loading} className="th-btn-blue w-full">
-                        <ArrowRight size={18} />
-                        {t.signIn}
-                    </button>
-
-                    <p className="text-center text-sm text-slate-600">
-                        {t.noAccount} <Link className="font-semibold text-blue-600" to="/register">{t.register}</Link>
-                    </p>
-                </form>
-
-                <div className="mt-6 text-center text-xs text-slate-500">© {new Date().getFullYear()} TalabaHub</div>
             </div>
         </div>
     );
