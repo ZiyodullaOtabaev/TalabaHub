@@ -17,6 +17,9 @@ import Board from "./pages/Board.jsx";
 import Leaderboard from "./pages/Leaderboard.jsx";
 import Notifications from "./pages/Notifications.jsx";
 import AdminPanel from "./pages/AdminPanel.jsx";
+import Growth from "./pages/Growth.jsx";
+import IELTS from "./pages/IELTS.jsx";
+import Articles from "./pages/Articles.jsx";
 
 // oddiy protect
 function Protected({ children }) {
@@ -58,6 +61,9 @@ export default function App() {
         <Route path="/leaderboard" element={<P><Leaderboard /></P>} />
         <Route path="/notifications" element={<P><Notifications /></P>} />
         <Route path="/admin-panel" element={<P><AdminPanel /></P>} />
+        <Route path="/growth" element={<P><Growth /></P>} />
+        <Route path="/ielts" element={<P><IELTS /></P>} />
+        <Route path="/articles" element={<P><Articles /></P>} />
 
         <Route path="*" element={<Navigate to="/dashboard" replace />} />
       </Routes>

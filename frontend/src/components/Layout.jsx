@@ -12,6 +12,7 @@ import {
     Bell,
     LayoutGrid,
     BookOpen,
+    PenSquare,
 } from "lucide-react";
 import api from "../api";
 import { useLang } from "../i18n/LanguageProvider";
@@ -181,6 +182,8 @@ export default function Layout({ children }) {
     // "More" menyudagi linklar — Assistant olib tashlandi
     const secondaryLinks = [
         ["/timetable", t.navTimetable],
+        ["/growth", t.navGrowth],
+        ["/ielts", t.navIelts],
         ["/goals", t.navGoals],
         ["/focus", t.navFocus],
         ["/board", t.navBoard],
@@ -286,6 +289,7 @@ export default function Layout({ children }) {
                         <NavItem to="/chat">{t.navChat}</NavItem>
                         {/* Resources/Maqolalar - navbar'da ko'rinadi */}
                         <NavItem to="/resources" icon={BookOpen}>{t.navResources}</NavItem>
+                        <NavItem to="/articles" icon={PenSquare}>Maqolalar</NavItem>
 
                         {/* More dropdown */}
                         <div className="relative" ref={moreRef}>
@@ -477,7 +481,10 @@ export default function Layout({ children }) {
                             <NavItem to="/planner" onClick={() => setMobileOpen(false)}>{t.navPlanner}</NavItem>
                             <NavItem to="/chat" onClick={() => setMobileOpen(false)}>{t.navChat}</NavItem>
                             <NavItem to="/resources" onClick={() => setMobileOpen(false)}>{t.navResources}</NavItem>
+                            <NavItem to="/articles" onClick={() => setMobileOpen(false)}>Maqolalar</NavItem>
                             <NavItem to="/timetable" onClick={() => setMobileOpen(false)}>{t.navTimetable}</NavItem>
+                            <NavItem to="/growth" onClick={() => setMobileOpen(false)}>{t.navGrowth}</NavItem>
+                            <NavItem to="/ielts" onClick={() => setMobileOpen(false)}>{t.navIelts}</NavItem>
                             <NavItem to="/goals" onClick={() => setMobileOpen(false)}>{t.navGoals}</NavItem>
                             <NavItem to="/focus" onClick={() => setMobileOpen(false)}>{t.navFocus}</NavItem>
                             <NavItem to="/board" onClick={() => setMobileOpen(false)}>{t.navBoard}</NavItem>
