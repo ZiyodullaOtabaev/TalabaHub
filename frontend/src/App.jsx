@@ -19,6 +19,7 @@ import Notifications from "./pages/Notifications.jsx";
 import AdminPanel from "./pages/AdminPanel.jsx";
 import Growth from "./pages/Growth.jsx";
 import IELTS from "./pages/IELTS.jsx";
+import Articles from "./pages/Articles.jsx";
 // oddiy protect
 function Protected({ children }) {
   const access = localStorage.getItem("access");
@@ -103,6 +104,7 @@ export default function App() {
       <Route path="/board" element={<P><Board /></P>} />
       <Route path="/growth" element={<P><Growth /></P>} />
       <Route path="/ielts" element={<P><IELTS /></P>} />
+      <Route path="/articles" element={<P><Articles /></P>} />
       <Route path="/leaderboard" element={<P><Leaderboard /></P>} />
       <Route path="/notifications" element={<P><Notifications /></P>} />
       <Route path="/admin-panel" element={<P><AdminPanel /></P>} />

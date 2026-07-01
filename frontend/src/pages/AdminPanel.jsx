@@ -9,10 +9,13 @@ export default function AdminPanel() {
 
     const [users, setUsers] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [search, setSearch] = useState("");
 
-    async function load() {
+    async function load(q) {
         try {
-            const res = await api.get("/api/users/admin/users/");
+            const res = await api.get("/api/users/admin/users/", {
+                params: q ? { search: q } : {},
+            });
             setUsers(res.data || []);
         } catch (err) {
             const detail = err?.response?.data?.detail || "Ruxsat yo'q";
@@ -23,8 +26,10 @@ export default function AdminPanel() {
     }
 
     useEffect(() => {
-        load();
-    }, []);
+        const id = setTimeout(() => load(search), 300);
+        return () => clearTimeout(id);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [search]);
 
     async function toggleAdmin(u) {
         try {
@@ -32,7 +37,7 @@ export default function AdminPanel() {
                 is_admin: !u.is_staff,
             });
             toast.success("OK");
-            load();
+            load(search);
         } catch (err) {
             toast.error(err?.response?.data?.detail || "Xatolik");
         }
@@ -55,6 +60,13 @@ export default function AdminPanel() {
                     <p className="mt-0.5 text-gray-600">{t.adminSub}</p>
                 </div>
             </div>
+
+            <input
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                placeholder="Username yoki email bo'yicha qidirish..."
+                className="w-full px-4 py-2 rounded-xl border bg-transparent"
+            />
 
             <div className="th-card overflow-x-auto">
                 {loading ? (

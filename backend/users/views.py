@@ -1,4 +1,5 @@
 from django.contrib.auth import get_user_model
+from django.db.models import Q
 from django.shortcuts import get_object_or_404
 from rest_framework import generics
 from rest_framework.decorators import api_view, permission_classes
@@ -31,11 +32,22 @@ class ProfileView(generics.RetrieveAPIView):
 
 
 class AdminUserListView(generics.ListAPIView):
-    """Barcha foydalanuvchilar ro'yxati — faqat adminlar (is_staff) ko'radi."""
+    """Barcha foydalanuvchilar ro'yxati — faqat adminlar (is_staff) ko'radi.
+
+    ?search=<matn> orqali username/email bo'yicha qidirish mumkin (tez topish uchun).
+    """
 
     permission_classes = [IsAdminUser]
     serializer_class = AdminUserSerializer
-    queryset = User.objects.all().order_by("-date_joined")
+
+    def get_queryset(self):
+        qs = User.objects.all().order_by("-date_joined")
+        search = self.request.query_params.get("search")
+        if search:
+            qs = qs.filter(
+                Q(username__icontains=search) | Q(email__icontains=search)
+            )
+        return qs
 
 
 @api_view(["POST"])
