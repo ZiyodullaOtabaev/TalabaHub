@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react"
+import { useNavigate } from "react-router-dom"
 import api from "../api"
 import { useLang } from "../i18n/LanguageProvider"
 
@@ -6,7 +7,9 @@ import {
     PlusCircle,
     RefreshCw,
     ClipboardList,
-    GraduationCap
+    GraduationCap,
+    Sparkles,
+    ArrowRight
 } from "lucide-react"
 
 import GpaProgress from "../components/GpaProgress"
@@ -17,6 +20,7 @@ import ExamCountdown from "../components/ExamCountdown"
 export default function Dashboard() {
 
     const { t: tr } = useLang()
+    const navigate = useNavigate()
 
     const [loading, setLoading] = useState(true)
 
@@ -179,6 +183,70 @@ export default function Dashboard() {
 
                     <RefreshCw size={18} />
                     {tr.refresh}
+
+                </button>
+
+            </div>
+
+            {/* QUICK ACCESS: Growth & IELTS */}
+
+            <div className="grid gap-4 sm:grid-cols-2">
+
+                <button
+                    type="button"
+                    onClick={() => navigate("/growth")}
+                    className="group relative overflow-hidden rounded-2xl p-6 text-left text-white bg-gradient-to-br from-fuchsia-500 via-purple-500 to-pink-500 transition hover:-translate-y-1 hover:shadow-lg"
+                >
+
+                    <div className="absolute -right-6 -top-6 h-28 w-28 rounded-full bg-white/10 blur-2xl" />
+
+                    <div className="relative flex items-center justify-between">
+
+                        <div className="flex items-center gap-3">
+
+                            <div className="grid h-12 w-12 place-items-center rounded-xl bg-white/20 backdrop-blur">
+                                <Sparkles size={24} />
+                            </div>
+
+                            <div>
+                                <div className="text-lg font-extrabold">{tr.navGrowth}</div>
+                                <div className="text-sm text-white/85">{tr.growthSub}</div>
+                            </div>
+
+                        </div>
+
+                        <ArrowRight size={22} className="shrink-0 transition group-hover:translate-x-1" />
+
+                    </div>
+
+                </button>
+
+                <button
+                    type="button"
+                    onClick={() => navigate("/ielts")}
+                    className="group relative overflow-hidden rounded-2xl p-6 text-left text-white bg-gradient-to-br from-sky-500 via-blue-600 to-indigo-600 transition hover:-translate-y-1 hover:shadow-lg"
+                >
+
+                    <div className="absolute -right-6 -top-6 h-28 w-28 rounded-full bg-white/10 blur-2xl" />
+
+                    <div className="relative flex items-center justify-between">
+
+                        <div className="flex items-center gap-3">
+
+                            <div className="grid h-12 w-12 place-items-center rounded-xl bg-white/20 backdrop-blur">
+                                <GraduationCap size={24} />
+                            </div>
+
+                            <div>
+                                <div className="text-lg font-extrabold">{tr.navIelts}</div>
+                                <div className="text-sm text-white/85">{tr.ieltsSub}</div>
+                            </div>
+
+                        </div>
+
+                        <ArrowRight size={22} className="shrink-0 transition group-hover:translate-x-1" />
+
+                    </div>
 
                 </button>
 
