@@ -3,53 +3,82 @@
 @tailwind utilities;
 
 /* =========================================================
-   TalabaHub design tokens
+   TalabaHub design tokens - Modern & Vibrant
    ========================================================= */
 :root {
-  --bg: #f1f5f9;
+  --bg: #f8fafc;
+  --bg-gradient: linear-gradient(135deg, #f0f4ff 0%, #faf5ff 50%, #f0fdfa 100%);
   --surface: #ffffff;
-  --surface-2: #f8fafc;
-  --surface-3: #f1f5f9;
+  --surface-2: #f1f5f9;
+  --surface-3: #e8edf5;
   --border: #e2e8f0;
-  --text: #0f172a;
-  --text-muted: #64748b;
-  --accent: #4f46e5;
-  --accent-hover: #4338ca;
+  --border-accent: rgba(99, 102, 241, 0.2);
+  --text: #1e1b4b;
+  --text-muted: #6366f1;
+  --accent: #6366f1;
+  --accent-hover: #4f46e5;
+  --accent-glow: rgba(99, 102, 241, 0.15);
+  --success: #10b981;
+  --warning: #f59e0b;
+  --danger: #ef4444;
+  --gradient-primary: linear-gradient(135deg, #6366f1, #8b5cf6, #a78bfa);
+  --gradient-accent: linear-gradient(135deg, #06b6d4, #10b981);
+  --gradient-warm: linear-gradient(135deg, #f59e0b, #ef4444);
 }
 
 .dark {
-  --bg: #0a0f1c;
-  --surface: #131b2e;
-  --surface-2: #0f1626;
-  --surface-3: #1c273f;
-  --border: rgba(148, 163, 184, 0.14);
-  --text: #e6edf6;
-  --text-muted: #93a4bd;
-  --accent: #6366f1;
-  --accent-hover: #818cf8;
+  --bg: #0f0d23;
+  --bg-gradient: linear-gradient(135deg, #0f0d23 0%, #1a1145 50%, #0d1b2a 100%);
+  --surface: rgba(30, 27, 75, 0.6);
+  --surface-2: rgba(30, 27, 75, 0.4);
+  --surface-3: rgba(49, 46, 129, 0.3);
+  --border: rgba(99, 102, 241, 0.15);
+  --border-accent: rgba(99, 102, 241, 0.3);
+  --text: #e8e4f8;
+  --text-muted: #a5b4fc;
+  --accent: #818cf8;
+  --accent-hover: #a5b4fc;
+  --accent-glow: rgba(129, 140, 248, 0.2);
+  --success: #34d399;
+  --warning: #fbbf24;
+  --danger: #f87171;
+  --gradient-primary: linear-gradient(135deg, #818cf8, #a78bfa, #c084fc);
+  --gradient-accent: linear-gradient(135deg, #22d3ee, #34d399);
+  --gradient-warm: linear-gradient(135deg, #fbbf24, #f87171);
 }
 
 html,
 body {
-  @apply font-sans;
-  background-color: var(--bg);
+  @apply font-sans antialiased;
+  background: var(--bg-gradient);
+  background-attachment: fixed;
   color: var(--text);
+  min-height: 100vh;
 }
 
 body {
-  transition: background-color 0.3s ease, color 0.3s ease;
+  transition: background 0.4s ease, color 0.3s ease;
 }
 
-/* Subtle modern glow only in dark mode */
+/* Animated background mesh for dark mode */
 .dark body {
   background-image:
-    radial-gradient(900px 500px at 85% -8%, rgba(99, 102, 241, 0.14), transparent 60%),
-    radial-gradient(700px 500px at 0% 100%, rgba(56, 189, 248, 0.08), transparent 55%);
+    radial-gradient(ellipse 80% 60% at 20% -10%, rgba(99, 102, 241, 0.2), transparent 50%),
+    radial-gradient(ellipse 60% 50% at 80% 110%, rgba(139, 92, 246, 0.15), transparent 50%),
+    radial-gradient(ellipse 50% 40% at 50% 50%, rgba(6, 182, 212, 0.05), transparent 60%);
+  background-attachment: fixed;
+}
+
+/* Light mode subtle mesh */
+body:not(.dark body) {
+  background-image:
+    radial-gradient(ellipse 80% 50% at 80% -20%, rgba(99, 102, 241, 0.07), transparent 50%),
+    radial-gradient(ellipse 60% 40% at 0% 100%, rgba(16, 185, 129, 0.05), transparent 50%);
   background-attachment: fixed;
 }
 
 /* =========================================================
-   Reusable components
+   Reusable components - Modern Glass Design
    ========================================================= */
 @keyframes th-fade-in {
   from { opacity: 0; transform: translateY(8px); }
@@ -62,48 +91,92 @@ body {
 @layer components {
   .th-shell {
     @apply min-h-screen;
-    background-color: var(--bg);
+    background: var(--bg-gradient);
+    background-attachment: fixed;
     color: var(--text);
   }
 
   .th-surface {
-    @apply rounded-2xl border shadow-sm;
+    @apply rounded-2xl border shadow-sm backdrop-blur-xl;
     background-color: var(--surface);
     border-color: var(--border);
   }
 
   .th-card {
-    @apply rounded-2xl border p-5 shadow-sm;
+    @apply rounded-2xl border p-5 shadow-sm backdrop-blur-xl transition-all duration-300;
     background-color: var(--surface);
     border-color: var(--border);
   }
+  .th-card:hover {
+    border-color: var(--border-accent);
+    box-shadow: 0 8px 30px -12px var(--accent-glow);
+  }
 
   .th-input {
-    @apply w-full rounded-xl border px-3 py-2 outline-none transition;
+    @apply w-full rounded-xl border px-4 py-2.5 outline-none transition-all duration-200;
     background-color: var(--surface-2);
     border-color: var(--border);
     color: var(--text);
   }
   .th-input::placeholder {
     color: var(--text-muted);
+    opacity: 0.6;
   }
   .th-input:focus {
     border-color: var(--accent);
-    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.25);
+    box-shadow: 0 0 0 3px var(--accent-glow), 0 4px 12px -4px var(--accent-glow);
+    background-color: var(--surface);
   }
 
   .th-btn-blue {
-    @apply inline-flex items-center justify-center gap-2 rounded-xl px-4 py-3 font-bold text-white transition disabled:opacity-60 disabled:cursor-not-allowed;
-    background-color: var(--accent);
+    @apply inline-flex items-center justify-center gap-2 rounded-xl px-5 py-3 font-bold text-white transition-all duration-200 disabled:opacity-60 disabled:cursor-not-allowed;
+    background: var(--gradient-primary);
+    background-size: 200% 200%;
+    box-shadow: 0 4px 15px -3px var(--accent-glow);
   }
   .th-btn-blue:hover:not(:disabled) {
-    background-color: var(--accent-hover);
+    transform: translateY(-1px);
+    box-shadow: 0 8px 25px -5px var(--accent-glow);
+  }
+  .th-btn-blue:active:not(:disabled) {
+    transform: translateY(0);
+  }
+
+  .th-btn-outline {
+    @apply inline-flex items-center justify-center gap-2 rounded-xl px-4 py-2.5 font-semibold border transition-all duration-200;
+    border-color: var(--border);
+    color: var(--text);
+  }
+  .th-btn-outline:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+    background-color: var(--accent-glow);
+  }
+
+  /* Glass card variant */
+  .th-glass {
+    @apply rounded-2xl border p-5 backdrop-blur-xl;
+    background: rgba(255, 255, 255, 0.7);
+    border-color: rgba(255, 255, 255, 0.3);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.06);
+  }
+  .dark .th-glass {
+    background: rgba(30, 27, 75, 0.5);
+    border-color: rgba(99, 102, 241, 0.15);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+  }
+
+  /* Gradient text */
+  .th-gradient-text {
+    background: var(--gradient-primary);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
   }
 }
 
 /* =========================================================
    Dark-mode retrofit for existing light-only utilities
-   (so every page adapts without per-component edits)
    ========================================================= */
 .dark .bg-white {
   background-color: var(--surface) !important;
@@ -118,7 +191,7 @@ body {
 }
 .dark .bg-gray-200,
 .dark .bg-slate-200 {
-  background-color: rgba(148, 163, 184, 0.18) !important;
+  background-color: rgba(99, 102, 241, 0.1) !important;
 }
 .dark .bg-slate-800,
 .dark .bg-slate-900,
@@ -149,7 +222,7 @@ body {
 .dark .text-slate-600,
 .dark .text-slate-700,
 .dark .text-slate-800 {
-  color: #c7d2e1 !important;
+  color: #c4b5fd !important;
 }
 .dark .text-gray-400,
 .dark .text-gray-500,
@@ -160,16 +233,16 @@ body {
 
 .dark .hover\:bg-gray-50:hover,
 .dark .hover\:bg-slate-50:hover {
-  background-color: rgba(148, 163, 184, 0.08) !important;
+  background-color: rgba(99, 102, 241, 0.08) !important;
 }
 .dark .hover\:bg-gray-100:hover {
-  background-color: rgba(148, 163, 184, 0.12) !important;
+  background-color: rgba(99, 102, 241, 0.12) !important;
 }
 .dark .shadow,
 .dark .shadow-sm,
 .dark .shadow-card,
 .dark .shadow-xl {
-  box-shadow: 0 8px 24px -12px rgba(0, 0, 0, 0.6) !important;
+  box-shadow: 0 8px 30px -12px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(99, 102, 241, 0.08) !important;
 }
 
 /* =========================================================
@@ -197,13 +270,13 @@ body {
   border-color: var(--border) !important;
 }
 .dark .rbc-off-range-bg {
-  background-color: rgba(148, 163, 184, 0.06) !important;
+  background-color: rgba(99, 102, 241, 0.04) !important;
 }
 .dark .rbc-off-range {
   color: var(--text-muted) !important;
 }
 .dark .rbc-today {
-  background-color: rgba(99, 102, 241, 0.16) !important;
+  background-color: rgba(99, 102, 241, 0.12) !important;
 }
 .dark .rbc-date-cell,
 .dark .rbc-header {
@@ -219,7 +292,7 @@ body {
 }
 .dark .rbc-toolbar button:hover,
 .dark .rbc-toolbar button:focus {
-  background-color: rgba(148, 163, 184, 0.12) !important;
+  background-color: rgba(99, 102, 241, 0.12) !important;
   color: var(--text) !important;
 }
 .dark .rbc-toolbar button.rbc-active,
@@ -237,15 +310,29 @@ body {
   color: var(--accent-hover) !important;
 }
 
-/* Custom scrollbar (dark) */
-.dark ::-webkit-scrollbar {
-  width: 10px;
-  height: 10px;
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
 }
-.dark ::-webkit-scrollbar-thumb {
-  background-color: rgba(148, 163, 184, 0.25);
+::-webkit-scrollbar-thumb {
+  background-color: rgba(99, 102, 241, 0.2);
   border-radius: 9999px;
 }
-.dark ::-webkit-scrollbar-track {
+::-webkit-scrollbar-track {
   background-color: transparent;
+}
+.dark ::-webkit-scrollbar-thumb {
+  background-color: rgba(99, 102, 241, 0.3);
+}
+
+/* Smooth transitions */
+* {
+  scroll-behavior: smooth;
+}
+
+/* Selection color */
+::selection {
+  background-color: rgba(99, 102, 241, 0.3);
+  color: var(--text);
 }

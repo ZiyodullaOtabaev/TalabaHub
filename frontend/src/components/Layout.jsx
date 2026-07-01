@@ -11,6 +11,7 @@ import {
     User2,
     Bell,
     LayoutGrid,
+    BookOpen,
 } from "lucide-react";
 import api from "../api";
 import { useLang } from "../i18n/LanguageProvider";
@@ -36,22 +37,26 @@ function useOutsideClick(ref, handler) {
     }, [ref, handler]);
 }
 
-function NavItem({ to, children, onClick }) {
+function NavItem({ to, children, onClick, icon: Icon }) {
     return (
         <NavLink
             to={to}
             onClick={onClick}
             className={({ isActive }) =>
                 cn(
-                    "px-3 py-2 rounded-xl text-sm font-semibold transition",
+                    "px-3 py-2 rounded-xl text-sm font-semibold transition-all duration-200",
                     "hover:translate-y-[-1px] active:translate-y-0",
                     isActive
-                        ? "bg-blue-600 text-white shadow"
-                        : "text-gray-700 hover:bg-blue-50"
+                        ? "text-white shadow-md"
+                        : "text-[color:var(--text)] hover:bg-[color:var(--accent-glow)]"
                 )
             }
+            style={({ isActive }) => isActive ? { background: "var(--gradient-primary)" } : undefined}
         >
-            {children}
+            <span className="flex items-center gap-1.5">
+                {Icon && <Icon size={15} />}
+                {children}
+            </span>
         </NavLink>
     );
 }
@@ -63,8 +68,8 @@ function ChipButton({ children, onClick, title, className }) {
             onClick={onClick}
             title={title}
             className={cn(
-                "inline-flex items-center gap-2 px-3 py-2 rounded-xl text-sm font-semibold border transition",
-                "bg-[color:var(--surface)] hover:bg-[color:var(--surface-3)]",
+                "inline-flex items-center gap-2 px-3 py-2 rounded-xl text-sm font-semibold border transition-all duration-200",
+                "bg-[color:var(--surface)] hover:bg-[color:var(--surface-3)] hover:border-[color:var(--border-accent)]",
                 className
             )}
         >
@@ -73,50 +78,65 @@ function ChipButton({ children, onClick, title, className }) {
     );
 }
 
-function LanguageModal({ open, onClose, onPick, t }) {
+function LanguageModal({ open, onClose, onPick, t, isDark }) {
     if (!open) return null;
 
     return (
         <div className="fixed inset-0 z-[60] flex items-center justify-center">
             <div
-                className="absolute inset-0 bg-black/30"
+                className="absolute inset-0 bg-black/40 backdrop-blur-sm"
                 onClick={onClose}
                 aria-hidden="true"
             />
-            <div className="relative w-[92%] max-w-md rounded-3xl bg-white shadow-xl border p-5">
+            <div className={cn(
+                "relative w-[92%] max-w-md rounded-3xl shadow-2xl border p-6",
+                isDark ? "bg-[#1e1b4b]/95 border-indigo-500/20" : "bg-white border-gray-200"
+            )}>
                 <div className="flex items-start justify-between gap-3">
                     <div>
                         <div className="text-lg font-extrabold">{t.chooseLanguage}</div>
-                        <div className="text-sm text-gray-600 mt-1">{t.chooseLanguageDesc}</div>
+                        <div className={cn("text-sm mt-1", isDark ? "text-indigo-300" : "text-gray-600")}>{t.chooseLanguageDesc}</div>
                     </div>
                     <button
                         type="button"
-                        className="px-3 py-1.5 rounded-xl border text-sm font-semibold hover:bg-gray-50"
+                        className={cn(
+                            "px-3 py-1.5 rounded-xl border text-sm font-semibold transition",
+                            isDark ? "border-indigo-500/30 hover:bg-indigo-500/10" : "border-gray-200 hover:bg-gray-50"
+                        )}
                         onClick={onClose}
                     >
                         {t.close}
                     </button>
                 </div>
 
-                <div className="mt-4 grid gap-2">
+                <div className="mt-5 grid gap-2.5">
                     <button
                         type="button"
                         onClick={() => onPick("uz")}
-                        className="w-full text-left px-4 py-3 rounded-2xl border hover:bg-yellow-50 transition font-semibold"
+                        className={cn(
+                            "w-full text-left px-4 py-3.5 rounded-2xl border transition font-semibold",
+                            isDark ? "border-indigo-500/20 hover:bg-indigo-500/10 hover:border-yellow-400/30" : "border-gray-200 hover:bg-yellow-50 hover:border-yellow-300"
+                        )}
                     >
                         🇺🇿 {t.langUz}
                     </button>
                     <button
                         type="button"
                         onClick={() => onPick("en")}
-                        className="w-full text-left px-4 py-3 rounded-2xl border hover:bg-blue-50 transition font-semibold"
+                        className={cn(
+                            "w-full text-left px-4 py-3.5 rounded-2xl border transition font-semibold",
+                            isDark ? "border-indigo-500/20 hover:bg-indigo-500/10 hover:border-blue-400/30" : "border-gray-200 hover:bg-blue-50 hover:border-blue-300"
+                        )}
                     >
                         🇬🇧 {t.langEn}
                     </button>
                     <button
                         type="button"
                         onClick={() => onPick("ru")}
-                        className="w-full text-left px-4 py-3 rounded-2xl border hover:bg-red-50 transition font-semibold"
+                        className={cn(
+                            "w-full text-left px-4 py-3.5 rounded-2xl border transition font-semibold",
+                            isDark ? "border-indigo-500/20 hover:bg-indigo-500/10 hover:border-red-400/30" : "border-gray-200 hover:bg-red-50 hover:border-red-300"
+                        )}
                     >
                         🇷🇺 {t.langRu}
                     </button>
@@ -158,15 +178,11 @@ export default function Layout({ children }) {
     // Bildirishnomalar soni (vazifalardan)
     const [notifCount, setNotifCount] = useState(0);
 
+    // "More" menyudagi linklar — Assistant olib tashlandi
     const secondaryLinks = [
-        ["/articles", t.navArticles || "Maqolalar"],
-        ["/growth", t.navGrowth],
-        ["/ielts", t.navIelts],
         ["/timetable", t.navTimetable],
-        ["/resources", t.navResources],
         ["/goals", t.navGoals],
         ["/focus", t.navFocus],
-        ["/assistant", t.navAssistant],
         ["/board", t.navBoard],
         ["/leaderboard", t.navLeaderboard],
         ...(me?.is_superuser ? [["/admin-panel", t.navAdmin]] : []),
@@ -227,52 +243,56 @@ export default function Layout({ children }) {
         (me?.username || me?.email || "U").slice(0, 2).toUpperCase();
 
     return (
-        <div
-            className={cn(
-                "min-h-screen transition-colors duration-300",
-                isDark
-                    ? "bg-slate-900 text-white"
-                    : "bg-gray-50 text-gray-900"
-            )}
-        >            <LanguageModal
+        <div className="min-h-screen transition-colors duration-300">
+            <LanguageModal
                 open={langModalOpen}
                 onClose={() => setLangModalOpen(false)}
                 onPick={pickLang}
                 t={t}
+                isDark={isDark}
             />
 
             {/* NAVBAR */}
-            <header className={cn("sticky top-0 z-50 border-b", isDark ? "bg-gray-950/90 border-gray-800" : "bg-white/90 border-gray-200", "backdrop-blur")}>
-                <div className="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
+            <header className={cn(
+                "sticky top-0 z-50 border-b backdrop-blur-xl",
+                isDark
+                    ? "bg-[rgba(15,13,35,0.85)] border-indigo-500/10"
+                    : "bg-white/80 border-gray-200/80"
+            )}>
+                <div className="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
                     {/* Brand */}
                     <button
                         type="button"
                         onClick={() => navigate("/dashboard")}
-                        className="flex items-center gap-3"
+                        className="flex items-center gap-3 group"
                         title="TalabaHub"
                     >
-                        <div className="w-10 h-10 rounded-2xl bg-yellow-400 text-black flex items-center justify-center font-extrabold">
+                        <div className="w-10 h-10 rounded-2xl flex items-center justify-center font-extrabold text-white shadow-md transition-transform group-hover:scale-105"
+                            style={{ background: "var(--gradient-primary)" }}
+                        >
                             TH
                         </div>
                         <div className="text-left leading-tight">
-                            <div className="text-lg font-extrabold">TalabaHub</div>
-                            <div className={cn("text-xs", isDark ? "text-gray-300" : "text-gray-600")}>{t.brandSub}</div>
+                            <div className="text-lg font-extrabold th-gradient-text">TalabaHub</div>
+                            <div className={cn("text-xs", isDark ? "text-indigo-300" : "text-gray-500")}>{t.brandSub}</div>
                         </div>
                     </button>
 
                     {/* Desktop nav */}
-                    <nav className="hidden md:flex items-center gap-2">
+                    <nav className="hidden md:flex items-center gap-1.5">
                         <NavItem to="/dashboard">{t.navDashboard}</NavItem>
                         <NavItem to="/gpa">{t.navGpa}</NavItem>
                         <NavItem to="/planner">{t.navPlanner}</NavItem>
                         <NavItem to="/chat">{t.navChat}</NavItem>
+                        {/* Resources/Maqolalar - navbar'da ko'rinadi */}
+                        <NavItem to="/resources" icon={BookOpen}>{t.navResources}</NavItem>
 
                         {/* More dropdown */}
                         <div className="relative" ref={moreRef}>
                             <ChipButton
                                 onClick={() => setMoreMenuOpen((v) => !v)}
                                 title={t.moreMenu}
-                                className={cn(isDark ? "border-gray-800 text-white" : "border-gray-200")}
+                                className={cn(isDark ? "border-indigo-500/20 text-indigo-200" : "border-gray-200")}
                             >
                                 <LayoutGrid size={16} />
                                 <span>{t.moreMenu}</span>
@@ -281,17 +301,20 @@ export default function Layout({ children }) {
 
                             {moreMenuOpen && (
                                 <div className={cn(
-                                    "absolute left-0 mt-2 w-52 rounded-2xl border shadow bg-white overflow-hidden z-50",
-                                    isDark ? "bg-gray-950 border-gray-800 text-white" : "border-gray-200"
+                                    "absolute left-0 mt-2 w-52 rounded-2xl border shadow-xl overflow-hidden z-50 backdrop-blur-xl",
+                                    isDark ? "bg-[#1e1b4b]/95 border-indigo-500/20" : "bg-white border-gray-200"
                                 )}>
                                     {secondaryLinks.map(([to, label]) => (
                                         <NavLink
                                             key={to}
                                             to={to}
                                             className={({ isActive }) => cn(
-                                                "block px-4 py-2 text-sm font-semibold",
-                                                isActive ? "bg-indigo-600 text-white" : (isDark ? "hover:bg-gray-900" : "hover:bg-gray-50")
+                                                "block px-4 py-2.5 text-sm font-semibold transition",
+                                                isActive
+                                                    ? "text-white"
+                                                    : (isDark ? "text-indigo-200 hover:bg-indigo-500/10" : "text-gray-700 hover:bg-gray-50")
                                             )}
+                                            style={({ isActive }) => isActive ? { background: "var(--gradient-primary)" } : undefined}
                                         >
                                             {label}
                                         </NavLink>
@@ -306,27 +329,25 @@ export default function Layout({ children }) {
                             onClick={() => navigate("/notifications")}
                             title={t.navNotifications}
                             className={cn(
-                                "relative ml-1 p-2 rounded-xl border transition",
-                                "bg-[color:var(--surface)] hover:bg-[color:var(--surface-3)]",
-                                isDark ? "border-gray-800" : "border-gray-200"
+                                "relative ml-1 p-2 rounded-xl border transition-all duration-200",
+                                "hover:border-[color:var(--border-accent)]",
+                                isDark ? "border-indigo-500/20 text-indigo-200 hover:bg-indigo-500/10" : "border-gray-200 hover:bg-indigo-50"
                             )}
                         >
                             <Bell size={18} />
                             {notifCount > 0 && (
-                                <span className="absolute -top-1 -right-1 min-w-[18px] h-[18px] px-1 rounded-full bg-red-500 text-white text-[10px] font-bold grid place-items-center">
+                                <span className="absolute -top-1 -right-1 min-w-[18px] h-[18px] px-1 rounded-full bg-red-500 text-white text-[10px] font-bold grid place-items-center animate-pulse">
                                     {notifCount > 9 ? "9+" : notifCount}
                                 </span>
                             )}
                         </button>
 
                         {/* Language menu */}
-                        <div className="relative ml-2" ref={langRef}>
+                        <div className="relative ml-1" ref={langRef}>
                             <ChipButton
                                 onClick={() => setLangMenuOpen((v) => !v)}
                                 title="Language"
-                                className={cn(
-                                    isDark ? "border-gray-800 bg-gray-950 hover:bg-gray-900 text-white" : "border-gray-200",
-                                )}
+                                className={cn(isDark ? "border-indigo-500/20 text-indigo-200" : "border-gray-200")}
                             >
                                 <Languages size={16} />
                                 <span className="uppercase">{(lang || "uz")}</span>
@@ -334,21 +355,22 @@ export default function Layout({ children }) {
                             </ChipButton>
 
                             {langMenuOpen && (
-                                <div className={cn("absolute right-0 mt-2 w-48 rounded-2xl border shadow bg-white overflow-hidden",
-                                    isDark ? "bg-gray-950 border-gray-800 text-white" : "border-gray-200"
+                                <div className={cn(
+                                    "absolute right-0 mt-2 w-48 rounded-2xl border shadow-xl overflow-hidden backdrop-blur-xl",
+                                    isDark ? "bg-[#1e1b4b]/95 border-indigo-500/20" : "bg-white border-gray-200"
                                 )}>
-                                    <button className={cn("w-full text-left px-4 py-2 text-sm font-semibold hover:bg-yellow-50",
-                                        isDark && "hover:bg-gray-900"
+                                    <button className={cn("w-full text-left px-4 py-2.5 text-sm font-semibold transition",
+                                        isDark ? "text-indigo-200 hover:bg-indigo-500/10" : "hover:bg-yellow-50"
                                     )} onClick={() => pickLang("uz")}>
                                         🇺🇿 {t.langUz}
                                     </button>
-                                    <button className={cn("w-full text-left px-4 py-2 text-sm font-semibold hover:bg-blue-50",
-                                        isDark && "hover:bg-gray-900"
+                                    <button className={cn("w-full text-left px-4 py-2.5 text-sm font-semibold transition",
+                                        isDark ? "text-indigo-200 hover:bg-indigo-500/10" : "hover:bg-blue-50"
                                     )} onClick={() => pickLang("en")}>
                                         🇬🇧 {t.langEn}
                                     </button>
-                                    <button className={cn("w-full text-left px-4 py-2 text-sm font-semibold hover:bg-red-50",
-                                        isDark && "hover:bg-gray-900"
+                                    <button className={cn("w-full text-left px-4 py-2.5 text-sm font-semibold transition",
+                                        isDark ? "text-indigo-200 hover:bg-indigo-500/10" : "hover:bg-red-50"
                                     )} onClick={() => pickLang("ru")}>
                                         🇷🇺 {t.langRu}
                                     </button>
@@ -362,7 +384,7 @@ export default function Layout({ children }) {
                             title="Theme"
                             className={cn(
                                 "ml-1",
-                                isDark ? "border-gray-800 text-white" : "border-gray-200"
+                                isDark ? "border-indigo-500/20 text-yellow-300 hover:bg-yellow-500/10" : "border-gray-200 text-indigo-600 hover:bg-indigo-50"
                             )}
                         >
                             {isDark ? <Sun size={16} /> : <Moon size={16} />}
@@ -374,20 +396,20 @@ export default function Layout({ children }) {
                                 type="button"
                                 onClick={() => setUserMenuOpen((v) => !v)}
                                 className={cn(
-                                    "flex items-center gap-2 px-2 py-1.5 rounded-2xl transition",
-                                    isDark ? "hover:bg-gray-900" : "hover:bg-gray-50"
+                                    "flex items-center gap-2 px-2 py-1.5 rounded-2xl transition-all duration-200",
+                                    isDark ? "hover:bg-indigo-500/10" : "hover:bg-gray-50"
                                 )}
                             >
-                                <div className={cn("w-10 h-10 rounded-2xl flex items-center justify-center font-extrabold",
-                                    isDark ? "bg-gray-800 text-white" : "bg-gray-100 text-gray-900"
-                                )}>
+                                <div className="w-9 h-9 rounded-xl flex items-center justify-center font-extrabold text-white text-sm"
+                                    style={{ background: "var(--gradient-primary)" }}
+                                >
                                     {initials}
                                 </div>
                                 <div className="hidden lg:block text-left">
-                                    <div className="text-sm font-extrabold leading-4">
+                                    <div className="text-sm font-bold leading-4">
                                         {me?.username || "User"}
                                     </div>
-                                    <div className={cn("text-xs", isDark ? "text-gray-300" : "text-gray-600")}>
+                                    <div className={cn("text-xs", isDark ? "text-indigo-300" : "text-gray-500")}>
                                         {me?.email || ""}
                                     </div>
                                 </div>
@@ -396,12 +418,12 @@ export default function Layout({ children }) {
 
                             {userMenuOpen && (
                                 <div className={cn(
-                                    "absolute right-0 mt-2 w-56 rounded-2xl border shadow overflow-hidden",
-                                    isDark ? "bg-gray-950 border-gray-800 text-white" : "bg-white border-gray-200"
+                                    "absolute right-0 mt-2 w-56 rounded-2xl border shadow-xl overflow-hidden backdrop-blur-xl",
+                                    isDark ? "bg-[#1e1b4b]/95 border-indigo-500/20" : "bg-white border-gray-200"
                                 )}>
                                     <button
-                                        className={cn("w-full text-left px-4 py-2 text-sm font-semibold flex items-center gap-2",
-                                            isDark ? "hover:bg-gray-900" : "hover:bg-gray-50"
+                                        className={cn("w-full text-left px-4 py-2.5 text-sm font-semibold flex items-center gap-2 transition",
+                                            isDark ? "text-indigo-200 hover:bg-indigo-500/10" : "hover:bg-gray-50"
                                         )}
                                         onClick={() => navigate("/profile")}
                                     >
@@ -409,9 +431,9 @@ export default function Layout({ children }) {
                                         {t.navProfile}
                                     </button>
                                     <button
-                                        className={cn("w-full text-left px-4 py-2 text-sm font-semibold flex items-center gap-2",
-                                            "text-red-600",
-                                            isDark ? "hover:bg-gray-900" : "hover:bg-red-50"
+                                        className={cn("w-full text-left px-4 py-2.5 text-sm font-semibold flex items-center gap-2 transition",
+                                            "text-red-400",
+                                            isDark ? "hover:bg-red-500/10" : "hover:bg-red-50"
                                         )}
                                         onClick={logout}
                                     >
@@ -428,7 +450,7 @@ export default function Layout({ children }) {
                         <ChipButton
                             onClick={toggleTheme}
                             title="Theme"
-                            className={cn(isDark ? "border-gray-800 bg-gray-950 hover:bg-gray-900 text-white" : "border-gray-200")}
+                            className={cn(isDark ? "border-indigo-500/20 text-yellow-300" : "border-gray-200")}
                         >
                             {isDark ? <Sun size={18} /> : <Moon size={18} />}
                         </ChipButton>
@@ -436,7 +458,7 @@ export default function Layout({ children }) {
                         <ChipButton
                             onClick={() => setMobileOpen((v) => !v)}
                             title="Menu"
-                            className={cn(isDark ? "border-gray-800 bg-gray-950 hover:bg-gray-900 text-white" : "border-gray-200")}
+                            className={cn(isDark ? "border-indigo-500/20 text-indigo-200" : "border-gray-200")}
                         >
                             {mobileOpen ? <X size={18} /> : <Menu size={18} />}
                         </ChipButton>
@@ -445,20 +467,19 @@ export default function Layout({ children }) {
 
                 {/* Mobile menu */}
                 {mobileOpen && (
-                    <div className={cn("md:hidden border-t", isDark ? "border-gray-800 bg-gray-950" : "border-gray-200 bg-white")}>
-                        <div className="max-w-6xl mx-auto px-4 py-3 flex flex-col gap-2">
+                    <div className={cn(
+                        "md:hidden border-t backdrop-blur-xl",
+                        isDark ? "border-indigo-500/10 bg-[rgba(15,13,35,0.95)]" : "border-gray-200 bg-white/95"
+                    )}>
+                        <div className="max-w-7xl mx-auto px-4 py-3 flex flex-col gap-1.5">
                             <NavItem to="/dashboard" onClick={() => setMobileOpen(false)}>{t.navDashboard}</NavItem>
                             <NavItem to="/gpa" onClick={() => setMobileOpen(false)}>{t.navGpa}</NavItem>
                             <NavItem to="/planner" onClick={() => setMobileOpen(false)}>{t.navPlanner}</NavItem>
                             <NavItem to="/chat" onClick={() => setMobileOpen(false)}>{t.navChat}</NavItem>
-                            <NavItem to="/articles" onClick={() => setMobileOpen(false)}>{t.navArticles || "Maqolalar"}</NavItem>
-                            <NavItem to="/growth" onClick={() => setMobileOpen(false)}>{t.navGrowth}</NavItem>
-                            <NavItem to="/ielts" onClick={() => setMobileOpen(false)}>{t.navIelts}</NavItem>
-                            <NavItem to="/timetable" onClick={() => setMobileOpen(false)}>{t.navTimetable}</NavItem>
                             <NavItem to="/resources" onClick={() => setMobileOpen(false)}>{t.navResources}</NavItem>
+                            <NavItem to="/timetable" onClick={() => setMobileOpen(false)}>{t.navTimetable}</NavItem>
                             <NavItem to="/goals" onClick={() => setMobileOpen(false)}>{t.navGoals}</NavItem>
                             <NavItem to="/focus" onClick={() => setMobileOpen(false)}>{t.navFocus}</NavItem>
-                            <NavItem to="/assistant" onClick={() => setMobileOpen(false)}>{t.navAssistant}</NavItem>
                             <NavItem to="/board" onClick={() => setMobileOpen(false)}>{t.navBoard}</NavItem>
                             <NavItem to="/leaderboard" onClick={() => setMobileOpen(false)}>{t.navLeaderboard}</NavItem>
                             <NavItem to="/notifications" onClick={() => setMobileOpen(false)}>
@@ -468,32 +489,32 @@ export default function Layout({ children }) {
                                 <NavItem to="/admin-panel" onClick={() => setMobileOpen(false)}>{t.navAdmin}</NavItem>
                             )}
 
-                            <div className={cn("mt-2 rounded-2xl border p-3",
-                                isDark ? "border-gray-800" : "border-gray-200"
+                            <div className={cn("mt-3 rounded-2xl border p-4",
+                                isDark ? "border-indigo-500/20 bg-indigo-500/5" : "border-gray-200 bg-gray-50"
                             )}>
                                 <div className="flex items-center justify-between">
                                     <div>
                                         <div className="text-sm font-extrabold">{me?.username || "User"}</div>
-                                        <div className={cn("text-xs", isDark ? "text-gray-300" : "text-gray-600")}>{me?.email || ""}</div>
+                                        <div className={cn("text-xs", isDark ? "text-indigo-300" : "text-gray-500")}>{me?.email || ""}</div>
                                     </div>
-                                    <div className={cn("w-10 h-10 rounded-2xl flex items-center justify-center font-extrabold",
-                                        isDark ? "bg-gray-800 text-white" : "bg-gray-100 text-gray-900"
-                                    )}>
+                                    <div className="w-10 h-10 rounded-xl flex items-center justify-center font-extrabold text-white text-sm"
+                                        style={{ background: "var(--gradient-primary)" }}
+                                    >
                                         {initials}
                                     </div>
                                 </div>
 
                                 <div className="mt-3 grid grid-cols-2 gap-2">
                                     <button
-                                        className={cn("px-3 py-2 rounded-xl border font-semibold",
-                                            isDark ? "border-gray-800 hover:bg-gray-900" : "border-gray-200 hover:bg-gray-50"
+                                        className={cn("px-3 py-2 rounded-xl border font-semibold text-sm transition",
+                                            isDark ? "border-indigo-500/20 hover:bg-indigo-500/10" : "border-gray-200 hover:bg-gray-100"
                                         )}
                                         onClick={() => navigate("/profile")}
                                     >
                                         {t.navProfile}
                                     </button>
                                     <button
-                                        className="px-3 py-2 rounded-xl bg-red-600 text-white font-semibold hover:opacity-95"
+                                        className="px-3 py-2 rounded-xl bg-red-500 text-white font-semibold text-sm hover:bg-red-600 transition"
                                         onClick={logout}
                                     >
                                         {t.logout}
@@ -501,9 +522,9 @@ export default function Layout({ children }) {
                                 </div>
 
                                 <div className="mt-3 grid grid-cols-3 gap-2">
-                                    <button className="px-3 py-2 rounded-xl bg-yellow-400 text-black font-extrabold" onClick={() => pickLang("uz")}>UZ</button>
-                                    <button className="px-3 py-2 rounded-xl bg-blue-600 text-white font-extrabold" onClick={() => pickLang("en")}>EN</button>
-                                    <button className="px-3 py-2 rounded-xl bg-red-600 text-white font-extrabold" onClick={() => pickLang("ru")}>RU</button>
+                                    <button className="px-3 py-2 rounded-xl bg-yellow-400 text-black font-extrabold text-sm" onClick={() => pickLang("uz")}>UZ</button>
+                                    <button className="px-3 py-2 rounded-xl bg-blue-600 text-white font-extrabold text-sm" onClick={() => pickLang("en")}>EN</button>
+                                    <button className="px-3 py-2 rounded-xl bg-red-600 text-white font-extrabold text-sm" onClick={() => pickLang("ru")}>RU</button>
                                 </div>
                             </div>
                         </div>
@@ -512,30 +533,17 @@ export default function Layout({ children }) {
             </header>
 
             {/* PAGE */}
-            <main className="max-w-6xl mx-auto p-6">{children}</main>
+            <main className="max-w-7xl mx-auto p-6">{children}</main>
 
-            <footer
-                className={cn(
-                    "border-t",
-                    isDark
-                        ? "border-slate-700 bg-slate-900"
-                        : "border-gray-200 bg-white"
-                )}
-            >
-
-                <div
-                    className={cn(
-                        "max-w-6xl mx-auto px-4 py-4 text-sm flex justify-center",
-                        isDark ? "text-gray-400" : "text-gray-600"
-                    )}
-                >
-
-                    <span>
+            <footer className={cn(
+                "border-t backdrop-blur-xl",
+                isDark ? "border-indigo-500/10 bg-[rgba(15,13,35,0.5)]" : "border-gray-200/80 bg-white/60"
+            )}>
+                <div className="max-w-7xl mx-auto px-4 py-4 text-sm flex justify-center">
+                    <span className={isDark ? "text-indigo-400" : "text-gray-500"}>
                         © {new Date().getFullYear()} TalabaHub
                     </span>
-
                 </div>
-
             </footer>
         </div>
     );
