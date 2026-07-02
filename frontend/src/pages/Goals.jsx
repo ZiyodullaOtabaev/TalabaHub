@@ -25,8 +25,8 @@ export default function Goals() {
                 api.get("/api/goals/goals/"),
                 api.get("/api/goals/habits/"),
             ]);
-            setGoals(g.data || []);
-            setHabits(h.data || []);
+            setGoals(g.data?.results || g.data || []);
+            setHabits(h.data?.results || h.data || []);
         } catch {
             // ignore
         }

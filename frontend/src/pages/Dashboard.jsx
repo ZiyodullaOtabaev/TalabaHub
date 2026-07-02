@@ -47,7 +47,7 @@ export default function Dashboard() {
             ])
 
             setGpa(gpaRes.data)
-            setTasks(tasksRes.data || [])
+            setTasks(tasksRes.data?.results || tasksRes.data || [])
 
         }
 

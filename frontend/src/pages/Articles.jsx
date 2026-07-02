@@ -244,8 +244,8 @@ export default function Articles() {
                 }),
                 api.get("/api/articles/articles/recommended/"),
             ]);
-            setList(listRes.data || []);
-            setTop(topRes.data || []);
+            setList(listRes.data?.results || listRes.data || []);
+            setTop(topRes.data?.results || topRes.data || []);
         } catch {
             // ignore
         } finally {

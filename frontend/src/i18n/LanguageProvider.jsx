@@ -7,8 +7,6 @@ const DICT = {
         langName: "O‘zbek",
         chooseLanguage: "Tilni tanlang",
         chooseLanguageDesc: "Sayt tilini istalgan paytda o‘zgartirishingiz mumkin.",
-        save: "Saqlash",
-        cancel: "Bekor qilish",
 
         loginTitle: "Xush kelibsiz",
         loginSub: "TalabaHub hisobingizga kiring",
@@ -276,8 +274,6 @@ const DICT = {
         langName: "English",
         chooseLanguage: "Choose language",
         chooseLanguageDesc: "You can change it anytime later.",
-        save: "Save",
-        cancel: "Cancel",
 
         loginTitle: "Welcome back",
         loginSub: "Sign in to your TalabaHub account",
@@ -545,8 +541,6 @@ const DICT = {
         langName: "Русский",
         chooseLanguage: "Выберите язык",
         chooseLanguageDesc: "Вы сможете изменить язык позже в любое время.",
-        save: "Сохранить",
-        cancel: "Отмена",
 
         loginTitle: "С возвращением",
         loginSub: "Войдите в аккаунт TalabaHub",

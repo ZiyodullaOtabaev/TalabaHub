@@ -196,5 +196,3 @@ REST_FRAMEWORK["DEFAULT_THROTTLE_RATES"] = {
     "anon": "30/minute",
     "user": "120/minute",
 }
-REST_FRAMEWORK["DEFAULT_PAGINATION_CLASS"] = "rest_framework.pagination.PageNumberPagination"
-REST_FRAMEWORK["PAGE_SIZE"] = 50

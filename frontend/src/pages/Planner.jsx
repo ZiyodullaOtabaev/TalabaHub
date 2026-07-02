@@ -64,7 +64,7 @@ export default function Planner() {
         setLoading(true);
         try {
             const res = await api.get("/api/planner/tasks/");
-            setTasks(res.data || []);
+            setTasks(res.data?.results || res.data || []);
         } finally {
             setLoading(false);
         }

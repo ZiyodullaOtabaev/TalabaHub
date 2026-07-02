@@ -34,7 +34,7 @@ export default function Board() {
     async function load() {
         try {
             const res = await api.get("/api/board/announcements/");
-            setItems(res.data || []);
+            setItems(res.data?.results || res.data || []);
         } catch {
             // ignore
         } finally {
