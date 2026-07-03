@@ -46,35 +46,54 @@ class RegisterView(generics.CreateAPIView):
 
 
 def _send_verification_code(user):
-    """Tasdiqlash kodini yaratib emailga yuborish (background thread)."""
+    """Tasdiqlash kodini yaratib emailga yuborish (Resend API, background thread)."""
     import threading
-    from django.core.mail import send_mail
     from .models import EmailVerification
 
     verification = EmailVerification.generate(user)
 
     def _send():
-        subject = "TalabaHub — Email tasdiqlash kodi"
-        message = (
-            f"Salom {user.username}!\n\n"
-            f"Emailingizni tasdiqlash uchun quyidagi kodni kiriting:\n\n"
-            f"    {verification.code}\n\n"
-            f"Kod 15 daqiqa amal qiladi.\n\n"
-            f"— TalabaHub jamoasi"
+        _send_email_via_resend(
+            to=user.email,
+            subject="TalabaHub — Email tasdiqlash kodi",
+            body=(
+                f"Salom {user.username}!\n\n"
+                f"Emailingizni tasdiqlash uchun quyidagi kodni kiriting:\n\n"
+                f"    {verification.code}\n\n"
+                f"Kod 15 daqiqa amal qiladi.\n\n"
+                f"— TalabaHub jamoasi"
+            ),
         )
-        try:
-            send_mail(
-                subject,
-                message,
-                None,
-                [user.email],
-                fail_silently=True,
-            )
-        except Exception:
-            pass
 
-    # Background thread — server javobni kutmasin
     threading.Thread(target=_send, daemon=True).start()
+
+
+def _send_email_via_resend(to, subject, body):
+    """Resend.com API orqali email yuborish."""
+    import requests as http_requests
+    from django.conf import settings
+
+    api_key = getattr(settings, "RESEND_API_KEY", "")
+    if not api_key:
+        return
+
+    try:
+        http_requests.post(
+            "https://api.resend.com/emails",
+            headers={
+                "Authorization": f"Bearer {api_key}",
+                "Content-Type": "application/json",
+            },
+            json={
+                "from": "TalabaHub <onboarding@resend.dev>",
+                "to": [to],
+                "subject": subject,
+                "text": body,
+            },
+            timeout=10,
+        )
+    except Exception:
+        pass
 
 
 class ProfileView(generics.RetrieveUpdateAPIView):
@@ -146,16 +165,11 @@ def password_reset_request(request):
     import threading
 
     def _send():
-        try:
-            send_mail(
-                subject,
-                message,
-                settings.DEFAULT_FROM_EMAIL,
-                [email],
-                fail_silently=True,
-            )
-        except Exception:
-            pass
+        _send_email_via_resend(
+            to=email,
+            subject="TalabaHub — Parolni tiklash",
+            body=message,
+        )
 
     threading.Thread(target=_send, daemon=True).start()
 

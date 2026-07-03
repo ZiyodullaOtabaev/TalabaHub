@@ -232,6 +232,9 @@ EMAIL_TIMEOUT = 10  # 10 soniya timeout (server o'lib qolmasligi uchun)
 # Frontend URL (email havolalari uchun)
 FRONTEND_URL = env("FRONTEND_URL", default="http://localhost:5173")
 
+# Resend.com API (email yuborish uchun)
+RESEND_API_KEY = env("RESEND_API_KEY", default="")
+
 
 # Google OAuth
 # Google Cloud Console dan olinadi: https://console.cloud.google.com/apis/credentials
