@@ -46,29 +46,35 @@ class RegisterView(generics.CreateAPIView):
 
 
 def _send_verification_code(user):
-    """Tasdiqlash kodini yaratib emailga yuborish."""
+    """Tasdiqlash kodini yaratib emailga yuborish (background thread)."""
+    import threading
     from django.core.mail import send_mail
     from .models import EmailVerification
 
     verification = EmailVerification.generate(user)
-    subject = "TalabaHub — Email tasdiqlash kodi"
-    message = (
-        f"Salom {user.username}!\n\n"
-        f"Emailingizni tasdiqlash uchun quyidagi kodni kiriting:\n\n"
-        f"    {verification.code}\n\n"
-        f"Kod 15 daqiqa amal qiladi.\n\n"
-        f"— TalabaHub jamoasi"
-    )
-    try:
-        send_mail(
-            subject,
-            message,
-            None,  # DEFAULT_FROM_EMAIL ishlatiladi
-            [user.email],
-            fail_silently=True,
+
+    def _send():
+        subject = "TalabaHub — Email tasdiqlash kodi"
+        message = (
+            f"Salom {user.username}!\n\n"
+            f"Emailingizni tasdiqlash uchun quyidagi kodni kiriting:\n\n"
+            f"    {verification.code}\n\n"
+            f"Kod 15 daqiqa amal qiladi.\n\n"
+            f"— TalabaHub jamoasi"
         )
-    except Exception:
-        pass
+        try:
+            send_mail(
+                subject,
+                message,
+                None,
+                [user.email],
+                fail_silently=True,
+            )
+        except Exception:
+            pass
+
+    # Background thread — server javobni kutmasin
+    threading.Thread(target=_send, daemon=True).start()
 
 
 class ProfileView(generics.RetrieveUpdateAPIView):
@@ -137,17 +143,21 @@ def password_reset_request(request):
         f"— TalabaHub jamoasi"
     )
 
-    try:
-        send_mail(
-            subject,
-            message,
-            settings.DEFAULT_FROM_EMAIL,
-            [email],
-            fail_silently=False,
-        )
-    except Exception:
-        # Email yuborilmasa ham xavfsizlik uchun xato ko'rsatmaymiz
-        pass
+    import threading
+
+    def _send():
+        try:
+            send_mail(
+                subject,
+                message,
+                settings.DEFAULT_FROM_EMAIL,
+                [email],
+                fail_silently=True,
+            )
+        except Exception:
+            pass
+
+    threading.Thread(target=_send, daemon=True).start()
 
     return Response({
         "detail": "Agar bu email ro'yxatdan o'tgan bo'lsa, tiklash kodi yuborildi.",
