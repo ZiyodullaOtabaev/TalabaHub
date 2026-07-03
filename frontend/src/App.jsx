@@ -1,4 +1,4 @@
-import { Routes, Route, Navigate } from "react-router-dom";
+import { Routes, Route, Navigate, useLocation } from "react-router-dom";
 
 import Layout from "./components/Layout.jsx";
 import FloatingAI from "./components/FloatingAI.jsx";
@@ -64,6 +64,11 @@ function AP({ children }) {
 
 export default function App() {
   const { isLoggedIn } = useAuth();
+  const location = useLocation();
+
+  // Auth sahifalarida AI yordamchi ko'rinmasin
+  const authPages = ["/login", "/register", "/verify-email", "/password-reset"];
+  const showAI = isLoggedIn && !authPages.includes(location.pathname);
 
   return (
     <>
@@ -95,8 +100,8 @@ export default function App() {
         <Route path="*" element={<Navigate to="/dashboard" replace />} />
       </Routes>
 
-      {/* AI Yordamchi - har sahifada ko'rinadi (faqat login bo'lganda) */}
-      {isLoggedIn && <FloatingAI />}
+      {/* AI Yordamchi - faqat login bo'lganda va auth sahifalardan tashqarida */}
+      {showAI && <FloatingAI />}
     </>
   );
 }
