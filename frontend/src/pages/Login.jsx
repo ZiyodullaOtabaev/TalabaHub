@@ -148,6 +148,12 @@ export default function Login() {
                             {t.signIn}
                         </button>
 
+                        <div className="text-center">
+                            <Link className="text-sm font-semibold th-gradient-text hover:opacity-80" to="/password-reset">
+                                {t.forgotPassword || "Parolni unutdingizmi?"}
+                            </Link>
+                        </div>
+
                         <p className="text-center text-sm opacity-70">
                             {t.noAccount}{" "}
                             <Link className="font-semibold th-gradient-text hover:opacity-80" to="/register">

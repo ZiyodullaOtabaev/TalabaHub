@@ -9,6 +9,10 @@ User = get_user_model()
 class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
     """Login'da ban holatini tekshirish."""
 
+    default_error_messages = {
+        "no_active_account": "Login yoki parol noto'g'ri.",
+    }
+
     def validate(self, attrs):
         data = super().validate(attrs)
 

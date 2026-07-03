@@ -60,8 +60,14 @@ export default function Profile() {
         } catch (err) {
             const data = err?.response?.data
             if (data) {
-                const msg = data.username?.[0] || data.email?.[0] || data.detail || "Xatolik"
-                toast.error(msg)
+                // DRF field errors
+                const firstKey = Object.keys(data)[0]
+                let msg = data.detail || ""
+                if (!msg && firstKey) {
+                    const val = data[firstKey]
+                    msg = Array.isArray(val) ? val[0] : val
+                }
+                toast.error(msg || "Xatolik yuz berdi")
             } else {
                 toast.error("Tarmoq xatosi")
             }

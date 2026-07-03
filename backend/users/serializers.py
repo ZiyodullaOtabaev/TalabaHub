@@ -8,7 +8,7 @@ User = get_user_model()
 class RegisterSerializer(serializers.ModelSerializer):
     email = serializers.EmailField(required=True)
     username = serializers.CharField(
-        validators=[UniqueValidator(queryset=User.objects.all())]
+        validators=[UniqueValidator(queryset=User.objects.all(), message="Bu username allaqachon band.")]
     )
     password = serializers.CharField(write_only=True, min_length=8)
 
