@@ -4,9 +4,6 @@ import Layout from "./components/Layout.jsx";
 import FloatingAI from "./components/FloatingAI.jsx";
 import Planner from "./pages/Planner.jsx";
 import Login from "./pages/Login.jsx";
-import Register from "./pages/Register.jsx";
-import PasswordReset from "./pages/PasswordReset.jsx";
-import VerifyEmail from "./pages/VerifyEmail.jsx";
 import Dashboard from "./pages/Dashboard.jsx";
 import GPA from "./pages/GPA.jsx";
 import Profile from "./pages/Profile.jsx";
@@ -67,7 +64,7 @@ export default function App() {
   const location = useLocation();
 
   // Auth sahifalarida AI yordamchi ko'rinmasin
-  const authPages = ["/login", "/register", "/verify-email", "/password-reset"];
+  const authPages = ["/login"];
   const showAI = isLoggedIn && !authPages.includes(location.pathname);
 
   return (
@@ -76,9 +73,6 @@ export default function App() {
         <Route path="/" element={<Navigate to="/dashboard" replace />} />
 
         <Route path="/login" element={<Login />} />
-        <Route path="/register" element={<Register />} />
-        <Route path="/verify-email" element={<VerifyEmail />} />
-        <Route path="/password-reset" element={<PasswordReset />} />
 
         <Route path="/dashboard" element={<P><Dashboard /></P>} />
         <Route path="/planner" element={<P><Planner /></P>} />

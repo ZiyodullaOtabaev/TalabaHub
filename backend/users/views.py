@@ -424,13 +424,14 @@ def google_auth(request):
             email=google_email,
             password=None,  # Parol yo'q — faqat Google orqali kiradi
         )
+        user.email_verified = True
         # Google'dan olingan ismni saqlash (agar bor bo'lsa)
         if google_name:
             parts = google_name.split(" ", 1)
             user.first_name = parts[0]
             if len(parts) > 1:
                 user.last_name = parts[1]
-            user.save(update_fields=["first_name", "last_name"])
+        user.save()
 
     # JWT tokenlar yaratish
     refresh = RefreshToken.for_user(user)

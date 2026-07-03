@@ -7,7 +7,7 @@ User = get_user_model()
 
 
 class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
-    """Login'da email tasdiqlangan/tasdiqlanmaganligini va ban holatini tekshirish."""
+    """Login'da ban holatini tekshirish."""
 
     def validate(self, attrs):
         data = super().validate(attrs)
@@ -19,12 +19,6 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
             reason = user.ban_reason or "Siz saytdan bloklangansiz."
             raise serializers.ValidationError(
                 {"detail": f"Hisobingiz bloklangan: {reason}", "is_banned": True}
-            )
-
-        # Email bor va tasdiqlanmagan bo'lsa — kirish mumkin emas
-        if user.email and not user.email_verified and not user.is_staff:
-            raise serializers.ValidationError(
-                {"detail": "Email tasdiqlanmagan. Emailingizga yuborilgan kodni kiriting.", "email_not_verified": True, "email": user.email}
             )
 
         return data
