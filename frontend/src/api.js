@@ -16,13 +16,25 @@ api.interceptors.request.use((config) => {
 });
 
 // Tokenlarni tozalab, login sahifasiga qaytarish
-function logout() {
+function logout({ redirect = true } = {}) {
+    const refresh = localStorage.getItem("refresh");
+
+    // Server-side logout: refresh tokenni blacklistga qo'shish
+    if (refresh) {
+        axios
+            .post(`${BASE_URL}/api/auth/logout/`, { refresh })
+            .catch(() => {}); // Xato bo'lsa ham davom etamiz
+    }
+
     localStorage.removeItem("access");
     localStorage.removeItem("refresh");
-    if (window.location.pathname !== "/login") {
+    if (redirect && window.location.pathname !== "/login") {
         window.location.assign("/login");
     }
 }
+
+// Tashqaridan chaqirish uchun export
+export { logout };
 
 // Bir vaqtning o'zida faqat bitta refresh so'rovi ketishini ta'minlaymiz
 // (bir nechta so'rov bir vaqtda 401 olsa, refresh faqat bir marta chaqiriladi)

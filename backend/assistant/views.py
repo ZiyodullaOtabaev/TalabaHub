@@ -1,6 +1,4 @@
-import json
-import urllib.error
-import urllib.request
+import requests as http_requests
 
 from django.conf import settings
 from rest_framework.decorators import api_view, permission_classes
@@ -50,23 +48,31 @@ def chat(request):
 
     url = getattr(settings, "AI_BASE_URL", "https://api.openai.com/v1").rstrip("/") + "/chat/completions"
 
-    req = urllib.request.Request(
-        url,
-        data=json.dumps(payload).encode("utf-8"),
-        headers={
-            "Authorization": f"Bearer {api_key}",
-            "Content-Type": "application/json",
-        },
-        method="POST",
-    )
-
     try:
-        with urllib.request.urlopen(req, timeout=60) as resp:
-            data = json.loads(resp.read().decode("utf-8"))
+        resp = http_requests.post(
+            url,
+            json=payload,
+            headers={
+                "Authorization": f"Bearer {api_key}",
+                "Content-Type": "application/json",
+            },
+            timeout=60,
+        )
+        resp.raise_for_status()
+        data = resp.json()
         reply = data["choices"][0]["message"]["content"]
         return Response({"reply": reply})
-    except urllib.error.HTTPError as e:
-        detail = e.read().decode("utf-8", "ignore")[:300]
-        return Response({"detail": f"AI provayder xatosi ({e.code}): {detail}"}, status=502)
+    except http_requests.exceptions.HTTPError as e:
+        detail = e.response.text[:300] if e.response else str(e)
+        status_code = e.response.status_code if e.response else 502
+        return Response(
+            {"detail": f"AI provayder xatosi ({status_code}): {detail}"},
+            status=502,
+        )
+    except http_requests.exceptions.Timeout:
+        return Response(
+            {"detail": "AI provayder javob bermadi (timeout)."},
+            status=504,
+        )
     except Exception as e:  # noqa: BLE001
         return Response({"detail": f"AI bilan bog'lanishda xatolik: {e}"}, status=502)

@@ -14,9 +14,10 @@ import {
     BookOpen,
     PenSquare,
 } from "lucide-react";
-import api from "../api";
+import api, { logout as serverLogout } from "../api";
 import { useLang } from "../i18n/LanguageProvider";
 import { useTheme } from "./ThemeProvider";
+import { useAuth } from "../hooks/useAuth";
 import { computeNotifications } from "../lib/notifications";
 
 function cn(...xs) {
@@ -150,6 +151,7 @@ function LanguageModal({ open, onClose, onPick, t, isDark }) {
 export default function Layout({ children }) {
     const navigate = useNavigate();
     const location = useLocation();
+    const { onLogout } = useAuth();
 
     // Theme (markaziy ThemeProvider orqali)
     const { theme, toggleTheme } = useTheme();
@@ -231,8 +233,8 @@ export default function Layout({ children }) {
     }, [location.pathname]);
 
     function logout() {
-        localStorage.removeItem("access");
-        localStorage.removeItem("refresh");
+        serverLogout({ redirect: false });
+        onLogout();
         navigate("/login");
     }
 
@@ -267,7 +269,7 @@ export default function Layout({ children }) {
                     <button
                         type="button"
                         onClick={() => navigate("/dashboard")}
-                        className="flex items-center gap-3 group"
+                        className="flex items-center gap-3 group shrink-0"
                         title="TalabaHub"
                     >
                         <div className="w-10 h-10 rounded-2xl flex items-center justify-center font-extrabold text-white shadow-md transition-transform group-hover:scale-105"
@@ -282,14 +284,14 @@ export default function Layout({ children }) {
                     </button>
 
                     {/* Desktop nav */}
-                    <nav className="hidden md:flex items-center gap-1.5">
+                    <nav className="hidden md:flex items-center gap-1.5 ml-6">
                         <NavItem to="/dashboard">{t.navDashboard}</NavItem>
                         <NavItem to="/gpa">{t.navGpa}</NavItem>
                         <NavItem to="/planner">{t.navPlanner}</NavItem>
                         <NavItem to="/chat">{t.navChat}</NavItem>
                         {/* Resources/Maqolalar - navbar'da ko'rinadi */}
                         <NavItem to="/resources" icon={BookOpen}>{t.navResources}</NavItem>
-                        <NavItem to="/articles" icon={PenSquare}>Maqolalar</NavItem>
+                        <NavItem to="/articles" icon={PenSquare}>{t.navArticles}</NavItem>
 
                         {/* More dropdown */}
                         <div className="relative" ref={moreRef}>
@@ -481,7 +483,7 @@ export default function Layout({ children }) {
                             <NavItem to="/planner" onClick={() => setMobileOpen(false)}>{t.navPlanner}</NavItem>
                             <NavItem to="/chat" onClick={() => setMobileOpen(false)}>{t.navChat}</NavItem>
                             <NavItem to="/resources" onClick={() => setMobileOpen(false)}>{t.navResources}</NavItem>
-                            <NavItem to="/articles" onClick={() => setMobileOpen(false)}>Maqolalar</NavItem>
+                            <NavItem to="/articles" onClick={() => setMobileOpen(false)}>{t.navArticles}</NavItem>
                             <NavItem to="/timetable" onClick={() => setMobileOpen(false)}>{t.navTimetable}</NavItem>
                             <NavItem to="/growth" onClick={() => setMobileOpen(false)}>{t.navGrowth}</NavItem>
                             <NavItem to="/ielts" onClick={() => setMobileOpen(false)}>{t.navIelts}</NavItem>

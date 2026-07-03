@@ -1,7 +1,11 @@
+from django.conf import settings
+from django.conf.urls.static import static
 from django.contrib import admin
 from django.urls import path, include
 from django.http import JsonResponse
-from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
+from rest_framework_simplejwt.views import TokenRefreshView, TokenBlacklistView
+
+from users.auth import CustomTokenObtainPairView
 
 def home(request):
     return JsonResponse({"status": "ok", "app": "TalabaHub API"})
@@ -10,8 +14,9 @@ urlpatterns = [
     path("", home),
     path("admin/", admin.site.urls),
 
-    path("api/auth/login/", TokenObtainPairView.as_view(), name="token_obtain_pair"),
+    path("api/auth/login/", CustomTokenObtainPairView.as_view(), name="token_obtain_pair"),
     path("api/auth/refresh/", TokenRefreshView.as_view(), name="token_refresh"),
+    path("api/auth/logout/", TokenBlacklistView.as_view(), name="token_blacklist"),
 
     path("api/users/", include("users.urls")),
     path("api/gpa/", include("gpa.urls")),
@@ -25,4 +30,9 @@ urlpatterns = [
     path("api/assistant/", include("assistant.urls")),
     path("api/lessons/", include("lessons.urls")),
     path("api/articles/", include("articles.urls")),
+    path("api/banners/", include("banners.urls")),
 ]
+
+# Development da media fayllarni serve qilish
+if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

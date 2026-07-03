@@ -21,7 +21,7 @@ export default function Timetable() {
     async function load() {
         try {
             const res = await api.get("/api/timetable/sessions/");
-            setSessions(res.data || []);
+            setSessions(res.data?.results || res.data || []);
         } catch {
             // ignore
         } finally {

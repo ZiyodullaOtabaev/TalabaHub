@@ -27,6 +27,15 @@ class Lesson(models.Model):
     order = models.PositiveIntegerField(default=0)
     views_count = models.PositiveIntegerField(default=0)
 
+    # Subtitles/captions — JSON formatda vaqt belgilari bilan matn
+    # Format: [{"start": 0.0, "end": 2.5, "text": "Hello everyone"}, ...]
+    captions = models.JSONField(
+        blank=True,
+        null=True,
+        default=None,
+        help_text="Subtitles: [{start, end, text}, ...] yoki null",
+    )
+
     created_by = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.SET_NULL,

@@ -6,7 +6,7 @@ from rest_framework.validators import UniqueValidator
 User = get_user_model()
 
 class RegisterSerializer(serializers.ModelSerializer):
-    email = serializers.EmailField(required=False, allow_blank=True)
+    email = serializers.EmailField(required=True)
     username = serializers.CharField(
         validators=[UniqueValidator(queryset=User.objects.all())]
     )
@@ -52,6 +52,69 @@ class ProfileSerializer(serializers.ModelSerializer):
         )
 
 
+class ProfileUpdateSerializer(serializers.ModelSerializer):
+    """Profil yangilash uchun serializer (PATCH)."""
+
+    class Meta:
+        model = User
+        fields = ("username", "email", "university")
+        extra_kwargs = {
+            "username": {"required": False},
+            "email": {"required": False},
+        }
+
+    def validate_email(self, value):
+        user = self.context["request"].user
+        if value and User.objects.filter(email=value).exclude(pk=user.pk).exists():
+            raise serializers.ValidationError(
+                "Bu email allaqachon ro'yxatdan o'tgan."
+            )
+        return value
+
+    def validate_username(self, value):
+        user = self.context["request"].user
+        if value and User.objects.filter(username=value).exclude(pk=user.pk).exists():
+            raise serializers.ValidationError(
+                "Bu username allaqachon band."
+            )
+        return value
+
+
+class ChangePasswordSerializer(serializers.Serializer):
+    """Joriy parolni bilgan holda yangi parol o'rnatish."""
+
+    old_password = serializers.CharField(required=True)
+    new_password = serializers.CharField(required=True, min_length=8)
+
+    def validate_old_password(self, value):
+        user = self.context["request"].user
+        if not user.check_password(value):
+            raise serializers.ValidationError("Joriy parol noto'g'ri.")
+        return value
+
+    def validate_new_password(self, value):
+        validate_password(value)
+        return value
+
+
+class PasswordResetRequestSerializer(serializers.Serializer):
+    """Parolni tiklash so'rovi — email orqali foydalanuvchini topish."""
+
+    email = serializers.EmailField(required=True)
+
+
+class PasswordResetConfirmSerializer(serializers.Serializer):
+    """Token orqali yangi parol o'rnatish."""
+
+    token = serializers.CharField(required=True)
+    uid = serializers.CharField(required=True)
+    new_password = serializers.CharField(required=True, min_length=8)
+
+    def validate_new_password(self, value):
+        validate_password(value)
+        return value
+
+
 class AdminUserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
@@ -63,5 +126,8 @@ class AdminUserSerializer(serializers.ModelSerializer):
             "is_premium",
             "is_staff",
             "is_superuser",
+            "is_banned",
+            "ban_reason",
+            "email_verified",
             "date_joined",
         )

@@ -21,6 +21,7 @@ class LessonSerializer(serializers.ModelSerializer):
     video_id = serializers.SerializerMethodField()
     embed_url = serializers.SerializerMethodField()
     thumbnail_url = serializers.SerializerMethodField()
+    has_captions = serializers.SerializerMethodField()
 
     class Meta:
         model = Lesson
@@ -36,6 +37,8 @@ class LessonSerializer(serializers.ModelSerializer):
             "video_id",
             "embed_url",
             "thumbnail_url",
+            "has_captions",
+            "captions",
             "created_at",
         )
         read_only_fields = ("created_by", "created_at", "views_count")
@@ -50,6 +53,9 @@ class LessonSerializer(serializers.ModelSerializer):
     def get_thumbnail_url(self, obj):
         vid = extract_video_id(obj.youtube_url)
         return f"https://img.youtube.com/vi/{vid}/hqdefault.jpg" if vid else ""
+
+    def get_has_captions(self, obj):
+        return bool(obj.captions)
 
     def validate_youtube_url(self, value):
         if not extract_video_id(value):

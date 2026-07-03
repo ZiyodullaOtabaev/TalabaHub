@@ -70,7 +70,7 @@ export default function GPA() {
                 api.get("/api/gpa/subjects/"),
             ]);
             setGpa(gpaRes.data);
-            setSubjects(subsRes.data || []);
+            setSubjects(subsRes.data?.results || subsRes.data || []);
         } finally {
             setLoading(false);
         }

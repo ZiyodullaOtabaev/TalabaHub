@@ -1,18 +1,70 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 import api from "../api";
 import { useLang } from "../i18n/LanguageProvider";
+import { useAuth } from "../hooks/useAuth";
 import { User, Lock, ArrowRight, Eye, EyeOff, Sparkles } from "lucide-react";
+
+const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID || "";
 
 export default function Login() {
     const nav = useNavigate();
     const { t } = useLang();
+    const { onLogin } = useAuth();
+    const googleBtnRef = useRef(null);
 
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
     const [showPwd, setShowPwd] = useState(false);
     const [loading, setLoading] = useState(false);
+
+    // Google Sign-In
+    useEffect(() => {
+        if (!GOOGLE_CLIENT_ID) return;
+
+        function initGoogle() {
+            if (!window.google?.accounts) return;
+            window.google.accounts.id.initialize({
+                client_id: GOOGLE_CLIENT_ID,
+                callback: handleGoogleResponse,
+            });
+            window.google.accounts.id.renderButton(
+                document.getElementById("google-signin-btn"),
+                { theme: "outline", size: "large", width: "100%", text: "signin_with" }
+            );
+        }
+
+        // Script yuklash
+        if (window.google?.accounts) {
+            initGoogle();
+        } else {
+            const script = document.createElement("script");
+            script.src = "https://accounts.google.com/gsi/client";
+            script.async = true;
+            script.defer = true;
+            script.onload = initGoogle;
+            document.head.appendChild(script);
+        }
+    }, []);
+
+    async function handleGoogleResponse(response) {
+        const tid = toast.loading("Google orqali kirish...");
+        try {
+            const res = await api.post("/api/users/google-auth/", {
+                credential: response.credential,
+            });
+            localStorage.setItem("access", res.data.access);
+            localStorage.setItem("refresh", res.data.refresh);
+            toast.dismiss(tid);
+            toast.success("Muvaffaqiyatli kirdingiz!");
+            onLogin();
+            nav("/dashboard");
+        } catch (err) {
+            toast.dismiss(tid);
+            toast.error(err?.response?.data?.detail || "Google bilan kirishda xatolik");
+        }
+    }
 
     async function submit(e) {
         e.preventDefault();
@@ -24,10 +76,17 @@ export default function Login() {
             localStorage.setItem("refresh", res.data.refresh);
             toast.dismiss(tid);
             toast.success("Muvaffaqiyatli kirdingiz!");
+            onLogin();
             nav("/dashboard");
         } catch (err) {
             toast.dismiss(tid);
-            toast.error("Login yoki parol xato.");
+            const data = err?.response?.data;
+            if (data?.email_not_verified) {
+                toast.error("Email tasdiqlanmagan. Kodni kiriting.");
+                nav(`/verify-email?email=${encodeURIComponent(data.email)}`);
+            } else {
+                toast.error(data?.detail || "Login yoki parol xato.");
+            }
         } finally {
             setLoading(false);
         }
@@ -99,6 +158,12 @@ export default function Login() {
                             {t.signIn}
                         </button>
 
+                        <div className="text-center">
+                            <Link className="text-sm font-semibold th-gradient-text hover:opacity-80" to="/password-reset">
+                                {t.forgotPassword || "Parolni unutdingizmi?"}
+                            </Link>
+                        </div>
+
                         <p className="text-center text-sm opacity-70">
                             {t.noAccount}{" "}
                             <Link className="font-semibold th-gradient-text hover:opacity-80" to="/register">
@@ -107,7 +172,19 @@ export default function Login() {
                         </p>
                     </form>
 
-                    <div className="text-center text-xs opacity-40">© {new Date().getFullYear()} TalabaHub</div>
+                    {/* Google Sign-In */}
+                    <div className="relative">
+                        <div className="absolute inset-0 flex items-center">
+                            <div className="w-full border-t border-slate-300 dark:border-slate-600" />
+                        </div>
+                        <div className="relative flex justify-center text-xs">
+                            <span className="px-2 bg-[color:var(--surface)] opacity-60">yoki</span>
+                        </div>
+                    </div>
+
+                    <div id="google-signin-btn" className="flex justify-center" />
+
+                    <div className="text-center text-xs opacity-40">&copy; {new Date().getFullYear()} TalabaHub</div>
                 </div>
             </div>
         </div>

@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from "react"
 import { useNavigate } from "react-router-dom"
 import api from "../api"
 import { useLang } from "../i18n/LanguageProvider"
+import BannerDisplay from "../components/BannerDisplay"
 
 import {
     PlusCircle,
@@ -187,6 +188,9 @@ export default function Dashboard() {
                 </button>
 
             </div>
+
+            {/* Bannerlar */}
+            <BannerDisplay position="dashboard_top" />
 
             {/* QUICK ACCESS: Growth & IELTS */}
 

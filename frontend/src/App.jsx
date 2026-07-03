@@ -5,6 +5,8 @@ import FloatingAI from "./components/FloatingAI.jsx";
 import Planner from "./pages/Planner.jsx";
 import Login from "./pages/Login.jsx";
 import Register from "./pages/Register.jsx";
+import PasswordReset from "./pages/PasswordReset.jsx";
+import VerifyEmail from "./pages/VerifyEmail.jsx";
 import Dashboard from "./pages/Dashboard.jsx";
 import GPA from "./pages/GPA.jsx";
 import Profile from "./pages/Profile.jsx";
@@ -20,11 +22,23 @@ import AdminPanel from "./pages/AdminPanel.jsx";
 import Growth from "./pages/Growth.jsx";
 import IELTS from "./pages/IELTS.jsx";
 import Articles from "./pages/Articles.jsx";
+import { useAuth } from "./hooks/useAuth.jsx";
 
-// oddiy protect
+// Login talab qiluvchi sahifalar uchun guard
 function Protected({ children }) {
-  const access = localStorage.getItem("access");
-  if (!access) return <Navigate to="/login" replace />;
+  const { isLoggedIn, loading } = useAuth();
+  if (loading) return null;
+  if (!isLoggedIn) return <Navigate to="/login" replace />;
+  return children;
+}
+
+// Admin sahifalar uchun guard (is_staff tekshiruvi)
+function AdminGuard({ children }) {
+  const { user, loading } = useAuth();
+  if (loading) return null;
+  if (!user?.is_staff && !user?.is_superuser) {
+    return <Navigate to="/dashboard" replace />;
+  }
   return children;
 }
 
@@ -37,8 +51,19 @@ function P({ children }) {
   );
 }
 
+// Admin sahifalar uchun
+function AP({ children }) {
+  return (
+    <Protected>
+      <AdminGuard>
+        <Layout>{children}</Layout>
+      </AdminGuard>
+    </Protected>
+  );
+}
+
 export default function App() {
-  const isLoggedIn = !!localStorage.getItem("access");
+  const { isLoggedIn } = useAuth();
 
   return (
     <>
@@ -47,6 +72,8 @@ export default function App() {
 
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
+        <Route path="/verify-email" element={<VerifyEmail />} />
+        <Route path="/password-reset" element={<PasswordReset />} />
 
         <Route path="/dashboard" element={<P><Dashboard /></P>} />
         <Route path="/planner" element={<P><Planner /></P>} />
@@ -60,7 +87,7 @@ export default function App() {
         <Route path="/board" element={<P><Board /></P>} />
         <Route path="/leaderboard" element={<P><Leaderboard /></P>} />
         <Route path="/notifications" element={<P><Notifications /></P>} />
-        <Route path="/admin-panel" element={<P><AdminPanel /></P>} />
+        <Route path="/admin-panel" element={<AP><AdminPanel /></AP>} />
         <Route path="/growth" element={<P><Growth /></P>} />
         <Route path="/ielts" element={<P><IELTS /></P>} />
         <Route path="/articles" element={<P><Articles /></P>} />

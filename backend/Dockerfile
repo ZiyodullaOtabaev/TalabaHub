@@ -18,7 +18,7 @@ RUN pip install --no-cache-dir -r requirements.txt gunicorn psycopg2-binary
 COPY . .
 
 # Collect static
-RUN python manage.py collectstatic --noinput || true
+RUN python manage.py collectstatic --noinput
 
 EXPOSE 8000
 

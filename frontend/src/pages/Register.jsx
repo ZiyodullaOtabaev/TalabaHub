@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 import api from "../api";
 import { useLang } from "../i18n/LanguageProvider";
-import { User, Mail, Lock, GraduationCap, Sparkles } from "lucide-react";
+import { User, Mail, Lock, GraduationCap, Sparkles, Eye, EyeOff } from "lucide-react";
 
 // Backend xato javobidan (DRF) birinchi tushunarli xabarni ajratib olish
 function extractApiError(err) {
@@ -30,9 +30,16 @@ export default function Register() {
     const [password2, setPassword2] = useState("");
     const [university, setUniversity] = useState("");
     const [loading, setLoading] = useState(false);
+    const [showPwd, setShowPwd] = useState(false);
+    const [showPwd2, setShowPwd2] = useState(false);
 
     async function register(e) {
         e.preventDefault();
+
+        if (!email.trim()) {
+            toast.error("Email kiritish shart");
+            return;
+        }
 
         if (password !== password2) {
             toast.error("Parollar mos kelmadi");
@@ -56,8 +63,13 @@ export default function Register() {
             });
 
             toast.dismiss(tid);
-            toast.success("Hisob yaratildi! Endi kiring");
-            navigate("/login");
+            if (email) {
+                toast.success("Hisob yaratildi! Emailga tasdiqlash kodi yuborildi");
+                navigate(`/verify-email?email=${encodeURIComponent(email)}`);
+            } else {
+                toast.success("Hisob yaratildi! Endi kiring");
+                navigate("/login");
+            }
         } catch (err) {
             toast.dismiss(tid);
             toast.error(extractApiError(err));
@@ -102,11 +114,13 @@ export default function Register() {
                         </div>
 
                         <div>
-                            <label className="text-sm font-semibold">{t.email}</label>
+                            <label className="text-sm font-semibold">{t.email} <span className="text-red-500">*</span></label>
                             <div className="mt-1.5 flex items-center gap-2 th-input">
                                 <Mail size={18} className="opacity-40 shrink-0" />
                                 <input value={email} onChange={(e) => setEmail(e.target.value)}
                                     placeholder="email@example.com"
+                                    required
+                                    type="email"
                                     className="w-full outline-none bg-transparent text-sm"
                                     style={{ color: "var(--text)" }}
                                 />
@@ -129,11 +143,15 @@ export default function Register() {
                             <label className="text-sm font-semibold">{t.password}</label>
                             <div className="mt-1.5 flex items-center gap-2 th-input">
                                 <Lock size={18} className="opacity-40 shrink-0" />
-                                <input type="password" value={password} onChange={(e) => setPassword(e.target.value)}
+                                <input type={showPwd ? "text" : "password"} value={password} onChange={(e) => setPassword(e.target.value)}
                                     placeholder="********"
                                     className="w-full outline-none bg-transparent text-sm"
                                     style={{ color: "var(--text)" }}
                                 />
+                                <button type="button" onClick={() => setShowPwd((v) => !v)}
+                                    className="opacity-40 hover:opacity-70 transition shrink-0" tabIndex={-1}>
+                                    {showPwd ? <EyeOff size={18} /> : <Eye size={18} />}
+                                </button>
                             </div>
                         </div>
 
@@ -141,11 +159,15 @@ export default function Register() {
                             <label className="text-sm font-semibold">{t.passwordRepeat}</label>
                             <div className="mt-1.5 flex items-center gap-2 th-input">
                                 <Lock size={18} className="opacity-40 shrink-0" />
-                                <input type="password" value={password2} onChange={(e) => setPassword2(e.target.value)}
+                                <input type={showPwd2 ? "text" : "password"} value={password2} onChange={(e) => setPassword2(e.target.value)}
                                     placeholder="********"
                                     className="w-full outline-none bg-transparent text-sm"
                                     style={{ color: "var(--text)" }}
                                 />
+                                <button type="button" onClick={() => setShowPwd2((v) => !v)}
+                                    className="opacity-40 hover:opacity-70 transition shrink-0" tabIndex={-1}>
+                                    {showPwd2 ? <EyeOff size={18} /> : <Eye size={18} />}
+                                </button>
                             </div>
                         </div>
 

@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
-import { Plus, Trash2, PlayCircle, X, ArrowLeft, Eye } from "lucide-react";
+import { Plus, Trash2, PlayCircle, X, ArrowLeft, Eye, Subtitles } from "lucide-react";
+import VideoPlayerWithCaptions from "./VideoPlayerWithCaptions";
 
 function fmtViews(n) {
     if (n >= 1_000_000) return `${(n / 1_000_000).toFixed(1)}M`;
@@ -76,7 +77,7 @@ export default function LessonSection({ category, accent, title, subtitle, icon 
         setLoading(true);
         try {
             const res = await api.get(`/api/lessons/items/?category=${category}&lang=${lang}`);
-            setItems(res.data || []);
+            setItems(res.data?.results || res.data || []);
         } catch {
             setItems([]);
         } finally {
@@ -231,6 +232,11 @@ export default function LessonSection({ category, accent, title, subtitle, icon 
                                 <span className="absolute inset-0 grid place-items-center bg-black/25 opacity-0 transition group-hover:opacity-100">
                                     <PlayCircle size={40} className="text-white drop-shadow" />
                                 </span>
+                                {l.has_captions && (
+                                    <span className="absolute top-2 right-2 inline-flex items-center gap-1 rounded-lg bg-black/60 px-1.5 py-0.5 text-[10px] font-bold text-white backdrop-blur">
+                                        <Subtitles size={11} /> CC
+                                    </span>
+                                )}
                             </button>
                             <div className="mt-2 flex items-start justify-between gap-2">
                                 <div className="min-w-0">
@@ -254,35 +260,13 @@ export default function LessonSection({ category, accent, title, subtitle, icon 
                 </div>
             )}
 
-            {/* Video lightbox (sayt ichida ko'rish) */}
+            {/* Video player with captions */}
             {active && (
-                <div className="fixed inset-0 z-[70] flex items-center justify-center p-4">
-                    <div className="absolute inset-0 bg-black/70" onClick={() => setActive(null)} aria-hidden="true" />
-                    <div className="relative w-full max-w-4xl">
-                        <button
-                            type="button"
-                            onClick={() => setActive(null)}
-                            className="absolute -top-12 right-0 inline-flex items-center gap-2 rounded-xl bg-white/15 px-3 py-2 font-semibold text-white backdrop-blur hover:bg-white/25"
-                        >
-                            <X size={18} /> {t.close}
-                        </button>
-                        <div className="overflow-hidden rounded-2xl bg-black shadow-2xl">
-                            <iframe
-                                className="aspect-video w-full"
-                                src={`${active.embed_url}?autoplay=1&rel=0`}
-                                title={active.title}
-                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                                allowFullScreen
-                            />
-                        </div>
-                        <div className="mt-3 flex items-center gap-3 text-white">
-                            <span className="text-lg font-extrabold">{active.title}</span>
-                            <span className="inline-flex items-center gap-1 text-sm text-white/80">
-                                <Eye size={15} /> {fmtViews(active.views_count)}
-                            </span>
-                        </div>
-                    </div>
-                </div>
+                <VideoPlayerWithCaptions
+                    lesson={active}
+                    onClose={() => setActive(null)}
+                    isAdmin={isAdmin}
+                />
             )}
         </div>
     );

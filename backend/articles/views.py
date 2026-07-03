@@ -46,9 +46,9 @@ class ArticleViewSet(viewsets.ModelViewSet):
 
     def destroy(self, request, *args, **kwargs):
         instance = self.get_object()
-        if not self._check_owner(instance):
+        if not self._check_owner(instance) and not request.user.is_staff:
             return Response(
-                {"detail": "Faqat muallif o'chira oladi."},
+                {"detail": "Faqat muallif yoki admin o'chira oladi."},
                 status=status.HTTP_403_FORBIDDEN,
             )
         return super().destroy(request, *args, **kwargs)

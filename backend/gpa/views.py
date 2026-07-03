@@ -1,6 +1,8 @@
 from rest_framework import viewsets
 from rest_framework.permissions import IsAuthenticated
 from django.contrib.auth import get_user_model
+from django.db.models import Count, F, Sum, Value
+from django.db.models.functions import Round
 from .models import Subject
 from .serializers import SubjectSerializer
 from rest_framework.decorators import api_view, permission_classes
@@ -35,6 +37,7 @@ class SubjectViewSet(viewsets.ModelViewSet):
     def perform_create(self, serializer):
         serializer.save(user=self.request.user)
 
+
 @api_view(["GET"])
 @permission_classes([IsAuthenticated])
 def calculate_gpa(request):
@@ -53,34 +56,82 @@ def calculate_gpa(request):
 @api_view(["GET"])
 @permission_classes([IsAuthenticated])
 def leaderboard(request):
-    """Barcha talabalarning GPA bo'yicha reytingi (faqat fan kiritganlar)."""
-    User = get_user_model()
-    rows = []
-    users = User.objects.prefetch_related("subjects").all()
-    for u in users:
-        subjects = list(u.subjects.all())
-        if not subjects:
-            continue
-        gpa, total_credits = _user_gpa(subjects)
-        if total_credits == 0:
-            continue
-        rows.append({
-            "username": u.username,
-            "gpa": gpa,
-            "total_credits": total_credits,
-            "subjects_count": len(subjects),
-        })
+    """Barcha talabalarning GPA bo'yicha reytingi — DB aggregation bilan optimizatsiya qilingan."""
+    from django.db.models import Case, When, DecimalField
 
-    rows.sort(key=lambda r: (-r["gpa"], -r["total_credits"]))
+    User = get_user_model()
+
+    # Baho qiymatlarini DB da hisoblash uchun Case/When
+    grade_case = Case(
+        When(subjects__grade="5", then=Value(5.0)),
+        When(subjects__grade="4", then=Value(4.0)),
+        When(subjects__grade="3", then=Value(3.0)),
+        When(subjects__grade="2", then=Value(2.0)),
+        default=Value(0.0),
+        output_field=DecimalField(max_digits=4, decimal_places=2),
+    )
+
+    # DB darajasida GPA hisoblash (weighted average)
+    rows = (
+        User.objects.filter(subjects__isnull=False)
+        .annotate(
+            total_credits=Sum("subjects__credit"),
+            weighted_sum=Sum(F("subjects__credit") * grade_case),
+            subjects_count=Count("subjects"),
+        )
+        .filter(total_credits__gt=0)
+        .annotate(
+            gpa=Round(F("weighted_sum") / F("total_credits"), 2),
+        )
+        .order_by("-gpa", "-total_credits")
+        .values("username", "gpa", "total_credits", "subjects_count")[:50]
+    )
+
+    top = []
+    my_rank = None
+    me = request.user.username
 
     for i, row in enumerate(rows):
-        row["rank"] = i + 1
+        entry = {
+            "username": row["username"],
+            "gpa": float(row["gpa"]),
+            "total_credits": row["total_credits"],
+            "subjects_count": row["subjects_count"],
+            "rank": i + 1,
+        }
+        top.append(entry)
+        if row["username"] == me:
+            my_rank = i + 1
 
-    me = request.user.username
-    my_rank = next((r["rank"] for r in rows if r["username"] == me), None)
+    # Agar men top 50 da bo'lmasam, alohida tekshirish
+    if my_rank is None:
+        my_data = (
+            User.objects.filter(pk=request.user.pk, subjects__isnull=False)
+            .annotate(
+                total_credits=Sum("subjects__credit"),
+                weighted_sum=Sum(F("subjects__credit") * grade_case),
+            )
+            .filter(total_credits__gt=0)
+            .first()
+        )
+        if my_data and my_data.total_credits:
+            my_gpa = round(float(my_data.weighted_sum) / my_data.total_credits, 2)
+            # Mendan yuqori turganlar sonini hisoblash
+            higher_count = (
+                User.objects.filter(subjects__isnull=False)
+                .annotate(
+                    total_credits=Sum("subjects__credit"),
+                    weighted_sum=Sum(F("subjects__credit") * grade_case),
+                )
+                .filter(total_credits__gt=0)
+                .annotate(gpa=F("weighted_sum") / F("total_credits"))
+                .filter(gpa__gt=my_gpa)
+                .count()
+            )
+            my_rank = higher_count + 1
 
     return Response({
         "me": me,
         "my_rank": my_rank,
-        "top": rows[:50],
+        "top": top,
     })

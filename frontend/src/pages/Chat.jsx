@@ -35,7 +35,7 @@ export default function Chat() {
     async function loadRooms() {
         try {
             const res = await api.get("/api/chat/rooms/");
-            setRooms(res.data || []);
+            setRooms(res.data?.results || res.data || []);
         } catch {
             // ignore
         }
@@ -47,7 +47,7 @@ export default function Chat() {
                 ? `/api/chat/messages/?room=${activeRoom}`
                 : "/api/chat/messages/";
             const res = await api.get(url);
-            setMessages(res.data || []);
+            setMessages(res.data?.results || res.data || []);
         } catch {
             // ignore
         } finally {
@@ -144,7 +144,7 @@ export default function Chat() {
                             <RoomButton key={r.id} id={r.id} label={r.name} />
                         ))}
                     </div>
-                    <form onSubmit={createRoom} className="mt-3 flex gap-1">
+                    <form onSubmit={createRoom} className={`mt-3 flex gap-1 ${me?.is_staff || me?.is_superuser ? "" : "hidden"}`}>
                         <input
                             className="th-input flex-1 !py-1.5 text-sm"
                             placeholder={t.newRoom}
