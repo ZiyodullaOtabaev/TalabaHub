@@ -1,9 +1,8 @@
-import { useNavigate, Link } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { useLang } from "../i18n/LanguageProvider";
-import { Key, ArrowLeft, Mail } from "lucide-react";
+import { Key, ArrowLeft } from "lucide-react";
 
 export default function PasswordReset() {
-    const nav = useNavigate();
     const { t } = useLang();
 
     return (
@@ -28,34 +27,19 @@ export default function PasswordReset() {
                         </h1>
                     </div>
 
-                    <div className="space-y-4 text-center">
-                        <p className="text-sm opacity-70">
-                            {t.resetPasswordInfo || "Parolingizni unutgan bo'lsangiz, quyidagi usullardan birini tanlang:"}
+                    <div className="th-card p-5 text-center space-y-3">
+                        <p className="text-sm">
+                            {t.resetPasswordGoogleHint || "Parolingizni unutgan bo'lsangiz, login sahifasida \"Sign in with Google\" tugmasini bosing."}
                         </p>
-
-                        <div className="space-y-3">
-                            <div className="th-card p-4 text-left">
-                                <h3 className="font-bold text-sm mb-1">1. Google orqali kiring</h3>
-                                <p className="text-xs opacity-60">
-                                    Agar emailingiz Gmail bo'lsa — login sahifasida "Sign in with Google" tugmasini bosing. Hisobingiz avtomatik ulanadi.
-                                </p>
-                            </div>
-
-                            <div className="th-card p-4 text-left">
-                                <h3 className="font-bold text-sm mb-1">2. Admin bilan bog'laning</h3>
-                                <p className="text-xs opacity-60">
-                                    Telegram: <a href="https://t.me/ziyodulla_otabaev" target="_blank" rel="noopener" className="th-gradient-text font-semibold">@ziyodulla_otabaev</a>
-                                </p>
-                            </div>
-                        </div>
+                        <p className="text-xs opacity-60">
+                            {t.resetPasswordGoogleNote || "Google hisobingiz orqali kirganingizda parol talab qilinmaydi. Hisobingiz emailingiz orqali avtomatik topiladi."}
+                        </p>
                     </div>
 
-                    <p className="text-center">
-                        <Link className="text-sm font-semibold th-gradient-text hover:opacity-80 inline-flex items-center gap-1" to="/login">
-                            <ArrowLeft size={14} />
-                            {t.backToLogin || "Loginqa qaytish"}
-                        </Link>
-                    </p>
+                    <Link to="/login" className="th-btn-blue w-full flex items-center justify-center gap-2">
+                        <ArrowLeft size={18} />
+                        {t.backToLogin || "Loginqa qaytish"}
+                    </Link>
 
                     <div className="text-center text-xs opacity-40">&copy; {new Date().getFullYear()} TalabaHub</div>
                 </div>
