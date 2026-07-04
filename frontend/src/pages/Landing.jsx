@@ -1,5 +1,7 @@
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
+import api from "../api";
 import {
     GraduationCap, BarChart3, Calendar, MessageSquare,
     Bot, Trophy, BookOpen, Clock, ArrowRight, Sparkles,
@@ -9,6 +11,18 @@ import {
 export default function Landing() {
     const nav = useNavigate();
     const { isLoggedIn } = useAuth();
+    const [userCount, setUserCount] = useState(0);
+
+    useEffect(() => {
+        (async () => {
+            try {
+                const res = await api.get("/api/users/public-stats/");
+                setUserCount(res.data.total_users || 0);
+            } catch {
+                // ignore
+            }
+        })();
+    }, []);
 
     // Agar login qilgan bo'lsa — dashboard'ga
     if (isLoggedIn) {
@@ -28,7 +42,7 @@ export default function Landing() {
     ];
 
     const stats = [
-        { value: "14+", label: "Foydalanuvchilar" },
+        { value: `${userCount}+`, label: "Foydalanuvchilar" },
         { value: "8+", label: "Funksiyalar" },
         { value: "3", label: "Til (UZ/EN/RU)" },
         { value: "24/7", label: "AI Yordamchi" },

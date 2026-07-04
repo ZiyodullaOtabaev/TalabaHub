@@ -11,6 +11,7 @@ from .views import (
     google_auth,
     password_reset_confirm,
     password_reset_request,
+    public_stats,
     resend_verification,
     set_admin,
     verify_email,
@@ -30,4 +31,5 @@ urlpatterns = [
     path("admin/users/<int:user_id>/ban/", ban_user, name="ban-user"),
     path("admin/articles/<int:article_id>/delete/", admin_delete_article, name="admin-delete-article"),
     path("admin/statistics/", admin_statistics, name="admin-statistics"),
+    path("public-stats/", public_stats, name="public-stats"),
 ]

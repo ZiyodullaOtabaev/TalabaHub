@@ -517,3 +517,11 @@ def resend_verification(request):
 
     _send_verification_code(user)
     return Response({"detail": "Yangi tasdiqlash kodi yuborildi."})
+
+
+@api_view(["GET"])
+@permission_classes([AllowAny])
+def public_stats(request):
+    """Landing page uchun ochiq statistika (login talab qilinmaydi)."""
+    total_users = User.objects.count()
+    return Response({"total_users": total_users})
