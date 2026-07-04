@@ -91,17 +91,25 @@ def leaderboard(request):
     my_rank = None
     me = request.user.username
 
+    # Dense ranking — teng GPA bo'lsa bir xil o'rin
+    current_rank = 0
+    prev_gpa = None
     for i, row in enumerate(rows):
+        gpa_val = float(row["gpa"])
+        if gpa_val != prev_gpa:
+            current_rank = i + 1
+            prev_gpa = gpa_val
+
         entry = {
             "username": row["username"],
-            "gpa": float(row["gpa"]),
+            "gpa": gpa_val,
             "total_credits": row["total_credits"],
             "subjects_count": row["subjects_count"],
-            "rank": i + 1,
+            "rank": current_rank,
         }
         top.append(entry)
         if row["username"] == me:
-            my_rank = i + 1
+            my_rank = current_rank
 
     # Agar men top 50 da bo'lmasam, alohida tekshirish
     if my_rank is None:
