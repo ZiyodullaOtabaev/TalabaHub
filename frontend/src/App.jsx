@@ -6,6 +6,7 @@ import Planner from "./pages/Planner.jsx";
 import Login from "./pages/Login.jsx";
 import Register from "./pages/Register.jsx";
 import PasswordReset from "./pages/PasswordReset.jsx";
+import Landing from "./pages/Landing.jsx";
 import Dashboard from "./pages/Dashboard.jsx";
 import GPA from "./pages/GPA.jsx";
 import Profile from "./pages/Profile.jsx";
@@ -66,13 +67,13 @@ export default function App() {
   const location = useLocation();
 
   // Auth sahifalarida AI yordamchi ko'rinmasin
-  const authPages = ["/login", "/register", "/password-reset"];
+  const authPages = ["/login", "/register", "/password-reset", "/"];
   const showAI = isLoggedIn && !authPages.includes(location.pathname);
 
   return (
     <>
       <Routes>
-        <Route path="/" element={<Navigate to="/dashboard" replace />} />
+        <Route path="/" element={<Landing />} />
 
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />

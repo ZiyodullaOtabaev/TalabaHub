@@ -474,10 +474,10 @@ export default function Layout({ children }) {
                 {/* Mobile menu */}
                 {mobileOpen && (
                     <div className={cn(
-                        "md:hidden border-t backdrop-blur-xl",
+                        "md:hidden border-t backdrop-blur-xl animate-fade-in",
                         isDark ? "border-indigo-500/10 bg-[rgba(15,13,35,0.95)]" : "border-gray-200 bg-white/95"
                     )}>
-                        <div className="max-w-7xl mx-auto px-4 py-3 flex flex-col gap-1.5">
+                        <div className="max-w-7xl mx-auto px-4 py-3 flex flex-col gap-1.5 animate-stagger">
                             <NavItem to="/dashboard" onClick={() => setMobileOpen(false)}>{t.navDashboard}</NavItem>
                             <NavItem to="/gpa" onClick={() => setMobileOpen(false)}>{t.navGpa}</NavItem>
                             <NavItem to="/planner" onClick={() => setMobileOpen(false)}>{t.navPlanner}</NavItem>
@@ -542,7 +542,7 @@ export default function Layout({ children }) {
             </header>
 
             {/* PAGE */}
-            <main className="max-w-7xl mx-auto p-6">{children}</main>
+            <main className="max-w-7xl mx-auto p-4 sm:p-6 page-enter" key={location.pathname}>{children}</main>
 
             <footer className={cn(
                 "border-t backdrop-blur-xl",
