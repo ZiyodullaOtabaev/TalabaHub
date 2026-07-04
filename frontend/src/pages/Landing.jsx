@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
+import { ScrollReveal } from "../hooks/useScrollReveal";
 import api from "../api";
 import {
     GraduationCap, BarChart3, Calendar, MessageSquare,
@@ -11,7 +12,7 @@ import {
 export default function Landing() {
     const nav = useNavigate();
     const { isLoggedIn } = useAuth();
-    const [userCount, setUserCount] = useState(0);
+    const [userCount, setUserCount] = useState(null);
 
     useEffect(() => {
         (async () => {
@@ -19,7 +20,7 @@ export default function Landing() {
                 const res = await api.get("/api/users/public-stats/");
                 setUserCount(res.data.total_users || 0);
             } catch {
-                // ignore
+                // Backend javob bermasa — ko'rsatmaymiz
             }
         })();
     }, []);
@@ -42,7 +43,7 @@ export default function Landing() {
     ];
 
     const stats = [
-        { value: `${userCount}+`, label: "Foydalanuvchilar" },
+        { value: userCount !== null ? `${userCount}+` : "...", label: "Foydalanuvchilar" },
         { value: "8+", label: "Funksiyalar" },
         { value: "3", label: "Til (UZ/EN/RU)" },
         { value: "24/7", label: "AI Yordamchi" },
@@ -124,6 +125,7 @@ export default function Landing() {
             </section>
 
             {/* STATS */}
+            <ScrollReveal>
             <section className="px-4 sm:px-6 pb-20">
                 <div className="max-w-5xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-4">
                     {stats.map((s, i) => (
@@ -136,8 +138,10 @@ export default function Landing() {
                     ))}
                 </div>
             </section>
+            </ScrollReveal>
 
             {/* FEATURES */}
+            <ScrollReveal>
             <section className="px-4 sm:px-6 pb-28">
                 <div className="max-w-6xl mx-auto">
                     <div className="text-center mb-14">
@@ -161,8 +165,10 @@ export default function Landing() {
                     </div>
                 </div>
             </section>
+            </ScrollReveal>
 
             {/* WHY US */}
+            <ScrollReveal>
             <section className="px-4 sm:px-6 pb-28">
                 <div className="max-w-4xl mx-auto">
                     <div className="rounded-3xl p-8 sm:p-12 bg-gradient-to-br from-indigo-500/10 to-purple-500/10 border border-white/5">
@@ -185,8 +191,10 @@ export default function Landing() {
                     </div>
                 </div>
             </section>
+            </ScrollReveal>
 
             {/* CTA */}
+            <ScrollReveal>
             <section className="px-4 sm:px-6 pb-20">
                 <div className="max-w-3xl mx-auto text-center space-y-6">
                     <h2 className="text-3xl sm:text-4xl font-extrabold">Hoziroq boshlang</h2>
@@ -200,6 +208,7 @@ export default function Landing() {
                     </button>
                 </div>
             </section>
+            </ScrollReveal>
 
             {/* FOOTER */}
             <footer className="border-t border-white/5 px-4 sm:px-6 py-8">
