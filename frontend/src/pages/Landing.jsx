@@ -91,7 +91,7 @@ export default function Landing() {
                 <div className="relative max-w-4xl mx-auto space-y-8">
                     <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10 text-sm">
                         <Sparkles size={16} className="text-yellow-400" />
-                        <span className="text-white/70">Talabalar uchun bepul platforma</span>
+                        <span className="text-white/70">Talabalar uchun platforma</span>
                     </div>
 
                     <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-extrabold leading-tight">
@@ -103,7 +103,7 @@ export default function Landing() {
                     </h1>
 
                     <p className="text-lg sm:text-xl text-white/60 max-w-2xl mx-auto leading-relaxed">
-                        GPA hisoblash, dars jadvali, AI yordamchi, video darslar — talabalar uchun kerakli barcha vositalar bir joyda. Bepul va reklama yo'q.
+                        GPA hisoblash, dars jadvali, AI yordamchi, video darslar — talabalar uchun kerakli barcha vositalar bir joyda.
                     </p>
 
                     <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4">
@@ -146,7 +146,7 @@ export default function Landing() {
                 <div className="max-w-6xl mx-auto">
                     <div className="text-center mb-14">
                         <h2 className="text-3xl sm:text-4xl font-extrabold">Barcha vositalar bir joyda</h2>
-                        <p className="text-white/50 mt-3 max-w-xl mx-auto">Talaba sifatida sizga kerak bo'lgan hamma narsa — bepul va qulay</p>
+                        <p className="text-white/50 mt-3 max-w-xl mx-auto">Talaba sifatida sizga kerak bo'lgan hamma narsa — qulay va tez</p>
                     </div>
 
                     <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -175,7 +175,7 @@ export default function Landing() {
                         <h2 className="text-2xl sm:text-3xl font-extrabold mb-8 text-center">Nega TalabaHub?</h2>
                         <div className="grid sm:grid-cols-2 gap-6">
                             {[
-                                "100% bepul — reklama yo'q",
+                                "Reklama yo'q",
                                 "O'zbek, Ingliz, Rus tillarida",
                                 "AI yordamchi 24/7 ishlaydi",
                                 "Google orqali 1 click bilan kirish",
@@ -203,7 +203,7 @@ export default function Landing() {
                         onClick={() => nav("/register")}
                         className="group px-8 py-4 rounded-2xl font-bold text-lg bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 transition shadow-xl shadow-indigo-500/30 inline-flex items-center gap-2"
                     >
-                        Bepul ro'yxatdan o'tish
+                        Ro'yxatdan o'tish
                         <ArrowRight size={20} className="transition group-hover:translate-x-1" />
                     </button>
                 </div>
