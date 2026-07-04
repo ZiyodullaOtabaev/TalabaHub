@@ -12,7 +12,7 @@ class Subject(models.Model):
         ("2", "Qoniqarsiz (2)"),
     ]
 
-    SEMESTER_CHOICES = [(str(i), f"{i}-semestr") for i in range(1, 13)]
+    SEMESTER_CHOICES = [(str(i), f"{i}-semestr") for i in range(1, 9)]
 
     user = models.ForeignKey(
         settings.AUTH_USER_MODEL,

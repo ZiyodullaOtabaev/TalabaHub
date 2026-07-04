@@ -142,7 +142,7 @@ export default function GPA() {
                             <option value="2">Qoniqarsiz (2)</option>
                         </select>
                         <select className="th-input" value={semester} onChange={(e) => setSemester(e.target.value)}>
-                            {Array.from({ length: 12 }, (_, i) => (
+                            {Array.from({ length: 8 }, (_, i) => (
                                 <option key={i + 1} value={String(i + 1)}>{i + 1}-semestr</option>
                             ))}
                         </select>
