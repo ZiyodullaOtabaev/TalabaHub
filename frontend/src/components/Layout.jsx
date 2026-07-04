@@ -183,14 +183,43 @@ export default function Layout({ children }) {
 
     // "More" menyudagi linklar — Assistant olib tashlandi
     const secondaryLinks = [
-        ["/timetable", t.navTimetable],
-        ["/growth", t.navGrowth],
-        ["/ielts", t.navIelts],
-        ["/goals", t.navGoals],
-        ["/focus", t.navFocus],
-        ["/board", t.navBoard],
-        ["/leaderboard", t.navLeaderboard],
         ...(me?.is_superuser ? [["/admin-panel", t.navAdmin]] : []),
+    ];
+
+    // Bo'limlar (grouped navigation)
+    const navSections = [
+        {
+            label: t.navStudy || "O'qish",
+            links: [
+                ["/gpa", t.navGpa || "GPA"],
+                ["/timetable", t.navTimetable || "Dars jadvali"],
+                ["/leaderboard", t.navLeaderboard || "Reyting"],
+            ],
+        },
+        {
+            label: t.navPlan || "Reja",
+            links: [
+                ["/planner", t.navPlanner || "Planner"],
+                ["/goals", t.navGoals || "Maqsadlar"],
+                ["/focus", t.navFocus || "Fokus"],
+            ],
+        },
+        {
+            label: t.navGrow || "Rivojlanish",
+            links: [
+                ["/growth", t.navGrowth || "Shaxsiy rivojlanish"],
+                ["/ielts", t.navIelts || "IELTS"],
+                ["/resources", t.navResources || "Materiallar"],
+                ["/articles", t.navArticles || "Maqolalar"],
+            ],
+        },
+        {
+            label: t.navCommunity || "Jamoa",
+            links: [
+                ["/chat", t.navChat || "Chat"],
+                ["/board", t.navBoard || "E'lonlar"],
+            ],
+        },
     ];
 
     useEffect(() => {
@@ -284,50 +313,49 @@ export default function Layout({ children }) {
                     </button>
 
                     {/* Desktop nav */}
-                    <nav className="hidden md:flex items-center gap-1.5 ml-6">
+                    <nav className="hidden md:flex items-center gap-1 ml-6">
                         <NavItem to="/dashboard">{t.navDashboard}</NavItem>
-                        <NavItem to="/gpa">{t.navGpa}</NavItem>
-                        <NavItem to="/planner">{t.navPlanner}</NavItem>
-                        <NavItem to="/chat">{t.navChat}</NavItem>
-                        {/* Resources/Maqolalar - navbar'da ko'rinadi */}
-                        <NavItem to="/resources" icon={BookOpen}>{t.navResources}</NavItem>
-                        <NavItem to="/articles" icon={PenSquare}>{t.navArticles}</NavItem>
 
-                        {/* More dropdown */}
-                        <div className="relative" ref={moreRef}>
-                            <ChipButton
-                                onClick={() => setMoreMenuOpen((v) => !v)}
-                                title={t.moreMenu}
-                                className={cn(isDark ? "border-indigo-500/20 text-indigo-200" : "border-gray-200")}
-                            >
-                                <LayoutGrid size={16} />
-                                <span>{t.moreMenu}</span>
-                                <ChevronDown size={16} className={cn("transition", moreMenuOpen && "rotate-180")} />
-                            </ChipButton>
-
-                            {moreMenuOpen && (
-                                <div className={cn(
-                                    "absolute left-0 mt-2 w-52 rounded-2xl border shadow-xl overflow-hidden z-50 backdrop-blur-xl",
-                                    isDark ? "bg-[#1e1b4b]/95 border-indigo-500/20" : "bg-white border-gray-200"
+                        {navSections.map((section) => (
+                            <div key={section.label} className="relative group">
+                                <button className={cn(
+                                    "px-3 py-2 rounded-xl text-sm font-semibold transition-all duration-200",
+                                    "hover:translate-y-[-1px] active:translate-y-0",
+                                    isDark ? "text-indigo-200 hover:bg-indigo-500/10" : "text-gray-700 hover:bg-gray-100"
                                 )}>
-                                    {secondaryLinks.map(([to, label]) => (
-                                        <NavLink
-                                            key={to}
-                                            to={to}
-                                            className={({ isActive }) => cn(
-                                                "block px-4 py-2.5 text-sm font-semibold transition",
-                                                isActive
-                                                    ? "text-white"
-                                                    : (isDark ? "text-indigo-200 hover:bg-indigo-500/10" : "text-gray-700 hover:bg-gray-50")
-                                            )}
-                                            style={({ isActive }) => isActive ? { background: "var(--gradient-primary)" } : undefined}
-                                        >
-                                            {label}
-                                        </NavLink>
-                                    ))}
+                                    {section.label}
+                                    <ChevronDown size={14} className="inline ml-1 opacity-50" />
+                                </button>
+                                <div className={cn(
+                                    "absolute left-0 top-full pt-1 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50"
+                                )}>
+                                    <div className={cn(
+                                        "w-48 rounded-2xl border shadow-xl overflow-hidden backdrop-blur-xl",
+                                        isDark ? "bg-[#1e1b4b]/95 border-indigo-500/20" : "bg-white border-gray-200"
+                                    )}>
+                                        {section.links.map(([to, label]) => (
+                                            <NavLink
+                                                key={to}
+                                                to={to}
+                                                className={({ isActive }) => cn(
+                                                    "block px-4 py-2.5 text-sm font-semibold transition",
+                                                    isActive
+                                                        ? "text-white"
+                                                        : (isDark ? "text-indigo-200 hover:bg-indigo-500/10" : "text-gray-700 hover:bg-gray-50")
+                                                )}
+                                                style={({ isActive }) => isActive ? { background: "var(--gradient-primary)" } : undefined}
+                                            >
+                                                {label}
+                                            </NavLink>
+                                        ))}
+                                    </div>
                                 </div>
-                            )}
-                        </div>
+                            </div>
+                        ))}
+
+                        {me?.is_superuser && (
+                            <NavItem to="/admin-panel">{t.navAdmin || "Admin"}</NavItem>
+                        )}
 
                         {/* Notifications bell */}
                         <button
@@ -479,18 +507,18 @@ export default function Layout({ children }) {
                     )}>
                         <div className="max-w-7xl mx-auto px-4 py-3 flex flex-col gap-1.5 animate-stagger">
                             <NavItem to="/dashboard" onClick={() => setMobileOpen(false)}>{t.navDashboard}</NavItem>
-                            <NavItem to="/gpa" onClick={() => setMobileOpen(false)}>{t.navGpa}</NavItem>
-                            <NavItem to="/planner" onClick={() => setMobileOpen(false)}>{t.navPlanner}</NavItem>
-                            <NavItem to="/chat" onClick={() => setMobileOpen(false)}>{t.navChat}</NavItem>
-                            <NavItem to="/resources" onClick={() => setMobileOpen(false)}>{t.navResources}</NavItem>
-                            <NavItem to="/articles" onClick={() => setMobileOpen(false)}>{t.navArticles}</NavItem>
-                            <NavItem to="/timetable" onClick={() => setMobileOpen(false)}>{t.navTimetable}</NavItem>
-                            <NavItem to="/growth" onClick={() => setMobileOpen(false)}>{t.navGrowth}</NavItem>
-                            <NavItem to="/ielts" onClick={() => setMobileOpen(false)}>{t.navIelts}</NavItem>
-                            <NavItem to="/goals" onClick={() => setMobileOpen(false)}>{t.navGoals}</NavItem>
-                            <NavItem to="/focus" onClick={() => setMobileOpen(false)}>{t.navFocus}</NavItem>
-                            <NavItem to="/board" onClick={() => setMobileOpen(false)}>{t.navBoard}</NavItem>
-                            <NavItem to="/leaderboard" onClick={() => setMobileOpen(false)}>{t.navLeaderboard}</NavItem>
+
+                            {navSections.map((section) => (
+                                <div key={section.label} className="mt-2">
+                                    <div className={cn("text-xs font-bold uppercase tracking-wider px-3 py-1", isDark ? "text-indigo-400/60" : "text-gray-400")}>
+                                        {section.label}
+                                    </div>
+                                    {section.links.map(([to, label]) => (
+                                        <NavItem key={to} to={to} onClick={() => setMobileOpen(false)}>{label}</NavItem>
+                                    ))}
+                                </div>
+                            ))}
+
                             <NavItem to="/notifications" onClick={() => setMobileOpen(false)}>
                                 {t.navNotifications}{notifCount > 0 ? ` (${notifCount})` : ""}
                             </NavItem>
