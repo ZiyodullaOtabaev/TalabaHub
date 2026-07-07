@@ -280,6 +280,8 @@ const DICT = {
         notifSub: "Muddati yaqin va o'tib ketgan vazifalar",
         notifEmpty: "Yangi bildirishnoma yo'q 🎉",
         notifNewAds: "Yangi e'lonlar",
+        notifMarkAllRead: "Hammasini o'qildi deb belgilash",
+        notifUnreadCount: "ta yangi",
         overdueLabel: "Muddati o'tgan",
         dueSoonLabel: "Tez orada",
 
@@ -570,6 +572,8 @@ const DICT = {
         notifSub: "Upcoming and overdue tasks",
         notifEmpty: "No new notifications 🎉",
         notifNewAds: "New announcements",
+        notifMarkAllRead: "Mark all as read",
+        notifUnreadCount: "new",
         overdueLabel: "Overdue",
         dueSoonLabel: "Due soon",
 
@@ -860,6 +864,8 @@ const DICT = {
         notifSub: "Предстоящие и просроченные задачи",
         notifEmpty: "Нет новых уведомлений 🎉",
         notifNewAds: "Новые объявления",
+        notifMarkAllRead: "Отметить все как прочитанные",
+        notifUnreadCount: "новых",
         overdueLabel: "Просрочено",
         dueSoonLabel: "Скоро срок",
 

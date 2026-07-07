@@ -256,19 +256,28 @@ export default function Layout({ children }) {
                     api.get("/api/board/announcements/"),
                 ]);
                 const taskCount = computeNotifications(tasksRes.data?.results || tasksRes.data || []).count;
-                // So'nggi 3 kundagi e'lonlar soni
+                // Faqat o'qilmaganlarni hisoblash (notif_read_at dan keyin yaratilganlar)
+                const readAt = localStorage.getItem("notif_read_at")
+                    ? new Date(localStorage.getItem("notif_read_at"))
+                    : new Date(0);
                 const allAds = boardRes.data?.results || boardRes.data || [];
                 const threeDaysAgo = new Date();
                 threeDaysAgo.setDate(threeDaysAgo.getDate() - 3);
-                const recentAds = allAds.filter(a => new Date(a.created_at) >= threeDaysAgo).length;
-                setNotifCount(taskCount + recentAds);
+                const unreadAds = allAds.filter(a => {
+                    const created = new Date(a.created_at);
+                    return created >= threeDaysAgo && created > readAt;
+                }).length;
+                setNotifCount(taskCount + unreadAds);
             } catch {
                 // ignore
             }
         }
         loadNotif();
         const id = setInterval(loadNotif, 60000);
-        return () => clearInterval(id);
+        // "notif-read" eventi kelganda qayta hisoblash
+        function onRead() { loadNotif(); }
+        window.addEventListener("notif-read", onRead);
+        return () => { clearInterval(id); window.removeEventListener("notif-read", onRead); };
     }, [location.pathname]);
 
     function logout() {
