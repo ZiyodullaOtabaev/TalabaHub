@@ -180,6 +180,7 @@ export default function Layout({ children }) {
 
     // Bildirishnomalar soni (vazifalardan)
     const [notifCount, setNotifCount] = useState(0);
+    const [chatUnread, setChatUnread] = useState(0);
 
     // "More" menyudagi linklar — Assistant olib tashlandi
     const secondaryLinks = [
@@ -274,7 +275,8 @@ export default function Layout({ children }) {
                     : new Date(0);
                 const chatMsgs = chatRes.data?.results || chatRes.data || [];
                 const unreadChat = chatMsgs.filter(m => new Date(m.created_at) > chatReadAt).length;
-                setNotifCount(taskCount + unreadAds + unreadChat);
+                setChatUnread(unreadChat);
+                setNotifCount(taskCount + unreadAds);
             } catch {
                 // ignore
             }
@@ -365,7 +367,7 @@ export default function Layout({ children }) {
                                                 key={to}
                                                 to={to}
                                                 className={({ isActive }) => cn(
-                                                    "block px-4 py-2.5 text-sm font-semibold transition",
+                                                    "block px-4 py-2.5 text-sm font-semibold transition relative",
                                                     isActive
                                                         ? "text-white"
                                                         : (isDark ? "text-indigo-200 hover:bg-indigo-500/10" : "text-gray-700 hover:bg-gray-50")
@@ -373,6 +375,11 @@ export default function Layout({ children }) {
                                                 style={({ isActive }) => isActive ? { background: "var(--gradient-primary)" } : undefined}
                                             >
                                                 {label}
+                                                {to === "/chat" && chatUnread > 0 && (
+                                                    <span className="ml-2 inline-flex items-center justify-center min-w-[18px] h-[18px] px-1 rounded-full bg-red-500 text-white text-[10px] font-bold">
+                                                        {chatUnread > 9 ? "9+" : chatUnread}
+                                                    </span>
+                                                )}
                                             </NavLink>
                                         ))}
                                     </div>
@@ -559,7 +566,14 @@ export default function Layout({ children }) {
                                         {section.label}
                                     </div>
                                     {section.links.map(([to, label]) => (
-                                        <NavItem key={to} to={to} onClick={() => setMobileOpen(false)}>{label}</NavItem>
+                                        <NavItem key={to} to={to} onClick={() => setMobileOpen(false)}>
+                                            {label}
+                                            {to === "/chat" && chatUnread > 0 && (
+                                                <span className="ml-2 inline-flex items-center justify-center min-w-[18px] h-[18px] px-1 rounded-full bg-red-500 text-white text-[10px] font-bold">
+                                                    {chatUnread > 9 ? "9+" : chatUnread}
+                                                </span>
+                                            )}
+                                        </NavItem>
                                     ))}
                                 </div>
                             ))}
