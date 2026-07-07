@@ -492,6 +492,24 @@ export default function Layout({ children }) {
 
                     {/* Mobile buttons */}
                     <div className="md:hidden flex items-center gap-2">
+                        <button
+                            type="button"
+                            onClick={() => navigate("/notifications")}
+                            title={t.navNotifications}
+                            className={cn(
+                                "relative inline-flex items-center gap-2 px-3 py-2 rounded-xl text-sm font-semibold border transition-all duration-200",
+                                "bg-[color:var(--surface)] hover:bg-[color:var(--surface-3)] hover:border-[color:var(--border-accent)]",
+                                isDark ? "border-indigo-500/20 text-indigo-200" : "border-gray-200"
+                            )}
+                        >
+                            <Bell size={18} />
+                            {notifCount > 0 && (
+                                <span className="absolute -top-1 -right-1 min-w-[18px] h-[18px] px-1 rounded-full bg-red-500 text-white text-[10px] font-bold grid place-items-center animate-pulse">
+                                    {notifCount > 9 ? "9+" : notifCount}
+                                </span>
+                            )}
+                        </button>
+
                         <ChipButton
                             onClick={toggleTheme}
                             title="Theme"
@@ -530,9 +548,6 @@ export default function Layout({ children }) {
                                 </div>
                             ))}
 
-                            <NavItem to="/notifications" onClick={() => setMobileOpen(false)}>
-                                {t.navNotifications}{notifCount > 0 ? ` (${notifCount})` : ""}
-                            </NavItem>
                             {me?.is_superuser && (
                                 <NavItem to="/admin-panel" onClick={() => setMobileOpen(false)}>{t.navAdmin}</NavItem>
                             )}
