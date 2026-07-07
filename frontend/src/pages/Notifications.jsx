@@ -1,19 +1,30 @@
 import { useEffect, useState } from "react";
 import api from "../api";
-import { Bell, AlertTriangle, Clock } from "lucide-react";
+import { Bell, AlertTriangle, Clock, Megaphone } from "lucide-react";
 import { useLang } from "../i18n/LanguageProvider";
 import { computeNotifications } from "../lib/notifications";
 
 export default function Notifications() {
     const { t } = useLang();
     const [data, setData] = useState({ overdue: [], soon: [], count: 0 });
+    const [announcements, setAnnouncements] = useState([]);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
         (async () => {
             try {
-                const res = await api.get("/api/planner/tasks/");
-                setData(computeNotifications(res.data || []));
+                const [tasksRes, boardRes] = await Promise.all([
+                    api.get("/api/planner/tasks/"),
+                    api.get("/api/board/announcements/"),
+                ]);
+                setData(computeNotifications(tasksRes.data?.results || tasksRes.data || []));
+                // So'nggi 24 soatdagi e'lonlar
+                const allAds = boardRes.data?.results || boardRes.data || [];
+                const oneDayAgo = new Date();
+                oneDayAgo.setDate(oneDayAgo.getDate() - 3);
+                setAnnouncements(
+                    allAds.filter(a => new Date(a.created_at) >= oneDayAgo).slice(0, 10)
+                );
             } catch {
                 // ignore
             } finally {
@@ -48,7 +59,7 @@ export default function Notifications() {
                 </div>
             </div>
 
-            {!loading && data.count === 0 && (
+            {!loading && data.count === 0 && announcements.length === 0 && (
                 <div className="th-card text-center text-gray-500">{t.notifEmpty}</div>
             )}
 
@@ -70,6 +81,38 @@ export default function Notifications() {
                     </div>
                     <div className="space-y-2">
                         {data.soon.map((task) => <Row key={task.id} task={task} />)}
+                    </div>
+                </div>
+            )}
+
+            {announcements.length > 0 && (
+                <div className="th-card">
+                    <div className="flex items-center gap-2 font-bold text-emerald-500 mb-3">
+                        <Megaphone size={18} /> {t.notifNewAds || "Yangi e'lonlar"}
+                    </div>
+                    <div className="space-y-2">
+                        {announcements.map((a) => (
+                            <div key={a.id} className="rounded-xl border p-3 flex items-start gap-3">
+                                <span className={`mt-0.5 shrink-0 text-[10px] text-white px-2 py-0.5 rounded-full ${
+                                    a.category === "book" ? "bg-sky-500" :
+                                    a.category === "roommate" ? "bg-emerald-500" :
+                                    a.category === "tutor" ? "bg-violet-500" :
+                                    a.category === "event" ? "bg-amber-500" : "bg-slate-500"
+                                }`}>
+                                    {a.category === "book" ? t.catBook :
+                                     a.category === "roommate" ? t.catRoommate :
+                                     a.category === "tutor" ? t.catTutor :
+                                     a.category === "event" ? t.catEvent : (t.catOther || a.category)}
+                                </span>
+                                <div className="min-w-0 flex-1">
+                                    <div className="font-semibold text-sm">{a.title}</div>
+                                    <p className="text-xs text-gray-500 line-clamp-2 mt-0.5">{a.body}</p>
+                                    <div className="text-xs text-gray-400 mt-1">
+                                        @{a.username} &middot; {new Date(a.created_at).toLocaleString()}
+                                    </div>
+                                </div>
+                            </div>
+                        ))}
                     </div>
                 </div>
             )}

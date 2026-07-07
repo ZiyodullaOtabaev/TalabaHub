@@ -251,8 +251,17 @@ export default function Layout({ children }) {
     useEffect(() => {
         async function loadNotif() {
             try {
-                const res = await api.get("/api/planner/tasks/");
-                setNotifCount(computeNotifications(res.data?.results || res.data || []).count);
+                const [tasksRes, boardRes] = await Promise.all([
+                    api.get("/api/planner/tasks/"),
+                    api.get("/api/board/announcements/"),
+                ]);
+                const taskCount = computeNotifications(tasksRes.data?.results || tasksRes.data || []).count;
+                // So'nggi 3 kundagi e'lonlar soni
+                const allAds = boardRes.data?.results || boardRes.data || [];
+                const threeDaysAgo = new Date();
+                threeDaysAgo.setDate(threeDaysAgo.getDate() - 3);
+                const recentAds = allAds.filter(a => new Date(a.created_at) >= threeDaysAgo).length;
+                setNotifCount(taskCount + recentAds);
             } catch {
                 // ignore
             }

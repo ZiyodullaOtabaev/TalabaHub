@@ -26,6 +26,7 @@ const DICT = {
 
         dashboardTitle: "Dashboard",
         dashboardSub: "GPA va tasklaringizni bir joyda boshqaring",
+        dashboardViewAll: "Hammasini ko'rish",
         refresh: "Yangilash",
 
         // Planner
@@ -278,6 +279,7 @@ const DICT = {
         notifTitle: "Bildirishnomalar",
         notifSub: "Muddati yaqin va o'tib ketgan vazifalar",
         notifEmpty: "Yangi bildirishnoma yo'q 🎉",
+        notifNewAds: "Yangi e'lonlar",
         overdueLabel: "Muddati o'tgan",
         dueSoonLabel: "Tez orada",
 
@@ -314,6 +316,7 @@ const DICT = {
 
         dashboardTitle: "Dashboard",
         dashboardSub: "Manage GPA and tasks in one place",
+        dashboardViewAll: "View all",
         refresh: "Refresh",
 
         // Planner
@@ -566,6 +569,7 @@ const DICT = {
         notifTitle: "Notifications",
         notifSub: "Upcoming and overdue tasks",
         notifEmpty: "No new notifications 🎉",
+        notifNewAds: "New announcements",
         overdueLabel: "Overdue",
         dueSoonLabel: "Due soon",
 
@@ -602,6 +606,7 @@ const DICT = {
 
         dashboardTitle: "Dashboard",
         dashboardSub: "Управляйте GPA и задачами в одном месте",
+        dashboardViewAll: "Смотреть все",
         refresh: "Обновить",
 
         // Planner
@@ -854,6 +859,7 @@ const DICT = {
         notifTitle: "Уведомления",
         notifSub: "Предстоящие и просроченные задачи",
         notifEmpty: "Нет новых уведомлений 🎉",
+        notifNewAds: "Новые объявления",
         overdueLabel: "Просрочено",
         dueSoonLabel: "Скоро срок",
 

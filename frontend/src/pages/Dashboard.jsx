@@ -11,7 +11,8 @@ import {
     GraduationCap,
     Sparkles,
     Languages,
-    ArrowRight
+    ArrowRight,
+    Megaphone
 } from "lucide-react"
 
 import GpaProgress from "../components/GpaProgress"
@@ -28,6 +29,7 @@ export default function Dashboard() {
 
     const [gpa, setGpa] = useState(null)
     const [tasks, setTasks] = useState([])
+    const [announcements, setAnnouncements] = useState([])
 
     const [subjectName, setSubjectName] = useState("")
     const [credit, setCredit] = useState("")
@@ -43,13 +45,15 @@ export default function Dashboard() {
 
         try {
 
-            const [gpaRes, tasksRes] = await Promise.all([
+            const [gpaRes, tasksRes, boardRes] = await Promise.all([
                 api.get("/api/gpa/calculate/"),
-                api.get("/api/planner/tasks/")
+                api.get("/api/planner/tasks/"),
+                api.get("/api/board/announcements/")
             ])
 
             setGpa(gpaRes.data)
             setTasks(tasksRes.data?.results || tasksRes.data || [])
+            setAnnouncements((boardRes.data?.results || boardRes.data || []).slice(0, 5))
 
         }
 
@@ -517,6 +521,47 @@ export default function Dashboard() {
                 </div>
 
             </div>
+
+            {/* RECENT ANNOUNCEMENTS */}
+
+            {announcements.length > 0 && (
+                <div className="rounded-2xl p-6 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-card">
+                    <div className="flex items-center justify-between mb-4">
+                        <div className="flex items-center gap-2 font-bold">
+                            <Megaphone size={18} className="text-amber-500" />
+                            {tr.boardTitle || "E'lonlar"}
+                        </div>
+                        <button
+                            onClick={() => navigate("/board")}
+                            className="text-sm font-semibold text-indigo-500 hover:text-indigo-600 transition"
+                        >
+                            {tr.dashboardViewAll || "Hammasini ko'rish"} &rarr;
+                        </button>
+                    </div>
+                    <div className="space-y-3">
+                        {announcements.map(a => (
+                            <div key={a.id} className="flex items-start gap-3 rounded-xl border border-slate-200 dark:border-slate-700 p-3 bg-slate-50 dark:bg-slate-900">
+                                <span className={`mt-0.5 shrink-0 text-[10px] text-white px-2 py-0.5 rounded-full ${
+                                    a.category === "book" ? "bg-sky-500" :
+                                    a.category === "roommate" ? "bg-emerald-500" :
+                                    a.category === "tutor" ? "bg-violet-500" :
+                                    a.category === "event" ? "bg-amber-500" : "bg-slate-500"
+                                }`}>
+                                    {a.category === "book" ? tr.catBook :
+                                     a.category === "roommate" ? tr.catRoommate :
+                                     a.category === "tutor" ? tr.catTutor :
+                                     a.category === "event" ? tr.catEvent : tr.catOther}
+                                </span>
+                                <div className="min-w-0 flex-1">
+                                    <div className="font-semibold text-sm truncate">{a.title}</div>
+                                    <p className="text-xs text-slate-500 dark:text-slate-400 line-clamp-1 mt-0.5">{a.body}</p>
+                                    <div className="text-xs text-slate-400 mt-1">@{a.username} &middot; {new Date(a.created_at).toLocaleDateString()}</div>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            )}
 
             {/* EXTRA WIDGETS */}
 
