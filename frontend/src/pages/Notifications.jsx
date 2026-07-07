@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import api from "../api";
-import { Bell, AlertTriangle, Clock, Megaphone, ChevronDown, ChevronUp, CheckCheck } from "lucide-react";
+import { Bell, AlertTriangle, Clock, Megaphone, ChevronDown, ChevronUp, CheckCheck, MessagesSquare } from "lucide-react";
 import { useLang } from "../i18n/LanguageProvider";
 import { computeNotifications } from "../lib/notifications";
 
@@ -60,15 +60,17 @@ export default function Notifications() {
     const { t } = useLang();
     const [data, setData] = useState({ overdue: [], soon: [], count: 0 });
     const [announcements, setAnnouncements] = useState([]);
+    const [chatMessages, setChatMessages] = useState([]);
     const [loading, setLoading] = useState(true);
     const [readAt, setReadAtState] = useState(getReadAt);
 
     useEffect(() => {
         (async () => {
             try {
-                const [tasksRes, boardRes] = await Promise.all([
+                const [tasksRes, boardRes, chatRes] = await Promise.all([
                     api.get("/api/planner/tasks/"),
                     api.get("/api/board/announcements/"),
+                    api.get("/api/chat/messages/"),
                 ]);
                 setData(computeNotifications(tasksRes.data?.results || tasksRes.data || []));
                 const allAds = boardRes.data?.results || boardRes.data || [];
@@ -76,6 +78,11 @@ export default function Notifications() {
                 threeDaysAgo.setDate(threeDaysAgo.getDate() - 3);
                 setAnnouncements(
                     allAds.filter(a => new Date(a.created_at) >= threeDaysAgo).slice(0, 20)
+                );
+                // Chat xabarlar (so'nggi 3 kunlik)
+                const msgs = chatRes.data?.results || chatRes.data || [];
+                setChatMessages(
+                    msgs.filter(m => new Date(m.created_at) >= threeDaysAgo).slice(0, 15)
                 );
             } catch {
                 // ignore
@@ -87,12 +94,18 @@ export default function Notifications() {
 
     // O'qilmagan e'lonlar (readAt dan keyin yaratilganlar)
     const unreadAds = announcements.filter(a => new Date(a.created_at) > readAt);
-    const totalUnread = data.count + unreadAds.length;
+    // O'qilmagan chat xabarlari
+    const chatReadAt = localStorage.getItem("chat_read_at")
+        ? new Date(localStorage.getItem("chat_read_at"))
+        : new Date(0);
+    const unreadChat = chatMessages.filter(m => new Date(m.created_at) > chatReadAt);
+    const totalUnread = data.count + unreadAds.length + unreadChat.length;
 
     function markAllRead() {
         const now = new Date();
         setReadAt(now);
         setReadAtState(now);
+        localStorage.setItem("chat_read_at", now.toISOString());
         // Notify other components via storage event
         window.dispatchEvent(new Event("notif-read"));
     }
@@ -177,6 +190,41 @@ export default function Notifications() {
                                         <span className="absolute -top-1 -left-1 w-3 h-3 rounded-full bg-emerald-500 border-2 border-white dark:border-slate-800" />
                                     )}
                                     <AdCard a={a} t={t} />
+                                </div>
+                            );
+                        })}
+                    </div>
+                </div>
+            )}
+
+            {/* Chat xabarlar */}
+            {chatMessages.length > 0 && (
+                <div className="th-card">
+                    <div className="flex items-center justify-between mb-3">
+                        <div className="flex items-center gap-2 font-bold text-violet-500">
+                            <MessagesSquare size={18} /> {t.notifNewChat || "Yangi chat xabarlari"}
+                            {unreadChat.length > 0 && (
+                                <span className="ml-2 text-xs bg-violet-500 text-white px-2 py-0.5 rounded-full">
+                                    {unreadChat.length}
+                                </span>
+                            )}
+                        </div>
+                    </div>
+                    <div className="space-y-2">
+                        {chatMessages.slice(0, 10).map((m) => {
+                            const isUnread = new Date(m.created_at) > chatReadAt;
+                            return (
+                                <div key={m.id} className={`rounded-xl border p-3 flex items-start gap-3 ${isUnread ? "ring-2 ring-violet-400/50" : ""}`}>
+                                    {isUnread && (
+                                        <span className="shrink-0 w-2.5 h-2.5 mt-1.5 rounded-full bg-violet-500" />
+                                    )}
+                                    <div className="min-w-0 flex-1">
+                                        <div className="text-xs font-bold text-violet-500">@{m.username}</div>
+                                        <p className="text-sm text-[color:var(--text-muted)] mt-0.5 line-clamp-2">{m.text}</p>
+                                        <div className="text-xs text-gray-400 mt-1">
+                                            {new Date(m.created_at).toLocaleString()}
+                                        </div>
+                                    </div>
                                 </div>
                             );
                         })}

@@ -86,6 +86,9 @@ export default function Chat() {
             } catch { /* ignore */ }
         })();
         loadRooms();
+        // Chatga kirdi = xabarlarni o'qidi
+        localStorage.setItem("chat_read_at", new Date().toISOString());
+        window.dispatchEvent(new Event("notif-read"));
     }, []);
 
     useEffect(() => {

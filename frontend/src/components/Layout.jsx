@@ -251,9 +251,10 @@ export default function Layout({ children }) {
     useEffect(() => {
         async function loadNotif() {
             try {
-                const [tasksRes, boardRes] = await Promise.all([
+                const [tasksRes, boardRes, chatRes] = await Promise.all([
                     api.get("/api/planner/tasks/"),
                     api.get("/api/board/announcements/"),
+                    api.get("/api/chat/messages/"),
                 ]);
                 const taskCount = computeNotifications(tasksRes.data?.results || tasksRes.data || []).count;
                 // Faqat o'qilmaganlarni hisoblash (notif_read_at dan keyin yaratilganlar)
@@ -267,7 +268,13 @@ export default function Layout({ children }) {
                     const created = new Date(a.created_at);
                     return created >= threeDaysAgo && created > readAt;
                 }).length;
-                setNotifCount(taskCount + unreadAds);
+                // Chat: o'qilmagan xabarlar
+                const chatReadAt = localStorage.getItem("chat_read_at")
+                    ? new Date(localStorage.getItem("chat_read_at"))
+                    : new Date(0);
+                const chatMsgs = chatRes.data?.results || chatRes.data || [];
+                const unreadChat = chatMsgs.filter(m => new Date(m.created_at) > chatReadAt).length;
+                setNotifCount(taskCount + unreadAds + unreadChat);
             } catch {
                 // ignore
             }
