@@ -8,6 +8,7 @@ function fmtViews(n) {
     return `${n || 0}`;
 }
 import api from "../api";
+import ShareButton from "./ShareButton";
 import { useLang } from "../i18n/LanguageProvider";
 
 /**
@@ -249,6 +250,7 @@ export default function LessonSection({ category, accent, title, subtitle, icon 
                                         <p className="mt-1 line-clamp-1 text-xs text-[color:var(--text-muted)]">{l.description}</p>
                                     )}
                                 </div>
+                                <ShareButton path={`/${category}`} id={l.id} label={l.title} />
                                 {isAdmin && (
                                     <button onClick={() => remove(l.id)} className="shrink-0 text-red-500 hover:text-red-600" title={t.delete}>
                                         <Trash2 size={15} />

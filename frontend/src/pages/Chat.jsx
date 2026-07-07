@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import api from "../api";
-import { Send, MessagesSquare, Plus, Hash, Smile, Reply, X, Users } from "lucide-react";
+import { Send, MessagesSquare, Plus, Hash, Smile, Reply, X, Users, Eye } from "lucide-react";
 import { useLang } from "../i18n/LanguageProvider";
 
 const EMOJIS = ["👍", "❤️", "😂", "🔥", "👏", "💯", "🎉", "😊", "🤔", "👀", "✅", "⭐"];
@@ -50,6 +50,8 @@ export default function Chat() {
     const [showEmoji, setShowEmoji] = useState(false);
     const [replyTo, setReplyTo] = useState(null);
     const [onlineCount, setOnlineCount] = useState(0);
+    const [readersPopup, setReadersPopup] = useState(null); // {msgId, readers: []}
+    const markedRef = useRef(new Set()); // o'qildi deb belgilangan xabarlar ID
 
     const bottomRef = useRef(null);
     const inputRef = useRef(null);
@@ -98,6 +100,17 @@ export default function Chat() {
         return () => clearInterval(id);
     }, [activeRoom]);
 
+    // Xabarlarni o'qildi deb belgilash (boshqa odamlarning xabarlarini)
+    useEffect(() => {
+        if (!me || messages.length === 0) return;
+        const unread = messages
+            .filter(m => m.username !== me.username && !markedRef.current.has(m.id))
+            .map(m => m.id);
+        if (unread.length === 0) return;
+        unread.forEach(id => markedRef.current.add(id));
+        api.post("/api/chat/messages/mark-read/", { message_ids: unread }).catch(() => {});
+    }, [messages, me]);
+
     useEffect(() => {
         bottomRef.current?.scrollIntoView({ behavior: "smooth" });
     }, [messages]);
@@ -130,6 +143,15 @@ export default function Chat() {
         setText((prev) => prev + emoji);
         setShowEmoji(false);
         inputRef.current?.focus();
+    }
+
+    async function showReaders(msgId) {
+        try {
+            const res = await api.get(`/api/chat/messages/${msgId}/readers/`);
+            setReadersPopup({ msgId, readers: res.data || [] });
+        } catch {
+            setReadersPopup({ msgId, readers: [] });
+        }
     }
 
     async function createRoom(e) {
@@ -232,16 +254,24 @@ export default function Chat() {
                                                         {initialsOf(m.username)}
                                                     </div>
                                                 )}
-                                                <div className={`max-w-[70%] rounded-2xl px-4 py-2.5 relative ${mine ? "bg-gradient-to-r from-violet-500 to-purple-600 text-white rounded-br-md" : "bg-slate-100 dark:bg-slate-800 rounded-bl-md"}`}>
+                                                <div
+                                                    className={`max-w-[70%] rounded-2xl px-4 py-2.5 relative ${mine ? "bg-gradient-to-r from-violet-500 to-purple-600 text-white rounded-br-md cursor-pointer" : "bg-slate-100 dark:bg-slate-800 rounded-bl-md"}`}
+                                                    onClick={mine ? () => showReaders(m.id) : undefined}
+                                                >
                                                     {!mine && <div className="text-[11px] font-bold text-violet-500 mb-0.5">@{m.username}</div>}
                                                     <div className="whitespace-pre-wrap break-words text-sm">{m.text}</div>
-                                                    <div className={`text-[10px] mt-1 ${mine ? "text-white/60" : "opacity-40"}`}>
+                                                    <div className={`text-[10px] mt-1 flex items-center gap-1.5 ${mine ? "text-white/60" : "opacity-40"}`}>
                                                         {formatTime(m.created_at)}
+                                                        {mine && m.read_count > 0 && (
+                                                            <span className="inline-flex items-center gap-0.5">
+                                                                <Eye size={10} /> {m.read_count}
+                                                            </span>
+                                                        )}
                                                     </div>
 
                                                     {/* Reply button */}
                                                     <button
-                                                        onClick={() => { setReplyTo(m); inputRef.current?.focus(); }}
+                                                        onClick={(e) => { e.stopPropagation(); setReplyTo(m); inputRef.current?.focus(); }}
                                                         className={`absolute -top-2 ${mine ? "-left-8" : "-right-8"} opacity-0 group-hover:opacity-100 transition p-1 rounded-lg bg-slate-200 dark:bg-slate-700 hover:scale-110`}
                                                     >
                                                         <Reply size={12} />
@@ -301,6 +331,45 @@ export default function Chat() {
                     </div>
                 </div>
             </div>
+
+            {/* Readers popup */}
+            {readersPopup && (
+                <div className="fixed inset-0 z-[60] flex items-center justify-center p-4">
+                    <div className="absolute inset-0 bg-black/40" onClick={() => setReadersPopup(null)} aria-hidden="true" />
+                    <div className="relative w-full max-w-sm rounded-2xl border bg-[color:var(--surface)] p-5 shadow-xl">
+                        <div className="flex items-center justify-between mb-4">
+                            <div className="flex items-center gap-2 font-bold">
+                                <Eye size={16} className="text-violet-500" />
+                                {t.chatReadBy || "Ko'rganlar"}
+                            </div>
+                            <button onClick={() => setReadersPopup(null)} className="p-1 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800">
+                                <X size={16} />
+                            </button>
+                        </div>
+                        {readersPopup.readers.length === 0 ? (
+                            <div className="text-sm text-[color:var(--text-muted)] text-center py-4">
+                                {t.chatNoReaders || "Hali hech kim o'qimagan"}
+                            </div>
+                        ) : (
+                            <div className="space-y-2 max-h-64 overflow-y-auto">
+                                {readersPopup.readers.map((r) => (
+                                    <div key={r.id} className="flex items-center gap-3 rounded-xl p-2 hover:bg-[color:var(--surface-2)]">
+                                        <div className={`w-8 h-8 rounded-full grid place-items-center text-white text-[10px] font-bold ${colorFor(r.username)}`}>
+                                            {initialsOf(r.username)}
+                                        </div>
+                                        <div className="flex-1 min-w-0">
+                                            <div className="text-sm font-semibold">@{r.username}</div>
+                                            <div className="text-xs text-[color:var(--text-muted)]">
+                                                {new Date(r.read_at).toLocaleString()}
+                                            </div>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        )}
+                    </div>
+                </div>
+            )}
         </div>
     );
 }

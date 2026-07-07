@@ -45,3 +45,26 @@ class Message(models.Model):
 
     def __str__(self):
         return f"{self.user}: {self.text[:30]}"
+
+
+class MessageRead(models.Model):
+    """Kim qaysi xabarni o'qiganini kuzatish (Telegram guruhdagi ko'rganlar kabi)."""
+
+    message = models.ForeignKey(
+        Message,
+        on_delete=models.CASCADE,
+        related_name="reads",
+    )
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="read_messages",
+    )
+    read_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ("message", "user")
+        ordering = ["-read_at"]
+
+    def __str__(self):
+        return f"{self.user.username} read msg#{self.message_id}"

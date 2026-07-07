@@ -14,6 +14,7 @@ import {
     BookOpen,
 } from "lucide-react";
 import VideoPlayerWithCaptions from "../components/VideoPlayerWithCaptions";
+import ShareButton from "../components/ShareButton";
 import api from "../api";
 import { useLang } from "../i18n/LanguageProvider";
 import toast from "react-hot-toast";
@@ -233,6 +234,7 @@ export default function German() {
                         <div className="mt-3 flex items-center gap-3 text-sm text-[color:var(--text-muted)]">
                             <Eye size={14} />
                             <span>{fmtViews(activeLesson.views_count)} {t.germanViews || "ko'rilgan"}</span>
+                            <ShareButton path="/german" id={activeLesson.id} label={activeLesson.title} variant="text" />
                         </div>
                         {activeLesson.description && (
                             <p className="mt-2 text-sm text-[color:var(--text-muted)]">{activeLesson.description}</p>

@@ -10,6 +10,7 @@ import {
     Trash2,
 } from "lucide-react";
 import api from "../api";
+import ShareButton from "../components/ShareButton";
 
 function fmtDate(s) {
     try {
@@ -35,6 +36,7 @@ function ArticleCard({ a, onOpen }) {
                 <span className="inline-flex items-center gap-1"><Heart size={13} /> {a.reactions_count}</span>
                 <span className="inline-flex items-center gap-1"><MessageCircle size={13} /> {a.comments_count}</span>
                 <span className="inline-flex items-center gap-1"><Eye size={13} /> {a.views_count}</span>
+                <ShareButton path="/articles" id={a.id} label={a.title} variant="text" />
                 <span className="ml-auto">{fmtDate(a.created_at)}</span>
             </div>
         </button>
@@ -166,11 +168,14 @@ function Detail({ id, me, onBack, onChanged }) {
                 <button onClick={onBack} className="inline-flex items-center gap-1 text-sm font-semibold text-indigo-500">
                     <ArrowLeft size={16} /> Orqaga
                 </button>
-                {isOwner && (
-                    <button onClick={removeArticle} className="inline-flex items-center gap-1 text-sm font-semibold text-red-500">
-                        <Trash2 size={16} /> O'chirish
-                    </button>
-                )}
+                <div className="flex items-center gap-2">
+                    <ShareButton path="/articles" id={id} label={a?.title} variant="text" />
+                    {isOwner && (
+                        <button onClick={removeArticle} className="inline-flex items-center gap-1 text-sm font-semibold text-red-500">
+                            <Trash2 size={16} /> O'chirish
+                        </button>
+                    )}
+                </div>
             </div>
 
             <div className="th-card">

@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import api from "../api";
 import { Plus, Trash2, Megaphone } from "lucide-react";
 import { useLang } from "../i18n/LanguageProvider";
+import ShareButton from "../components/ShareButton";
 
 export default function Board() {
     const { t } = useLang();
@@ -106,7 +107,10 @@ export default function Board() {
                             <p className="mt-1 text-sm text-gray-600 whitespace-pre-wrap">{a.body}</p>
                             <div className="mt-3 flex items-center justify-between text-xs text-gray-500">
                                 <span>@{a.username}</span>
-                                {a.contact && <span className="font-semibold text-indigo-500">{a.contact}</span>}
+                                <div className="flex items-center gap-2">
+                                    {a.contact && <span className="font-semibold text-indigo-500">{a.contact}</span>}
+                                    <ShareButton path="/board" id={a.id} label={a.title} variant="text" />
+                                </div>
                             </div>
                         </div>
                     ))}
