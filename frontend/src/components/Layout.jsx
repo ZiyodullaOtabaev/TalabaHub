@@ -330,7 +330,7 @@ export default function Layout({ children }) {
                         className="flex items-center gap-3 group shrink-0"
                         title="TalabaHub"
                     >
-                        <img src="/logo.png" alt="TalabaHub" className="w-10 h-10 rounded-2xl shadow-md transition-transform group-hover:scale-105" />
+                        <img src="/logo.png" alt="TalabaHub" className="h-10 rounded-2xl shadow-md transition-transform group-hover:scale-105" />
                         <div className="text-left leading-tight">
                             <div className="text-lg font-extrabold th-gradient-text">TalabaHub</div>
                             <div className={cn("text-xs", isDark ? "text-indigo-300" : "text-gray-500")}>{t.brandSub}</div>
