@@ -21,6 +21,7 @@ import Notifications from "./pages/Notifications.jsx";
 import AdminPanel from "./pages/AdminPanel.jsx";
 import Growth from "./pages/Growth.jsx";
 import IELTS from "./pages/IELTS.jsx";
+import German from "./pages/German.jsx";
 import Articles from "./pages/Articles.jsx";
 import { useAuth } from "./hooks/useAuth.jsx";
 
@@ -94,6 +95,7 @@ export default function App() {
         <Route path="/admin-panel" element={<AP><AdminPanel /></AP>} />
         <Route path="/growth" element={<P><Growth /></P>} />
         <Route path="/ielts" element={<P><IELTS /></P>} />
+        <Route path="/german" element={<P><German /></P>} />
         <Route path="/articles" element={<P><Articles /></P>} />
 
         <Route path="*" element={<Navigate to="/dashboard" replace />} />

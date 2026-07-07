@@ -2,12 +2,13 @@ import re
 
 from rest_framework import viewsets
 from rest_framework.decorators import action
+from rest_framework.parsers import MultiPartParser, FormParser, JSONParser
 from rest_framework.permissions import IsAdminUser, IsAuthenticated
 from rest_framework.response import Response
 
-from .models import Lesson
+from .models import Lesson, LessonMaterial
 from .permissions import IsAdminOrReadOnly
-from .serializers import LessonSerializer
+from .serializers import LessonSerializer, LessonMaterialSerializer
 
 
 def parse_srt(content: str) -> list:
@@ -120,3 +121,27 @@ class LessonViewSet(viewsets.ModelViewSet):
         lesson.captions = None
         lesson.save(update_fields=["captions"])
         return Response({"detail": "Captionlar o'chirildi."})
+
+
+class LessonMaterialViewSet(viewsets.ModelViewSet):
+    """Dars materiallari (PDF, Word fayllar) CRUD.
+
+    - GET: barcha autentifikatsiya qilingan foydalanuvchilar.
+    - POST/PUT/PATCH/DELETE: faqat admin (is_staff).
+
+    Filtr: ?lesson=<id> — muayyan darsning materiallari.
+    """
+
+    serializer_class = LessonMaterialSerializer
+    permission_classes = [IsAdminOrReadOnly]
+    parser_classes = [MultiPartParser, FormParser, JSONParser]
+
+    def get_queryset(self):
+        qs = LessonMaterial.objects.select_related("lesson").all()
+        lesson_id = self.request.query_params.get("lesson")
+        if lesson_id:
+            qs = qs.filter(lesson_id=lesson_id)
+        return qs
+
+    def perform_create(self, serializer):
+        serializer.save(uploaded_by=self.request.user)

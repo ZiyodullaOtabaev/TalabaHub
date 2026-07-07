@@ -2,7 +2,7 @@ import re
 
 from rest_framework import serializers
 
-from .models import Lesson
+from .models import Lesson, LessonMaterial
 
 # youtu.be/ID , youtube.com/watch?v=ID , /embed/ID , /shorts/ID
 _YT_RE = re.compile(
@@ -17,11 +17,43 @@ def extract_video_id(url: str) -> str:
     return match.group(1) if match else ""
 
 
+class LessonMaterialSerializer(serializers.ModelSerializer):
+    file_url = serializers.SerializerMethodField()
+    file_extension = serializers.ReadOnlyField()
+    file_size = serializers.SerializerMethodField()
+
+    class Meta:
+        model = LessonMaterial
+        fields = (
+            "id",
+            "lesson",
+            "title",
+            "description",
+            "file",
+            "file_url",
+            "file_extension",
+            "file_size",
+            "order",
+            "created_at",
+        )
+        read_only_fields = ("uploaded_by", "created_at")
+
+    def get_file_url(self, obj):
+        request = self.context.get("request")
+        if obj.file and request:
+            return request.build_absolute_uri(obj.file.url)
+        return ""
+
+    def get_file_size(self, obj):
+        return obj.file_size_display
+
+
 class LessonSerializer(serializers.ModelSerializer):
     video_id = serializers.SerializerMethodField()
     embed_url = serializers.SerializerMethodField()
     thumbnail_url = serializers.SerializerMethodField()
     has_captions = serializers.SerializerMethodField()
+    materials = LessonMaterialSerializer(many=True, read_only=True)
 
     class Meta:
         model = Lesson
@@ -39,6 +71,7 @@ class LessonSerializer(serializers.ModelSerializer):
             "thumbnail_url",
             "has_captions",
             "captions",
+            "materials",
             "created_at",
         )
         read_only_fields = ("created_by", "created_at", "views_count")

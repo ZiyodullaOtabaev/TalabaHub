@@ -209,6 +209,7 @@ export default function Layout({ children }) {
             links: [
                 ["/growth", t.navGrowth || "Shaxsiy rivojlanish"],
                 ["/ielts", t.navIelts || "IELTS"],
+                ["/german", t.navGerman || "Nemis tili"],
                 ["/resources", t.navResources || "Materiallar"],
                 ["/articles", t.navArticles || "Maqolalar"],
             ],
@@ -289,6 +290,7 @@ export default function Layout({ children }) {
             {/* NAVBAR */}
             <header className={cn(
                 "sticky top-0 z-50 border-b backdrop-blur-xl",
+                "will-change-transform transform-gpu",
                 isDark
                     ? "bg-[rgba(15,13,35,0.85)] border-indigo-500/10"
                     : "bg-white/80 border-gray-200/80"
@@ -502,8 +504,8 @@ export default function Layout({ children }) {
                 {/* Mobile menu */}
                 {mobileOpen && (
                     <div className={cn(
-                        "md:hidden border-t backdrop-blur-xl animate-fade-in",
-                        isDark ? "border-indigo-500/10 bg-[rgba(15,13,35,0.95)]" : "border-gray-200 bg-white/95"
+                        "md:hidden border-t animate-fade-in overflow-y-auto overscroll-contain max-h-[80vh]",
+                        isDark ? "border-indigo-500/10 bg-[rgba(15,13,35,0.98)]" : "border-gray-200 bg-white/98"
                     )}>
                         <div className="max-w-7xl mx-auto px-4 py-3 flex flex-col gap-1.5 animate-stagger">
                             <NavItem to="/dashboard" onClick={() => setMobileOpen(false)}>{t.navDashboard}</NavItem>
