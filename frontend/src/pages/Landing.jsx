@@ -56,9 +56,7 @@ export default function Landing() {
             <nav className="sticky top-0 z-50 backdrop-blur-xl bg-[rgba(10,10,26,0.8)] border-b border-white/5">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4 flex items-center justify-between">
                     <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-600 grid place-items-center font-extrabold text-sm">
-                            TH
-                        </div>
+                        <img src="/logo.png" alt="TalabaHub" className="w-10 h-10 rounded-2xl" />
                         <span className="text-xl font-extrabold bg-gradient-to-r from-indigo-400 to-purple-400 bg-clip-text text-transparent">
                             TalabaHub
                         </span>
