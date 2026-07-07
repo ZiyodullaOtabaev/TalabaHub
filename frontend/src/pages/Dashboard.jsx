@@ -10,6 +10,7 @@ import {
     ClipboardList,
     GraduationCap,
     Sparkles,
+    Languages,
     ArrowRight
 } from "lucide-react"
 
@@ -192,9 +193,9 @@ export default function Dashboard() {
             {/* Bannerlar */}
             <BannerDisplay position="dashboard_top" />
 
-            {/* QUICK ACCESS: Growth & IELTS */}
+            {/* QUICK ACCESS: Growth & IELTS & German */}
 
-            <div className="grid gap-4 sm:grid-cols-2">
+            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
 
                 <button
                     type="button"
@@ -244,6 +245,35 @@ export default function Dashboard() {
                             <div>
                                 <div className="text-lg font-extrabold">{tr.navIelts}</div>
                                 <div className="text-sm text-white/85">{tr.ieltsSub}</div>
+                            </div>
+
+                        </div>
+
+                        <ArrowRight size={22} className="shrink-0 transition group-hover:translate-x-1" />
+
+                    </div>
+
+                </button>
+
+                <button
+                    type="button"
+                    onClick={() => navigate("/german")}
+                    className="group relative overflow-hidden rounded-2xl p-6 text-left text-white bg-gradient-to-br from-emerald-500 via-teal-600 to-cyan-600 transition hover:-translate-y-1 hover:shadow-lg"
+                >
+
+                    <div className="absolute -right-6 -top-6 h-28 w-28 rounded-full bg-white/10 blur-2xl" />
+
+                    <div className="relative flex items-center justify-between">
+
+                        <div className="flex items-center gap-3">
+
+                            <div className="grid h-12 w-12 place-items-center rounded-xl bg-white/20 backdrop-blur">
+                                <Languages size={24} />
+                            </div>
+
+                            <div>
+                                <div className="text-lg font-extrabold">{tr.navGerman}</div>
+                                <div className="text-sm text-white/85">{tr.germanSub}</div>
                             </div>
 
                         </div>
