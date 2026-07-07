@@ -220,10 +220,11 @@ export default function Dashboard() {
 
                 <button
                     onClick={load}
-                    className="flex items-center gap-2 px-4 h-[44px] rounded-xl bg-indigo-600 text-white font-semibold hover:scale-105 transition"
+                    disabled={loading}
+                    className="flex items-center gap-2 px-4 h-[44px] rounded-xl bg-indigo-600 text-white font-semibold hover:scale-105 transition disabled:opacity-70"
                 >
 
-                    <RefreshCw size={18} />
+                    <RefreshCw size={18} className={loading ? "animate-spin" : ""} />
                     {tr.refresh}
 
                 </button>
