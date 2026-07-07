@@ -12,13 +12,49 @@ import {
     Sparkles,
     Languages,
     ArrowRight,
-    Megaphone
+    Megaphone,
+    ChevronDown,
+    ChevronUp
 } from "lucide-react"
 
 import GpaProgress from "../components/GpaProgress"
 import StudyAnalytics from "../components/StudyAnalytics"
 import ModernCalendar from "../components/ModernCalendar"
 import ExamCountdown from "../components/ExamCountdown"
+
+function DashboardAdCard({ a, tr }) {
+    const [expanded, setExpanded] = useState(false)
+    return (
+        <button
+            type="button"
+            onClick={() => setExpanded(v => !v)}
+            className="w-full text-left flex items-start gap-3 rounded-xl border border-slate-200 dark:border-slate-700 p-3 bg-slate-50 dark:bg-slate-900 transition hover:border-indigo-300 dark:hover:border-indigo-500/30 active:scale-[0.99]"
+        >
+            <span className={`mt-0.5 shrink-0 text-[10px] text-white px-2 py-0.5 rounded-full ${
+                a.category === "book" ? "bg-sky-500" :
+                a.category === "roommate" ? "bg-emerald-500" :
+                a.category === "tutor" ? "bg-violet-500" :
+                a.category === "event" ? "bg-amber-500" : "bg-slate-500"
+            }`}>
+                {a.category === "book" ? tr.catBook :
+                 a.category === "roommate" ? tr.catRoommate :
+                 a.category === "tutor" ? tr.catTutor :
+                 a.category === "event" ? tr.catEvent : tr.catOther}
+            </span>
+            <div className="min-w-0 flex-1">
+                <div className="font-semibold text-sm">{a.title}</div>
+                <p className={`text-xs text-slate-500 dark:text-slate-400 mt-0.5 whitespace-pre-wrap ${expanded ? "" : "line-clamp-1"}`}>{a.body}</p>
+                {a.contact && expanded && (
+                    <div className="mt-1.5 text-xs font-semibold text-indigo-500">{a.contact}</div>
+                )}
+                <div className="text-xs text-slate-400 mt-1">@{a.username} &middot; {new Date(a.created_at).toLocaleDateString()}</div>
+            </div>
+            <span className="shrink-0 mt-1 text-slate-400">
+                {expanded ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
+            </span>
+        </button>
+    )
+}
 
 export default function Dashboard() {
 
@@ -308,24 +344,7 @@ export default function Dashboard() {
                     </div>
                     <div className="space-y-3">
                         {announcements.map(a => (
-                            <div key={a.id} className="flex items-start gap-3 rounded-xl border border-slate-200 dark:border-slate-700 p-3 bg-slate-50 dark:bg-slate-900">
-                                <span className={`mt-0.5 shrink-0 text-[10px] text-white px-2 py-0.5 rounded-full ${
-                                    a.category === "book" ? "bg-sky-500" :
-                                    a.category === "roommate" ? "bg-emerald-500" :
-                                    a.category === "tutor" ? "bg-violet-500" :
-                                    a.category === "event" ? "bg-amber-500" : "bg-slate-500"
-                                }`}>
-                                    {a.category === "book" ? tr.catBook :
-                                     a.category === "roommate" ? tr.catRoommate :
-                                     a.category === "tutor" ? tr.catTutor :
-                                     a.category === "event" ? tr.catEvent : tr.catOther}
-                                </span>
-                                <div className="min-w-0 flex-1">
-                                    <div className="font-semibold text-sm truncate">{a.title}</div>
-                                    <p className="text-xs text-slate-500 dark:text-slate-400 line-clamp-1 mt-0.5">{a.body}</p>
-                                    <div className="text-xs text-slate-400 mt-1">@{a.username} &middot; {new Date(a.created_at).toLocaleDateString()}</div>
-                                </div>
-                            </div>
+                            <DashboardAdCard key={a.id} a={a} tr={tr} />
                         ))}
                     </div>
                 </div>

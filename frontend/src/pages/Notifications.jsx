@@ -1,8 +1,51 @@
 import { useEffect, useState } from "react";
 import api from "../api";
-import { Bell, AlertTriangle, Clock, Megaphone } from "lucide-react";
+import { Bell, AlertTriangle, Clock, Megaphone, ChevronDown, ChevronUp } from "lucide-react";
 import { useLang } from "../i18n/LanguageProvider";
 import { computeNotifications } from "../lib/notifications";
+
+function AdCard({ a, t }) {
+    const [expanded, setExpanded] = useState(false);
+
+    return (
+        <button
+            type="button"
+            onClick={() => setExpanded((v) => !v)}
+            className="w-full text-left rounded-xl border p-3 flex items-start gap-3 transition hover:bg-[color:var(--surface-2)] active:scale-[0.99]"
+        >
+            <span className={`mt-0.5 shrink-0 text-[10px] text-white px-2 py-0.5 rounded-full ${
+                a.category === "book" ? "bg-sky-500" :
+                a.category === "roommate" ? "bg-emerald-500" :
+                a.category === "tutor" ? "bg-violet-500" :
+                a.category === "event" ? "bg-amber-500" : "bg-slate-500"
+            }`}>
+                {a.category === "book" ? t.catBook :
+                 a.category === "roommate" ? t.catRoommate :
+                 a.category === "tutor" ? t.catTutor :
+                 a.category === "event" ? t.catEvent : (t.catOther || a.category)}
+            </span>
+            <div className="min-w-0 flex-1">
+                <div className="font-semibold text-sm">{a.title}</div>
+                <p className={`text-sm text-[color:var(--text-muted)] mt-1 whitespace-pre-wrap ${expanded ? "" : "line-clamp-2"}`}>
+                    {a.body}
+                </p>
+                {a.contact && expanded && (
+                    <div className="mt-2 text-sm font-semibold text-indigo-500">
+                        {a.contact}
+                    </div>
+                )}
+                <div className="text-xs text-gray-400 mt-1.5 flex items-center gap-2">
+                    <span>@{a.username}</span>
+                    <span>&middot;</span>
+                    <span>{new Date(a.created_at).toLocaleString()}</span>
+                </div>
+            </div>
+            <span className="shrink-0 mt-1 text-[color:var(--text-muted)]">
+                {expanded ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+            </span>
+        </button>
+    );
+}
 
 export default function Notifications() {
     const { t } = useLang();
@@ -18,12 +61,11 @@ export default function Notifications() {
                     api.get("/api/board/announcements/"),
                 ]);
                 setData(computeNotifications(tasksRes.data?.results || tasksRes.data || []));
-                // So'nggi 24 soatdagi e'lonlar
                 const allAds = boardRes.data?.results || boardRes.data || [];
-                const oneDayAgo = new Date();
-                oneDayAgo.setDate(oneDayAgo.getDate() - 3);
+                const threeDaysAgo = new Date();
+                threeDaysAgo.setDate(threeDaysAgo.getDate() - 3);
                 setAnnouncements(
-                    allAds.filter(a => new Date(a.created_at) >= oneDayAgo).slice(0, 10)
+                    allAds.filter(a => new Date(a.created_at) >= threeDaysAgo).slice(0, 10)
                 );
             } catch {
                 // ignore
@@ -92,26 +134,7 @@ export default function Notifications() {
                     </div>
                     <div className="space-y-2">
                         {announcements.map((a) => (
-                            <div key={a.id} className="rounded-xl border p-3 flex items-start gap-3">
-                                <span className={`mt-0.5 shrink-0 text-[10px] text-white px-2 py-0.5 rounded-full ${
-                                    a.category === "book" ? "bg-sky-500" :
-                                    a.category === "roommate" ? "bg-emerald-500" :
-                                    a.category === "tutor" ? "bg-violet-500" :
-                                    a.category === "event" ? "bg-amber-500" : "bg-slate-500"
-                                }`}>
-                                    {a.category === "book" ? t.catBook :
-                                     a.category === "roommate" ? t.catRoommate :
-                                     a.category === "tutor" ? t.catTutor :
-                                     a.category === "event" ? t.catEvent : (t.catOther || a.category)}
-                                </span>
-                                <div className="min-w-0 flex-1">
-                                    <div className="font-semibold text-sm">{a.title}</div>
-                                    <p className="text-xs text-gray-500 line-clamp-2 mt-0.5">{a.body}</p>
-                                    <div className="text-xs text-gray-400 mt-1">
-                                        @{a.username} &middot; {new Date(a.created_at).toLocaleString()}
-                                    </div>
-                                </div>
-                            </div>
+                            <AdCard key={a.id} a={a} t={t} />
                         ))}
                     </div>
                 </div>
