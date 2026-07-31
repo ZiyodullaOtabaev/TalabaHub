@@ -15,6 +15,9 @@ from .views import (
     resend_verification,
     set_admin,
     verify_email,
+    get_telegram_link,
+    unlink_telegram,
+    telegram_webhook,
 )
 
 urlpatterns = [
@@ -26,6 +29,9 @@ urlpatterns = [
     path("password-reset/", password_reset_request, name="password-reset"),
     path("password-reset/confirm/", password_reset_confirm, name="password-reset-confirm"),
     path("google-auth/", google_auth, name="google-auth"),
+    path("telegram-link/", get_telegram_link, name="telegram-link"),
+    path("telegram-unlink/", unlink_telegram, name="telegram-unlink"),
+    path("telegram-webhook/", telegram_webhook, name="telegram-webhook"),
     path("admin/users/", AdminUserListView.as_view(), name="admin-users"),
     path("admin/users/<int:user_id>/set-admin/", set_admin, name="set-admin"),
     path("admin/users/<int:user_id>/ban/", ban_user, name="ban-user"),

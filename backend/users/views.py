@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.contrib.auth.tokens import default_token_generator
 from django.db.models import Q
@@ -522,6 +523,44 @@ def resend_verification(request):
 @api_view(["GET"])
 @permission_classes([AllowAny])
 def public_stats(request):
-    """Landing page uchun ochiq statistika (login talab qilinmaydi)."""
+    """Landing page uchun ochoq statistika (login talab qilinmaydi)."""
     total_users = User.objects.count()
     return Response({"total_users": total_users})
+
+
+@api_view(["GET"])
+@permission_classes([IsAuthenticated])
+def get_telegram_link(request):
+    """Telegram ulash kodi va statusini olish."""
+    user = request.user
+    if not user.telegram_link_code and not user.telegram_chat_id:
+        user.generate_telegram_code()
+
+    return Response({
+        "is_linked": bool(user.telegram_chat_id),
+        "code": user.telegram_link_code,
+        "chat_id": user.telegram_chat_id,
+        "bot_username": getattr(settings, "TELEGRAM_BOT_USERNAME", "TalabaHubBot"),
+    })
+
+
+@api_view(["POST"])
+@permission_classes([IsAuthenticated])
+def unlink_telegram(request):
+    """Telegram bog'lanishini uzish."""
+    user = request.user
+    user.telegram_chat_id = None
+    user.telegram_link_code = None
+    user.save(update_fields=["telegram_chat_id", "telegram_link_code"])
+    return Response({"detail": "Telegram bot muvaffaqiyatli uzildi."})
+
+
+@api_view(["POST"])
+@permission_classes([AllowAny])
+def telegram_webhook(request):
+    """Telegram bot webhook update qabul qilish."""
+    from .telegram import process_telegram_update
+    update_data = request.data
+    if isinstance(update_data, dict):
+        process_telegram_update(update_data)
+    return Response({"status": "ok"})

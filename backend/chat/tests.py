@@ -22,8 +22,9 @@ class ChatTests(APITestCase):
 
         res = self.client.get("/api/chat/messages/")
         self.assertEqual(res.status_code, 200)
-        self.assertEqual(len(res.data), 1)
-        self.assertEqual(res.data[0]["text"], "Salom!")
+        results = res.data.get("results", res.data)
+        self.assertEqual(len(results), 1)
+        self.assertEqual(results[0]["text"], "Salom!")
 
     def test_empty_message_rejected(self):
         self.client.force_authenticate(self.user)
@@ -36,4 +37,5 @@ class ChatTests(APITestCase):
         self.client.force_authenticate(other)
         res = self.client.get("/api/chat/messages/")
         self.assertEqual(res.status_code, 200)
-        self.assertEqual(len(res.data), 1)
+        results = res.data.get("results", res.data)
+        self.assertEqual(len(results), 1)

@@ -105,8 +105,6 @@ const DICT = {
         examCountdown: "Imtihongacha",
         examStarted: "Imtihon boshlandi",
 
-        // Navigation
-        navChat: "Chat",
 
         // Calendar
         plannerCalendar: "Planner kalendari",
@@ -149,7 +147,6 @@ const DICT = {
 
         // ===== Yangi bo'limlar: navigatsiya =====
         navTimetable: "Dars jadvali",
-        navResources: "Materiallar",
         navGoals: "Maqsadlar",
         navFocus: "Fokus",
         navAssistant: "AI yordamchi",
@@ -398,8 +395,6 @@ const DICT = {
         examCountdown: "Exam Countdown",
         examStarted: "Exam started",
 
-        // Navigation
-        navChat: "Chat",
 
         // Calendar
         plannerCalendar: "Planner Calendar",
@@ -442,7 +437,6 @@ const DICT = {
 
         // ===== New sections: navigation =====
         navTimetable: "Timetable",
-        navResources: "Resources",
         navGoals: "Goals",
         navFocus: "Focus",
         navAssistant: "AI Assistant",
@@ -691,8 +685,6 @@ const DICT = {
         examCountdown: "До экзамена",
         examStarted: "Экзамен начался",
 
-        // Navigation
-        navChat: "Чат",
 
         // Calendar
         plannerCalendar: "Календарь планера",
@@ -735,7 +727,6 @@ const DICT = {
 
         // ===== Новые разделы: навигация =====
         navTimetable: "Расписание",
-        navResources: "Материалы",
         navGoals: "Цели",
         navFocus: "Фокус",
         navAssistant: "AI помощник",

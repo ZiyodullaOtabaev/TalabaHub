@@ -8,20 +8,40 @@ from .serializers import SubjectSerializer
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
 
-# O'zbekiston OTM 5 balli baho tizimi
 GRADE_POINTS = {
-    "5": 5.0,
-    "4": 4.0,
-    "3": 3.0,
-    "2": 2.0,
+    # 5 ballik (O'zbekiston)
+    "5": 5.0, "4": 4.0, "3": 3.0, "2": 2.0,
+    # 4.0 Letter Grade (US/International)
+    "A+": 4.0, "A": 4.0, "A-": 3.7,
+    "B+": 3.3, "B": 3.0, "B-": 2.7,
+    "C+": 2.3, "C": 2.0, "C-": 1.7,
+    "D+": 1.3, "D": 1.0, "F": 0.0,
+    # ECTS (European System)
+    "ECTS_A": 5.0, "ECTS_B": 4.5, "ECTS_C": 4.0, "ECTS_D": 3.5, "ECTS_E": 3.0, "ECTS_FX": 2.0, "ECTS_F": 0.0,
 }
+
+
+def resolve_grade_point(grade):
+    if grade in GRADE_POINTS:
+        return GRADE_POINTS[grade]
+    try:
+        val = float(grade)
+        if val > 5.0:  # 100 ballik shkala
+            if val >= 86: return 5.0
+            if val >= 71: return 4.0
+            if val >= 55: return 3.0
+            return 2.0
+        return val
+    except (ValueError, TypeError):
+        return 0.0
 
 
 def _user_gpa(subjects):
     total_points = 0.0
     total_credits = 0
     for s in subjects:
-        total_points += GRADE_POINTS.get(s.grade, 0.0) * s.credit
+        pts = resolve_grade_point(s.grade)
+        total_points += pts * s.credit
         total_credits += s.credit
     gpa = round(total_points / total_credits, 2) if total_credits > 0 else 0.0
     return gpa, total_credits
@@ -143,3 +163,34 @@ def leaderboard(request):
         "my_rank": my_rank,
         "top": top,
     })
+
+
+@api_view(["POST"])
+@permission_classes([IsAuthenticated])
+def import_excel(request):
+    """Excel (.xlsx) fayldan fanlarni avtomatik yuklash."""
+    from .excel_import import parse_gpa_excel
+
+    file_obj = request.FILES.get("file")
+    if not file_obj:
+        return Response({"detail": "Fayl yuborilmadi (file maydoni kerak)."}, status=400)
+
+    try:
+        data = parse_gpa_excel(file_obj.read())
+        if not data:
+            return Response({"detail": "Excel faylidan fanlar topilmadi."}, status=400)
+
+        created_count = 0
+        for item in data:
+            Subject.objects.create(
+                user=request.user,
+                name=item["name"],
+                credit=item["credit"],
+                grade=item["grade"],
+                semester=item["semester"],
+            )
+            created_count += 1
+
+        return Response({"detail": f"{created_count} ta fan muvaffaqiyatli yuklandi!", "imported_count": created_count})
+    except Exception as e:
+        return Response({"detail": f"Excel faylini o'qishda xatolik: {e}"}, status=400)

@@ -11,14 +11,20 @@ class RegisterSerializer(serializers.ModelSerializer):
         validators=[UniqueValidator(queryset=User.objects.all(), message="Bu username allaqachon band.")]
     )
     password = serializers.CharField(write_only=True, min_length=8)
+    password2 = serializers.CharField(write_only=True, required=False)
 
     class Meta:
         model = User
-        fields = ("id", "username", "email", "password", "university")
+        fields = ("id", "username", "email", "password", "password2", "university")
+
+    def validate(self, attrs):
+        p1 = attrs.get("password")
+        p2 = attrs.get("password2")
+        if p2 and p1 != p2:
+            raise serializers.ValidationError({"password2": "Parollar mos kelmadi."})
+        return attrs
 
     def validate_email(self, value):
-        # Bo'sh email uchun unikallik tekshirilmaydi (bir nechta foydalanuvchi
-        # email kiritmasligi mumkin); faqat qiymat bo'lsa tekshiramiz.
         if value and User.objects.filter(email=value).exists():
             raise serializers.ValidationError(
                 "Bu email allaqachon ro'yxatdan o'tgan."
@@ -30,6 +36,7 @@ class RegisterSerializer(serializers.ModelSerializer):
         return value
 
     def create(self, validated_data):
+        validated_data.pop("password2", None)
         password = validated_data.pop("password")
         user = User(**validated_data)
         user.set_password(password)

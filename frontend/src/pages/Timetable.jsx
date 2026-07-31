@@ -1,8 +1,9 @@
 import { useEffect, useMemo, useState } from "react";
 import api from "../api";
-import { Plus, Trash2, Clock, MapPin, User2, Calendar as CalendarIcon } from "lucide-react";
+import { Plus, Trash2, Clock, MapPin, User2, Calendar as CalendarIcon, FileSpreadsheet, Upload, X } from "lucide-react";
 import { useLang } from "../i18n/LanguageProvider";
 import { ScrollReveal } from "../hooks/useScrollReveal";
+import toast from "react-hot-toast";
 
 const DAY_COLORS = [
     "from-blue-500 to-indigo-600",
@@ -57,6 +58,10 @@ export default function Timetable() {
     const [room, setRoom] = useState("");
     const [teacher, setTeacher] = useState("");
 
+    // Modal states
+    const [showExcelModal, setShowExcelModal] = useState(false);
+    const [uploading, setUploading] = useState(false);
+
     async function load() {
         try {
             const res = await api.get("/api/timetable/sessions/");
@@ -70,22 +75,54 @@ export default function Timetable() {
     async function addSession(e) {
         e.preventDefault();
         if (!subject.trim()) return;
-        await api.post("/api/timetable/sessions/", {
-            subject: subject.trim(),
-            weekday: Number(weekday),
-            start_time: startTime,
-            end_time: endTime,
-            room: room.trim(),
-            teacher: teacher.trim(),
-        });
-        setSubject(""); setRoom(""); setTeacher("");
-        setShowForm(false);
-        load();
+        try {
+            await api.post("/api/timetable/sessions/", {
+                subject: subject.trim(),
+                weekday: Number(weekday),
+                start_time: startTime,
+                end_time: endTime,
+                room: room.trim(),
+                teacher: teacher.trim(),
+            });
+            toast.success("Dars qo'shildi!");
+            setSubject(""); setRoom(""); setTeacher("");
+            setShowForm(false);
+            load();
+        } catch {
+            toast.error("Dars qo'shishda xatolik");
+        }
     }
 
     async function remove(id) {
-        await api.delete(`/api/timetable/sessions/${id}/`);
-        load();
+        try {
+            await api.delete(`/api/timetable/sessions/${id}/`);
+            toast.success("Dars o'chirildi");
+            load();
+        } catch {
+            toast.error("O'chirishda xatolik");
+        }
+    }
+
+    async function handleFileUpload(e) {
+        const file = e.target.files?.[0];
+        if (!file) return;
+
+        const formData = new FormData();
+        formData.append("file", file);
+
+        setUploading(true);
+        try {
+            const res = await api.post("/api/timetable/import-excel/", formData, {
+                headers: { "Content-Type": "multipart/form-data" },
+            });
+            toast.success(res.data?.detail || "Dars jadvali yuklandi!");
+            setShowExcelModal(false);
+            load();
+        } catch (err) {
+            toast.error(err.response?.data?.detail || "Excel yuklashda xatolik yuz berdi!");
+        } finally {
+            setUploading(false);
+        }
     }
 
     const byDay = useMemo(() => {
@@ -116,120 +153,209 @@ export default function Timetable() {
                     </h1>
                     <p className="mt-1 opacity-60">{t.timetableSub || "Haftalik darslaringiz"}</p>
                 </div>
-                <button onClick={() => setShowForm((v) => !v)}
-                    className="px-5 py-2.5 rounded-xl font-bold text-sm bg-gradient-to-r from-sky-500 to-blue-600 text-white shadow-lg shadow-sky-500/25 flex items-center gap-2 hover:scale-105 transition">
-                    <Plus size={18} /> {t.add || "Qo'shish"}
-                </button>
-            </div>
-
-            {/* Today highlight */}
-            <div className="th-card p-5 border-l-4 border-l-sky-500">
-                <div className="flex items-center justify-between">
-                    <div>
-                        <div className="text-sm font-bold opacity-50">Bugun — {weekdayNames[todayIndex]}</div>
-                        <div className="text-2xl font-extrabold mt-1">
-                            {todaySessions.length > 0 ? `${todaySessions.length} ta dars` : "Bugun dars yo'q"}
-                        </div>
-                    </div>
-                    <div className="text-right">
-                        <div className="text-sm opacity-50">Jami haftalik</div>
-                        <div className="text-xl font-bold">{totalSessions} ta</div>
-                    </div>
+                <div className="flex items-center gap-2 flex-wrap">
+                    <button
+                        onClick={() => setShowExcelModal(true)}
+                        className="px-4 py-2.5 rounded-xl font-bold text-sm bg-emerald-600 text-white shadow-lg shadow-emerald-500/25 flex items-center gap-2 hover:scale-105 transition"
+                    >
+                        <FileSpreadsheet size={18} />
+                        Excel Import
+                    </button>
+                    <button onClick={() => setShowForm((v) => !v)}
+                        className="px-5 py-2.5 rounded-xl font-bold text-sm bg-gradient-to-r from-sky-500 to-blue-600 text-white shadow-lg shadow-sky-500/25 flex items-center gap-2 hover:scale-105 transition">
+                        <Plus size={18} />
+                        {t.addLesson || "Dars qo'shish"}
+                    </button>
                 </div>
             </div>
 
-            {/* Add form */}
+            {/* Excel Upload Modal */}
+            {showExcelModal && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 animate-fade-in">
+                    <div className="th-card p-6 w-full max-w-md relative">
+                        <button
+                            onClick={() => setShowExcelModal(false)}
+                            className="absolute top-4 right-4 p-1 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-lg"
+                        >
+                            <X size={18} />
+                        </button>
+                        <h3 className="text-xl font-bold mb-2 flex items-center gap-2">
+                            <FileSpreadsheet className="text-emerald-500" size={22} />
+                            Excel-dan dars jadvalini yuklash
+                        </h3>
+                        <p className="text-sm opacity-70 mb-4">
+                            Excel (.xlsx) faylingizni yuklang. Ustunlar: Fan, Kun (Dushanba-Shanba), Boshlanish vaqti (09:00), Tugash vaqti (10:20), Xona, O'qituvchi.
+                        </p>
+                        <label className="border-2 border-dashed border-slate-300 dark:border-slate-700 hover:border-emerald-500 rounded-2xl p-6 grid place-items-center cursor-pointer transition">
+                            <Upload size={32} className="text-emerald-500 mb-2" />
+                            <span className="text-sm font-semibold">
+                                {uploading ? "Yuklanmoqda..." : "Excel faylni tanlang (.xlsx)"}
+                            </span>
+                            <input
+                                type="file"
+                                accept=".xlsx, .xls"
+                                className="hidden"
+                                onChange={handleFileUpload}
+                                disabled={uploading}
+                            />
+                        </label>
+                    </div>
+                </div>
+            )}
+
+            {/* Quick stats */}
+            <div className="grid grid-cols-2 lg:grid-cols-3 gap-4">
+                <div className="th-card p-4 text-center">
+                    <div className="text-3xl font-extrabold">{totalSessions}</div>
+                    <div className="text-xs opacity-60 mt-1">{t.totalLessons || "Jami darslar"}</div>
+                </div>
+                <div className="th-card p-4 text-center">
+                    <div className="text-3xl font-extrabold text-sky-500">{todaySessions.length}</div>
+                    <div className="text-xs opacity-60 mt-1">{t.todayLessonsCount || "Bugungi darslar"}</div>
+                </div>
+                <div className="th-card p-4 text-center col-span-2 lg:col-span-1">
+                    <div className="text-3xl font-extrabold text-emerald-500">
+                        {weekdayNames[todayIndex]}
+                    </div>
+                    <div className="text-xs opacity-60 mt-1">{t.today || "Bugun"}</div>
+                </div>
+            </div>
+
+            {/* Form */}
             {showForm && (
                 <ScrollReveal>
-                <div className="th-card p-5">
-                    <form onSubmit={addSession} className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-                        <input className="th-input" placeholder={t.subjectField || "Fan nomi"} value={subject} onChange={(e) => setSubject(e.target.value)} />
-                        <select className="th-input" value={weekday} onChange={(e) => setWeekday(e.target.value)}>
-                            {weekdayNames.map((w, i) => <option key={i} value={i}>{w}</option>)}
-                        </select>
-                        <div className="flex gap-2">
-                            <input className="th-input flex-1" type="time" value={startTime} onChange={(e) => setStartTime(e.target.value)} />
-                            <input className="th-input flex-1" type="time" value={endTime} onChange={(e) => setEndTime(e.target.value)} />
-                        </div>
-                        <input className="th-input" placeholder={t.roomField || "Xona"} value={room} onChange={(e) => setRoom(e.target.value)} />
-                        <input className="th-input" placeholder={t.teacherField || "O'qituvchi"} value={teacher} onChange={(e) => setTeacher(e.target.value)} />
-                        <button className="th-btn-blue flex items-center justify-center gap-2">
-                            <Plus size={18} /> {t.add || "Qo'shish"}
-                        </button>
-                    </form>
-                </div>
+                    <div className="th-card p-5">
+                        <form onSubmit={addSession} className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+                            <input
+                                className="th-input"
+                                placeholder={t.lessonSubjectPlaceholder || "Fan nomi (masalan, Fizika)"}
+                                value={subject}
+                                onChange={(e) => setSubject(e.target.value)}
+                            />
+                            <select className="th-input" value={weekday} onChange={(e) => setWeekday(e.target.value)}>
+                                {weekdayNames.map((name, i) => (
+                                    <option key={i} value={i}>{name}</option>
+                                ))}
+                            </select>
+                            <div className="flex gap-2">
+                                <input
+                                    type="time"
+                                    className="th-input flex-1"
+                                    value={startTime}
+                                    onChange={(e) => setStartTime(e.target.value)}
+                                />
+                                <input
+                                    type="time"
+                                    className="th-input flex-1"
+                                    value={endTime}
+                                    onChange={(e) => setEndTime(e.target.value)}
+                                />
+                            </div>
+                            <input
+                                className="th-input"
+                                placeholder={t.roomPlaceholder || "Xona / Auditoriya (masalan, 302)"}
+                                value={room}
+                                onChange={(e) => setRoom(e.target.value)}
+                            />
+                            <input
+                                className="th-input"
+                                placeholder={t.teacherPlaceholder || "O'qituvchi ismi"}
+                                value={teacher}
+                                onChange={(e) => setTeacher(e.target.value)}
+                            />
+                            <button className="th-btn-blue flex items-center justify-center gap-2">
+                                <Plus size={18} /> {t.add || "Qo'shish"}
+                            </button>
+                        </form>
+                    </div>
                 </ScrollReveal>
             )}
 
             {/* Day tabs */}
-            <div className="flex gap-2 overflow-x-auto pb-2">
-                {weekdayNames.map((name, i) => (
-                    <button
-                        key={i}
-                        onClick={() => setActiveDay(i)}
-                        className={`px-4 py-2.5 rounded-xl text-sm font-semibold whitespace-nowrap transition ${
-                            activeDay === i
-                                ? `bg-gradient-to-r ${DAY_COLORS[i]} text-white shadow-lg`
-                                : `th-card ${i === todayIndex ? "ring-2 ring-sky-500/50" : ""}`
-                        }`}
-                    >
-                        {name.slice(0, 3)}
-                        {byDay[i]?.length > 0 && (
-                            <span className={`ml-1.5 text-[10px] ${activeDay === i ? "opacity-80" : "opacity-50"}`}>
-                                ({byDay[i].length})
-                            </span>
-                        )}
-                    </button>
-                ))}
+            <div className="flex items-center gap-2 overflow-x-auto pb-2">
+                {weekdayNames.map((name, i) => {
+                    const count = (byDay[i] || []).length;
+                    const isToday = i === todayIndex;
+                    return (
+                        <button
+                            key={i}
+                            onClick={() => setActiveDay(i)}
+                            className={`px-4 py-2.5 rounded-xl text-sm font-semibold whitespace-nowrap transition flex items-center gap-2 ${
+                                activeDay === i
+                                    ? "bg-gradient-to-r from-sky-500 to-blue-600 text-white shadow-md shadow-sky-500/20"
+                                    : "th-card hover:scale-105"
+                            }`}
+                        >
+                            <span>{name}</span>
+                            {count > 0 && (
+                                <span className={`text-[10px] px-1.5 py-0.5 rounded-full font-bold ${
+                                    activeDay === i ? "bg-white/20 text-white" : "bg-slate-200 dark:bg-slate-700 opacity-70"
+                                }`}>
+                                    {count}
+                                </span>
+                            )}
+                            {isToday && activeDay !== i && (
+                                <span className="w-2 h-2 rounded-full bg-emerald-500 animate-ping" />
+                            )}
+                        </button>
+                    );
+                })}
             </div>
 
-            {/* Schedule for selected day */}
+            {/* Active day sessions */}
             <div className="space-y-3">
-                {loading && <div className="th-card p-8 text-center opacity-50">{t.loading || "Yuklanmoqda..."}</div>}
+                {loading && <div className="th-card p-6 text-center opacity-50">{t.loading || "Yuklanmoqda..."}</div>}
 
                 {!loading && (byDay[activeDay] || []).length === 0 && (
-                    <div className="th-card p-10 text-center opacity-50">
-                        {weekdayNames[activeDay]} kuni dars yo'q
+                    <div className="th-card p-8 text-center opacity-50">
+                        {weekdayNames[activeDay]} kuni darslar yo'q. Dam oling! 🎉
                     </div>
                 )}
 
-                {(byDay[activeDay] || []).map((s, idx) => {
-                    const isCurrent = isCurrentLesson(s);
+                {(byDay[activeDay] || []).map((s) => {
+                    const current = isCurrentLesson(s);
                     return (
                         <div
                             key={s.id}
-                            className={`th-card p-4 flex items-center gap-4 transition hover:scale-[1.01] ${
-                                isCurrent ? "ring-2 ring-sky-500 shadow-lg shadow-sky-500/10" : ""
+                            className={`th-card p-5 flex items-center justify-between gap-4 transition ${
+                                current ? "ring-2 ring-emerald-500 shadow-lg shadow-emerald-500/10" : ""
                             }`}
                         >
-                            {/* Time */}
-                            <div className={`shrink-0 w-20 text-center p-2 rounded-xl ${isCurrent ? "bg-sky-500 text-white" : "bg-slate-100 dark:bg-slate-800"}`}>
-                                <div className="text-sm font-bold">{s.start_time?.slice(0, 5)}</div>
-                                <div className="text-[10px] opacity-60">{s.end_time?.slice(0, 5)}</div>
-                            </div>
-
-                            {/* Colored bar */}
-                            <div className={`w-1 h-12 rounded-full bg-gradient-to-b ${DAY_COLORS[activeDay]}`} />
-
-                            {/* Content */}
-                            <div className="flex-1 min-w-0">
-                                <div className="font-bold flex items-center gap-2">
-                                    {s.subject}
-                                    {isCurrent && (
-                                        <span className="text-[10px] px-2 py-0.5 rounded-full bg-sky-500 text-white font-bold animate-pulse">
-                                            HOZIR
+                            <div className="flex items-center gap-4 min-w-0">
+                                <div className={`w-12 h-12 rounded-2xl bg-gradient-to-br ${DAY_COLORS[s.weekday]} text-white grid place-items-center font-extrabold text-sm shrink-0 shadow-md`}>
+                                    {s.start_time?.slice(0, 5)}
+                                </div>
+                                <div className="min-w-0">
+                                    <div className="flex items-center gap-2">
+                                        <h3 className="font-bold text-lg truncate">{s.subject}</h3>
+                                        {current && (
+                                            <span className="text-[10px] font-extrabold px-2 py-0.5 rounded-full bg-emerald-500 text-white animate-pulse">
+                                                HOZIR
+                                            </span>
+                                        )}
+                                    </div>
+                                    <div className="flex items-center gap-4 mt-1 text-xs opacity-60 flex-wrap">
+                                        <span className="flex items-center gap-1">
+                                            <Clock size={14} /> {s.start_time?.slice(0, 5)} &ndash; {s.end_time?.slice(0, 5)}
                                         </span>
-                                    )}
-                                </div>
-                                <div className="flex items-center gap-3 mt-1 text-xs opacity-60 flex-wrap">
-                                    {s.room && <span className="inline-flex items-center gap-1"><MapPin size={12} /> {s.room}</span>}
-                                    {s.teacher && <span className="inline-flex items-center gap-1"><User2 size={12} /> {s.teacher}</span>}
+                                        {s.room && (
+                                            <span className="flex items-center gap-1 font-semibold text-sky-500">
+                                                <MapPin size={14} /> {s.room}-xona
+                                            </span>
+                                        )}
+                                        {s.teacher && (
+                                            <span className="flex items-center gap-1">
+                                                <User2 size={14} /> {s.teacher}
+                                            </span>
+                                        )}
+                                    </div>
                                 </div>
                             </div>
-
-                            {/* Delete */}
-                            <button onClick={() => remove(s.id)} className="p-2 rounded-xl hover:bg-red-50 dark:hover:bg-red-500/10 text-red-500 transition shrink-0">
-                                <Trash2 size={16} />
+                            <button
+                                onClick={() => remove(s.id)}
+                                className="p-2 rounded-xl hover:bg-red-50 dark:hover:bg-red-500/10 text-red-500 transition shrink-0"
+                            >
+                                <Trash2 size={18} />
                             </button>
                         </div>
                     );

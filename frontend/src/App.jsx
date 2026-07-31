@@ -23,6 +23,9 @@ import Growth from "./pages/Growth.jsx";
 import IELTS from "./pages/IELTS.jsx";
 import German from "./pages/German.jsx";
 import Articles from "./pages/Articles.jsx";
+import Courses from "./pages/Courses.jsx";
+import CourseDetail from "./pages/CourseDetail.jsx";
+import CreateCourse from "./pages/CreateCourse.jsx";
 import { useAuth } from "./hooks/useAuth.jsx";
 
 // Login talab qiluvchi sahifalar uchun guard
@@ -97,6 +100,9 @@ export default function App() {
         <Route path="/ielts" element={<P><IELTS /></P>} />
         <Route path="/german" element={<P><German /></P>} />
         <Route path="/articles" element={<P><Articles /></P>} />
+        <Route path="/courses" element={<P><Courses /></P>} />
+        <Route path="/courses/:id" element={<P><CourseDetail /></P>} />
+        <Route path="/create-course" element={<P><CreateCourse /></P>} />
 
         <Route path="*" element={<Navigate to="/dashboard" replace />} />
       </Routes>

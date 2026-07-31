@@ -13,6 +13,14 @@ class User(AbstractUser):
     email_verified = models.BooleanField(default=False)
     is_banned = models.BooleanField(default=False)
     ban_reason = models.CharField(max_length=255, blank=True, default="")
+    telegram_chat_id = models.CharField(max_length=50, blank=True, null=True)
+    telegram_link_code = models.CharField(max_length=6, blank=True, null=True)
+
+    def generate_telegram_code(self):
+        code = "".join(random.choices(string.digits, k=6))
+        self.telegram_link_code = code
+        self.save(update_fields=["telegram_link_code"])
+        return code
 
     def __str__(self):
         return self.username

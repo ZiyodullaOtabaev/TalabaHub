@@ -70,6 +70,7 @@ INSTALLED_APPS = [
     "lessons",
     "articles",
     "banners",
+    "courses",
 ]
 
 MIDDLEWARE = [
@@ -239,3 +240,7 @@ RESEND_API_KEY = env("RESEND_API_KEY", default="")
 # Google OAuth
 # Google Cloud Console dan olinadi: https://console.cloud.google.com/apis/credentials
 GOOGLE_CLIENT_ID = env("GOOGLE_CLIENT_ID", default="")
+
+# Telegram Bot
+TELEGRAM_BOT_TOKEN = env("TELEGRAM_BOT_TOKEN", default="")
+TELEGRAM_BOT_USERNAME = env("TELEGRAM_BOT_USERNAME", default="talabahubuzbot")

@@ -198,16 +198,9 @@ export default function Layout({ children }) {
             ],
         },
         {
-            label: t.navPlan || "Reja",
-            links: [
-                ["/planner", t.navPlanner || "Planner"],
-                ["/goals", t.navGoals || "Maqsadlar"],
-                ["/focus", t.navFocus || "Fokus"],
-            ],
-        },
-        {
             label: t.navGrow || "Rivojlanish",
             links: [
+                ["/courses", "🎓 Video Kurslar"],
                 ["/growth", t.navGrowth || "Shaxsiy rivojlanish"],
                 ["/ielts", t.navIelts || "IELTS"],
                 ["/german", t.navGerman || "Nemis tili"],
@@ -340,6 +333,7 @@ export default function Layout({ children }) {
                     {/* Desktop nav */}
                     <nav className="hidden md:flex items-center gap-1 ml-6">
                         <NavItem to="/dashboard">{t.navDashboard}</NavItem>
+                        <NavItem to="/courses">🎓 Kurslar</NavItem>
 
                         {navSections.map((section) => (
                             <div key={section.label} className="relative group">
@@ -621,8 +615,15 @@ export default function Layout({ children }) {
                 )}
             </header>
 
+            {/* Ambient 3D background glows for all logged-in pages */}
+            <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden">
+                <div className="absolute top-10 left-1/2 -translate-x-1/2 w-[700px] h-[700px] rounded-full bg-indigo-600/10 blur-[130px]" />
+                <div className="absolute top-1/2 -right-40 w-[500px] h-[500px] rounded-full bg-emerald-500/10 blur-[120px]" />
+                <div className="absolute bottom-10 -left-40 w-[500px] h-[500px] rounded-full bg-cyan-500/10 blur-[140px]" />
+            </div>
+
             {/* PAGE */}
-            <main className="max-w-7xl mx-auto p-4 sm:p-6 page-enter" key={location.pathname}>{children}</main>
+            <main className="relative z-10 max-w-7xl mx-auto p-4 sm:p-6 page-enter" key={location.pathname}>{children}</main>
 
             <footer className={cn(
                 "border-t backdrop-blur-xl",

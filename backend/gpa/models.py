@@ -4,15 +4,13 @@ from django.core.validators import MinValueValidator
 
 
 class Subject(models.Model):
-    # O'zbekiston OTM 5 balli baho tizimi
-    GRADE_CHOICES = [
-        ("5", "A'lo (5)"),
-        ("4", "Yaxshi (4)"),
-        ("3", "Qoniqarli (3)"),
-        ("2", "Qoniqarsiz (2)"),
-    ]
-
     SEMESTER_CHOICES = [(str(i), f"{i}-semestr") for i in range(1, 9)]
+    SCALE_CHOICES = [
+        ("5", "5 ballik (O'zbekiston)"),
+        ("4", "4.0 Letter Grade (US/International)"),
+        ("100", "100 ballik shkala"),
+        ("ects", "ECTS (Yevropa tizimi)"),
+    ]
 
     user = models.ForeignKey(
         settings.AUTH_USER_MODEL,
@@ -21,7 +19,8 @@ class Subject(models.Model):
     )
     name = models.CharField(max_length=255)
     credit = models.IntegerField(validators=[MinValueValidator(1)])
-    grade = models.CharField(max_length=2, choices=GRADE_CHOICES)
+    grade = models.CharField(max_length=10)
+    scale_type = models.CharField(max_length=10, choices=SCALE_CHOICES, default="5")
     semester = models.CharField(max_length=2, choices=SEMESTER_CHOICES, default="1")
     created_at = models.DateTimeField(auto_now_add=True)
 

@@ -30,6 +30,22 @@ class RoomListCreate(generics.ListCreateAPIView):
         serializer.save(created_by=self.request.user)
 
 
+class RoomDelete(generics.DestroyAPIView):
+    """Admin yoki xona yaratuvchisi xonani o'chirishi mumkin."""
+
+    permission_classes = [permissions.IsAuthenticated]
+    queryset = Room.objects.all()
+
+    def destroy(self, request, *args, **kwargs):
+        room = self.get_object()
+        if not request.user.is_staff and room.created_by != request.user:
+            return Response(
+                {"detail": "Faqat admin yoki xona muallifi xonani o'chira oladi."},
+                status=status.HTTP_403_FORBIDDEN,
+            )
+        return super().destroy(request, *args, **kwargs)
+
+
 class MessagePagination(PageNumberPagination):
     page_size = 50
     page_size_query_param = "page_size"

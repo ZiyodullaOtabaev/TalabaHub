@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import api from "../api";
-import { Send, MessagesSquare, Plus, Hash, Smile, Reply, X, Users, Eye } from "lucide-react";
+import { Send, MessagesSquare, Plus, Hash, Smile, Reply, X, Users, Eye, Trash2 } from "lucide-react";
 import { useLang } from "../i18n/LanguageProvider";
 
 const EMOJIS = ["👍", "❤️", "😂", "🔥", "👏", "💯", "🎉", "😊", "🤔", "👀", "✅", "⭐"];
@@ -166,6 +166,18 @@ export default function Chat() {
         } catch { /* ignore */ }
     }
 
+    async function deleteRoom(e, roomId) {
+        e.stopPropagation();
+        if (!window.confirm("Rostdan ham bu chat xonasini o'chirmoqchimisiz?")) return;
+        try {
+            await api.delete(`/api/chat/rooms/${roomId}/`);
+            if (activeRoom === roomId) setActiveRoom(null);
+            await loadRooms();
+        } catch {
+            alert("Xonani o'chirishda xatolik");
+        }
+    }
+
     // Group messages by date
     const groupedMessages = messages.reduce((acc, m) => {
         const date = formatDate(m.created_at);
@@ -206,15 +218,31 @@ export default function Chat() {
                         >
                             <Hash size={14} /> {t.roomGeneral || "Umumiy"}
                         </button>
-                        {rooms.map((r) => (
-                            <button
-                                key={r.id}
-                                onClick={() => setActiveRoom(r.id)}
-                                className={`w-full text-left px-3 py-2 rounded-xl text-sm font-semibold flex items-center gap-2 transition ${activeRoom === r.id ? "bg-gradient-to-r from-violet-500 to-purple-600 text-white" : "hover:bg-slate-100 dark:hover:bg-slate-800"}`}
-                            >
-                                <Hash size={14} /> <span className="truncate">{r.name}</span>
-                            </button>
-                        ))}
+                        {rooms.map((r) => {
+                            const canDelete = me?.is_staff || me?.is_superuser || r.created_by === me?.id;
+                            return (
+                                <div
+                                    key={r.id}
+                                    onClick={() => setActiveRoom(r.id)}
+                                    className={`w-full text-left px-3 py-2 rounded-xl text-sm font-semibold flex items-center justify-between gap-2 transition cursor-pointer ${activeRoom === r.id ? "bg-gradient-to-r from-violet-500 to-purple-600 text-white" : "hover:bg-slate-100 dark:hover:bg-slate-800"}`}
+                                >
+                                    <div className="flex items-center gap-2 min-w-0">
+                                        <Hash size={14} className="shrink-0" />
+                                        <span className="truncate">{r.name}</span>
+                                    </div>
+                                    {canDelete && (
+                                        <button
+                                            type="button"
+                                            onClick={(e) => deleteRoom(e, r.id)}
+                                            className="p-1 text-red-400 hover:text-red-600 hover:bg-white/20 rounded-md transition shrink-0"
+                                            title="Xonani o'chirish"
+                                        >
+                                            <Trash2 size={13} />
+                                        </button>
+                                    )}
+                                </div>
+                            );
+                        })}
                     </div>
                     {(me?.is_staff || me?.is_superuser) && (
                         <form onSubmit={createRoom} className="mt-3 flex gap-1">

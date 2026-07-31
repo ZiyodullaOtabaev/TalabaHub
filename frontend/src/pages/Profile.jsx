@@ -13,6 +13,9 @@ import {
     Save,
     X,
     User,
+    Send,
+    CheckCircle2,
+    Copy,
 } from "lucide-react"
 
 export default function Profile() {
@@ -23,6 +26,10 @@ export default function Profile() {
     const [editing, setEditing] = useState(false)
     const [form, setForm] = useState({ username: "", email: "", university: "" })
     const [saving, setSaving] = useState(false)
+
+    // Telegram bot state
+    const [telegramInfo, setTelegramInfo] = useState(null)
+    const [loadingTg, setLoadingTg] = useState(true)
 
     async function load() {
         try {
@@ -38,7 +45,19 @@ export default function Profile() {
         }
     }
 
-    useEffect(() => { load() }, [])
+    async function loadTelegram() {
+        setLoadingTg(true)
+        try {
+            const res = await api.get("/api/users/telegram-link/")
+            setTelegramInfo(res.data)
+        } catch { /* ignore */ }
+        finally { setLoadingTg(false) }
+    }
+
+    useEffect(() => {
+        load()
+        loadTelegram()
+    }, [])
 
     async function saveProfile(e) {
         e.preventDefault()
@@ -60,7 +79,6 @@ export default function Profile() {
         } catch (err) {
             const data = err?.response?.data
             if (data) {
-                // DRF field errors
                 const firstKey = Object.keys(data)[0]
                 let msg = data.detail || ""
                 if (!msg && firstKey) {
@@ -73,6 +91,23 @@ export default function Profile() {
             }
         } finally {
             setSaving(false)
+        }
+    }
+
+    async function unlinkTelegram() {
+        try {
+            await api.post("/api/users/telegram-unlink/")
+            toast.success("Telegram bot uzildi")
+            loadTelegram()
+        } catch {
+            toast.error("Xatolik yuz berdi")
+        }
+    }
+
+    function copyCode() {
+        if (telegramInfo?.code) {
+            navigator.clipboard.writeText(`/start ${telegramInfo.code}`)
+            toast.success("Nusxalandi! Telegram botga yuboring")
         }
     }
 
@@ -176,6 +211,66 @@ export default function Profile() {
                             </button>
                         </div>
                     </form>
+                )}
+            </div>
+
+            {/* TELEGRAM BOT CARD */}
+            <div className="rounded-2xl p-6 bg-gradient-to-r from-sky-500/10 via-blue-500/5 to-transparent border border-sky-200 dark:border-sky-800/40">
+                <div className="flex items-center justify-between gap-4 flex-wrap">
+                    <div className="flex items-center gap-4">
+                        <div className="w-12 h-12 rounded-2xl bg-sky-500 text-white grid place-items-center shrink-0">
+                            <Send size={24} />
+                        </div>
+                        <div>
+                            <h3 className="font-bold text-lg flex items-center gap-2">
+                                Telegram Bot Integratsiyasi
+                                {telegramInfo?.is_linked && (
+                                    <span className="text-xs bg-emerald-500 text-white px-2 py-0.5 rounded-full flex items-center gap-1">
+                                        <CheckCircle2 size={12} /> Ulangan
+                                    </span>
+                                )}
+                            </h3>
+                            <p className="text-sm opacity-70">
+                                Dars jadvalingiz, vazifa eslatmalaringizni Telegram orqali qabul qiling.
+                            </p>
+                        </div>
+                    </div>
+
+                    {telegramInfo?.is_linked ? (
+                        <button
+                            onClick={unlinkTelegram}
+                            className="px-4 py-2 rounded-xl border border-red-500 text-red-500 hover:bg-red-500 hover:text-white font-semibold text-sm transition"
+                        >
+                            Botni uzish
+                        </button>
+                    ) : (
+                        <a
+                            href={`https://t.me/${telegramInfo?.bot_username || "TalabaHubBot"}?start=${telegramInfo?.code || ""}`}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="px-5 py-2.5 rounded-xl bg-sky-500 text-white font-bold text-sm shadow-lg shadow-sky-500/25 flex items-center gap-2 hover:scale-105 transition"
+                        >
+                            <Send size={16} />
+                            Botga o'tish va ulash
+                        </a>
+                    )}
+                </div>
+
+                {!telegramInfo?.is_linked && telegramInfo?.code && (
+                    <div className="mt-4 p-4 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 flex items-center justify-between gap-3">
+                        <div>
+                            <div className="text-xs font-semibold opacity-60 uppercase">Sizning ulash kodingiz:</div>
+                            <div className="text-xl font-mono font-extrabold text-sky-500 tracking-wider">
+                                /start {telegramInfo.code}
+                            </div>
+                        </div>
+                        <button
+                            onClick={copyCode}
+                            className="px-3 py-2 rounded-xl bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 font-semibold text-xs flex items-center gap-1.5 transition"
+                        >
+                            <Copy size={14} /> Nusxalash
+                        </button>
+                    </div>
                 )}
             </div>
 
