@@ -71,6 +71,7 @@ INSTALLED_APPS = [
     "articles",
     "banners",
     "courses",
+    "payments",
 ]
 
 MIDDLEWARE = [

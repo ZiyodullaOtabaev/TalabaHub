@@ -1,9 +1,10 @@
 import { useEffect, useMemo, useState } from "react";
 import api from "../api";
-import { Plus, Trash2, GraduationCap, TrendingUp, BookOpen, FileSpreadsheet, Upload, X } from "lucide-react";
+import { Plus, Trash2, GraduationCap, TrendingUp, BookOpen, FileSpreadsheet, Upload, X, Sparkles, Share2 } from "lucide-react";
 import { useLang } from "../i18n/LanguageProvider";
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
 import { ScrollReveal } from "../hooks/useScrollReveal";
+import GpaShareModal from "../components/GpaShareModal";
 import toast from "react-hot-toast";
 
 const GRADE_MAP = {
@@ -63,13 +64,19 @@ export default function GPA() {
 
     // Modal states
     const [showExcelModal, setShowExcelModal] = useState(false);
+    const [showShareModal, setShowShareModal] = useState(false);
+    const [currentUser, setCurrentUser] = useState(null);
     const [uploading, setUploading] = useState(false);
 
     async function load() {
         setLoading(true);
         try {
-            const res = await api.get("/api/gpa/subjects/");
-            setSubjects(res.data?.results || res.data || []);
+            const [subjRes, meRes] = await Promise.all([
+                api.get("/api/gpa/subjects/"),
+                api.get("/api/users/me/").catch(() => ({ data: null })),
+            ]);
+            setSubjects(subjRes.data?.results || subjRes.data || []);
+            if (meRes.data) setCurrentUser(meRes.data);
         } finally {
             setLoading(false);
         }
@@ -181,6 +188,13 @@ export default function GPA() {
                     <p className="mt-1 opacity-60">{t.gpaCalcSub || "Baholaringizni kuzating va tahlil qiling"}</p>
                 </div>
                 <div className="flex items-center gap-2 flex-wrap">
+                    <button
+                        onClick={() => setShowShareModal(true)}
+                        className="px-4 py-2.5 rounded-xl font-bold text-sm bg-gradient-to-r from-amber-500 to-orange-500 text-white shadow-lg shadow-amber-500/25 flex items-center gap-2 hover:scale-105 transition"
+                    >
+                        <Sparkles size={18} />
+                        🏆 Stories Kartochkasi
+                    </button>
                     <button
                         onClick={() => setShowExcelModal(true)}
                         className="px-4 py-2.5 rounded-xl font-bold text-sm bg-emerald-600 text-white shadow-lg shadow-emerald-500/25 flex items-center gap-2 hover:scale-105 transition"
@@ -459,6 +473,16 @@ export default function GPA() {
                     </div>
                 ))}
             </div>
+
+            {/* GPA Stories Certificate Modal */}
+            <GpaShareModal
+                open={showShareModal}
+                onClose={() => setShowShareModal(false)}
+                gpa={overallGpa}
+                user={currentUser}
+                scaleType={scaleType}
+            />
+
         </div>
     );
 }

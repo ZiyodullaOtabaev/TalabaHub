@@ -9,6 +9,9 @@ import { LanguageProvider } from "./i18n/LanguageProvider.jsx";
 import { ThemeProvider } from "./components/ThemeProvider.jsx";
 import { AuthProvider } from "./hooks/useAuth.jsx";
 import ErrorBoundary from "./components/ErrorBoundary.jsx";
+import { initTelegramApp } from "./lib/telegramWebApp.js";
+
+initTelegramApp();
 
 ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>

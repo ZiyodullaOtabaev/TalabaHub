@@ -3,9 +3,10 @@ import { useNavigate } from "react-router-dom";
 import api from "../api";
 import {
     BookOpen, Search, Filter, Plus, Lock, Globe,
-    Play, Star, Users, Award, ShieldCheck, Sparkles, X, Key
+    Play, Star, Users, Award, ShieldCheck, Sparkles, X, Key, CreditCard
 } from "lucide-react";
 import toast from "react-hot-toast";
+import CheckoutModal from "../components/CheckoutModal";
 
 export default function Courses() {
     const nav = useNavigate();
@@ -20,6 +21,7 @@ export default function Courses() {
 
     // Modal state for private code
     const [privateModalCourse, setPrivateModalCourse] = useState(null);
+    const [checkoutCourse, setCheckoutCourse] = useState(null);
     const [accessCodeInput, setAccessCodeInput] = useState("");
     const [unlocking, setUnlocking] = useState(false);
 
@@ -299,14 +301,38 @@ export default function Courses() {
                                 <p className="text-xs opacity-60 line-clamp-2">{c.description || "Video darslar to'plami."}</p>
                             </div>
 
-                            <div className="pt-3 border-t border-slate-200 dark:border-slate-800 flex items-center justify-between text-xs opacity-70">
-                                <span className="font-semibold">Muallif: @{c.instructor_name}</span>
-                                <span>{c.lessons_count || 0} ta dars</span>
+                            <div className="pt-3 border-t border-slate-200 dark:border-slate-800 flex items-center justify-between text-xs">
+                                <div className="opacity-70">
+                                    <span className="font-semibold">@{c.instructor_name}</span> &middot; <span>{c.lessons_count || 0} dars</span>
+                                </div>
+                                {Number(c.price) > 0 && !c.is_enrolled && (
+                                    <button
+                                        type="button"
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            setCheckoutCourse(c);
+                                        }}
+                                        className="px-3 py-1 rounded-xl bg-emerald-500/20 text-emerald-400 hover:bg-emerald-500 hover:text-white font-extrabold text-xs transition flex items-center gap-1"
+                                    >
+                                        <CreditCard size={12} /> Sotib Olish
+                                    </button>
+                                )}
                             </div>
                         </div>
                     </div>
                 ))}
             </div>
+
+            {/* Course Checkout Modal */}
+            <CheckoutModal
+                open={Boolean(checkoutCourse)}
+                onClose={() => setCheckoutCourse(null)}
+                course={checkoutCourse}
+                onSuccess={() => {
+                    setCheckoutCourse(null);
+                    loadData();
+                }}
+            />
 
         </div>
     );

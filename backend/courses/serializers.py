@@ -107,7 +107,8 @@ class CreateCourseSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         lessons_data = validated_data.pop("lessons", [])
         request = self.context.get("request")
-        course = Course.objects.create(instructor=request.user, **validated_data)
+        instructor = validated_data.pop("instructor", None) or (request.user if request else None)
+        course = Course.objects.create(instructor=instructor, **validated_data)
 
         for idx, lesson_data in enumerate(lessons_data, start=1):
             Lesson.objects.create(course=course, order=idx, **lesson_data)

@@ -32,6 +32,7 @@ urlpatterns = [
     path("api/articles/", include("articles.urls")),
     path("api/banners/", include("banners.urls")),
     path("api/courses/", include("courses.urls")),
+    path("api/payments/", include("payments.urls")),
 ]
 
 # Development da media fayllarni serve qilish

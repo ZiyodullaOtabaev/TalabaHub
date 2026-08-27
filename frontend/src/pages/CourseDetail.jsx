@@ -3,9 +3,10 @@ import { useParams, useNavigate } from "react-router-dom";
 import api from "../api";
 import {
     Play, Lock, Globe, CheckCircle2, ChevronRight,
-    Users, Award, Plus, ArrowLeft, Key, X, ShieldAlert
+    Users, Award, Plus, ArrowLeft, Key, X, ShieldAlert, CreditCard
 } from "lucide-react";
 import toast from "react-hot-toast";
+import CheckoutModal from "../components/CheckoutModal";
 
 export default function CourseDetail() {
     const { id } = useParams();
@@ -18,6 +19,7 @@ export default function CourseDetail() {
     // Private modal
     const [accessCode, setAccessCode] = useState("");
     const [unlocking, setUnlocking] = useState(false);
+    const [showCheckout, setShowCheckout] = useState(false);
 
     // New lesson form
     const [showAddLesson, setShowAddLesson] = useState(false);
@@ -132,32 +134,78 @@ export default function CourseDetail() {
                 </div>
             </div>
 
-            {/* NO ACCESS BANNER FOR PRIVATE COURSE */}
+            {/* NO ACCESS BANNER FOR PAID OR PRIVATE COURSE */}
             {!hasAccess && (
-                <div className="th-card p-8 border border-amber-500/40 bg-gradient-to-r from-amber-500/10 to-purple-500/10 space-y-4 text-center max-w-2xl mx-auto">
-                    <div className="w-14 h-14 rounded-2xl bg-amber-500/20 text-amber-400 grid place-items-center mx-auto">
-                        <Lock size={28} />
+                <div className="th-card p-8 border border-amber-500/40 bg-gradient-to-r from-amber-500/10 via-purple-500/10 to-indigo-500/10 space-y-6 text-center max-w-2xl mx-auto shadow-2xl rounded-3xl">
+                    <div className="w-16 h-16 rounded-2xl bg-amber-500/20 text-amber-400 grid place-items-center mx-auto shadow-lg shadow-amber-500/20">
+                        <Lock size={32} />
                     </div>
-                    <h2 className="text-2xl font-extrabold">{course.title}</h2>
-                    <p className="text-sm opacity-70">
-                        Bu kurs maxfiy hisoblanadi. Darslarni ko'rish uchun o'qituvchidan olingan 6-xonali maxfiy kodni kiriting.
-                    </p>
+                    <div>
+                        <h2 className="text-3xl font-black">{course.title}</h2>
+                        <p className="text-sm opacity-70 mt-1">Muallif: @{course.instructor_name} &middot; {course.category_name || "Umumiy"}</p>
+                    </div>
 
-                    <form onSubmit={handleUnlock} className="flex gap-2 max-w-md mx-auto pt-2">
-                        <input
-                            className="th-input flex-1 text-center font-mono font-bold uppercase tracking-widest text-lg"
-                            placeholder="MAXFIY KOD"
-                            value={accessCode}
-                            onChange={(e) => setAccessCode(e.target.value)}
-                        />
-                        <button
-                            type="submit"
-                            disabled={unlocking || !accessCode.trim()}
-                            className="px-6 py-2.5 rounded-xl bg-emerald-600 text-white font-extrabold text-sm hover:scale-105 transition disabled:opacity-40"
-                        >
-                            {unlocking ? "..." : "Ochish"}
-                        </button>
-                    </form>
+                    {Number(course.price) > 0 ? (
+                        <div className="space-y-4 pt-2">
+                            <div className="p-4 rounded-2xl bg-white/5 border border-white/10 max-w-md mx-auto">
+                                <span className="text-xs opacity-60 uppercase font-bold tracking-wider">Kurs Narxi:</span>
+                                <div className="text-3xl font-black text-emerald-400 mt-1">
+                                    {Number(course.price).toLocaleString()} so'm
+                                </div>
+                            </div>
+
+                            <button
+                                type="button"
+                                onClick={() => setShowCheckout(true)}
+                                className="w-full max-w-md mx-auto py-4 px-6 rounded-2xl bg-gradient-to-r from-emerald-500 via-teal-500 to-cyan-500 text-white font-extrabold text-base shadow-xl shadow-emerald-500/30 flex items-center justify-center gap-3 hover:scale-105 transition"
+                            >
+                                <CreditCard size={20} />
+                                Kursni Xarid Qilish (Click / Payme / Uzum)
+                            </button>
+
+                            {course.is_private && (
+                                <div className="pt-4 border-t border-white/10">
+                                    <p className="text-xs opacity-60 mb-2">Yoki o'qituvchidan olingan maxfiy kod bilan oching:</p>
+                                    <form onSubmit={handleUnlock} className="flex gap-2 max-w-md mx-auto">
+                                        <input
+                                            className="th-input flex-1 text-center font-mono font-bold uppercase tracking-widest text-base"
+                                            placeholder="MAXFIY KOD"
+                                            value={accessCode}
+                                            onChange={(e) => setAccessCode(e.target.value)}
+                                        />
+                                        <button
+                                            type="submit"
+                                            disabled={unlocking || !accessCode.trim()}
+                                            className="px-5 py-2 rounded-xl bg-white/10 hover:bg-white/20 font-bold text-xs transition"
+                                        >
+                                            {unlocking ? "..." : "Kiritish"}
+                                        </button>
+                                    </form>
+                                </div>
+                            )}
+                        </div>
+                    ) : (
+                        <div className="space-y-3 pt-2">
+                            <p className="text-sm opacity-70">
+                                Ushbu kurs yopiq guruh uchun maxfiy hisoblanadi. O'qituvchidan olingan 6-xonali kodni kiriting.
+                            </p>
+                            <form onSubmit={handleUnlock} className="flex gap-2 max-w-md mx-auto">
+                                <input
+                                    className="th-input flex-1 text-center font-mono font-bold uppercase tracking-widest text-base"
+                                    placeholder="MAXFIY KOD"
+                                    value={accessCode}
+                                    onChange={(e) => setAccessCode(e.target.value)}
+                                />
+                                <button
+                                    type="submit"
+                                    disabled={unlocking || !accessCode.trim()}
+                                    className="px-6 py-2.5 rounded-xl bg-emerald-600 text-white font-extrabold text-sm hover:scale-105 transition disabled:opacity-40"
+                                >
+                                    {unlocking ? "..." : "Ochish"}
+                                </button>
+                            </form>
+                        </div>
+                    )}
                 </div>
             )}
 
@@ -300,6 +348,17 @@ export default function CourseDetail() {
 
                 </div>
             )}
+
+            {/* Checkout Modal */}
+            <CheckoutModal
+                open={showCheckout}
+                onClose={() => setShowCheckout(false)}
+                course={course}
+                onSuccess={() => {
+                    setShowCheckout(false);
+                    loadCourse();
+                }}
+            />
 
         </div>
     );
