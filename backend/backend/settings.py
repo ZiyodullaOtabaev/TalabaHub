@@ -243,5 +243,6 @@ RESEND_API_KEY = env("RESEND_API_KEY", default="")
 GOOGLE_CLIENT_ID = env("GOOGLE_CLIENT_ID", default="")
 
 # Telegram Bot
-TELEGRAM_BOT_TOKEN = env("TELEGRAM_BOT_TOKEN", default="")
+TELEGRAM_BOT_TOKEN = env("TELEGRAM_BOT_TOKEN", default="8867467431:AAGHEOlza8rr_MwJUzfIV3hx99_Qk1oemLk")
 TELEGRAM_BOT_USERNAME = env("TELEGRAM_BOT_USERNAME", default="talabahubuzbot")
+TELEGRAM_WEBAPP_URL = env("TELEGRAM_WEBAPP_URL", default="https://talabahub-psi.vercel.app")
